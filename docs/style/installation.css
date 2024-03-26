@@ -1,0 +1,32 @@
+.installation_step p {
+    text-align: justify;
+    margin-left: 100px;
+    margin-right: 40px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.installation_step li {
+    line-height: 40px;
+    margin-left: 60px;
+}
+
+.code_post_installation {
+    width: 200px;
+    display: block;
+    border: 1px;
+    padding: 5px;
+    border-style: solid;
+}
+
+.sourceCode-bash {
+    margin-left: 100px;
+}
+
+.post_installation {
+    line-height: 40px;
+}
+
+ol {
+    margin-top: 10px
+}

@@ -1,0 +1,126 @@
+* {
+    margin: 0;
+}
+
+h1 {
+  font-size: 2.8em;
+  text-align: center;
+  padding-bottom: 20px;
+  border-bottom:5px double;
+}
+
+h2 {
+    font-size: 2.3em;
+    background-color: #1f2039;
+    padding: 20px 50px;
+    color: white;
+    text-align: center;
+}
+
+h3 {
+  font-size: 1.6em;
+  margin-top: 20px;
+  margin-left: 40px;
+  margin-right: 40px;
+  border-bottom:1px double;
+}
+
+em {
+  background-color: grey;
+}
+
+header {
+  background-color: white;
+  padding: 20px 50px;
+}
+
+footer {
+  margin-top: 50px;
+  border-top:5px solid;
+  border-color: #1f2039;
+}
+
+p {
+  font-size: 1.2em;
+  text-align: justify;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+header a {
+  color: black;
+  text-decoration: none;
+}
+
+a {
+  color: rgb(0, 89, 255);
+  text-decoration: none;
+}
+
+a:hover {
+  color:red;
+  text-decoration:none;
+}
+  
+
+.table_of_content a {
+  color: black;
+  text-decoration: none;
+}
+
+nav {
+  font-size: 1.2em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-top: 20px;
+}
+
+code {
+  font-size: 1.2em;
+  width: 550px;
+  display: block;
+  border: 1px;
+  padding: 5px;
+  border-style: solid;
+}
+
+.lien-icone {
+  margin-left: 30px;
+}
+
+.lien-icone:hover {
+  opacity: 0.5;
+}
+
+li {
+  font-size: 1.2em;
+}
+
+.table_of_content {
+  margin-top: 20px;
+  margin-left: 60px;
+  line-height: 30px;
+}
+
+.list_color:hover {
+  color:red;
+}
+
+
+@media screen and (max-width: 996px) {
+  header nav {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  nav {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
