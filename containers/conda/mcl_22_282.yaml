@@ -1,0 +1,7 @@
+name: mcl_22_282
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::mcl=22.282

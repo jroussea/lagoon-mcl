@@ -1,0 +1,6 @@
+name: seqkit_2_6_1
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - seqkit=2.6.1=h9ee0642_0
