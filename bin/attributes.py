@@ -94,7 +94,7 @@ def save_dataframe(dataframe, basename):
     TSV file (Tabulation Separated Values)
 
     """
-    dataframe.to_csv(f"{basename}.sequence_id.tsv", sep = "\t", index = False) 
+    dataframe.to_csv(f"{basename}.sequence_id_tsv", sep = "\t", index = False) 
     
 
 def main(id_tab, tsv_annotation, colname, basename):

@@ -41,7 +41,7 @@ process NetworkMcl {
         path "out.seq.mci.I*", emit: out_seq_mcl
 
 	script:
-        println("tu n'est pas null mec: $inflation")
+        //println("tu n'est pas null mec: $inflation")
         """
         mcl $seq_mci -I $inflation -te ${task.cpus}
         """
@@ -62,7 +62,7 @@ process NetworkMcxdump {
 	output:
         //stdout
         //path "dump.${out_seq_mcl.fileName}", emit: dump_out_seq_mcl
-        path "dump.out.seq.mci.I*"
+        path "dump.out.seq.mci.I*", emit: network_mcl
 
 	script:
         //println("tu n'est pas null mec: $out_seq_mcl")
@@ -72,3 +72,31 @@ process NetworkMcxdump {
         """
 }
 
+process NetworkMclToTsv {
+
+	label 'darkdino'
+
+	publishDir "${params.outdir}", mode: 'copy', pattern: "network_I*"
+
+	input:
+        path network_mcl
+		//path annot_seq_id
+
+	output:
+		//path("tmp.*")
+
+		path "network_I*"
+        //stdout
+
+	script:
+		//println("${pos} ---- ")
+		"""
+
+        mcl_to_tsv.py ${network_mcl}
+        
+        mcl_to_tsv.R ${network_mcl}.tsv
+
+		"""
+}
+
+//		select_infos_nodes.py ${annot_seq_id} "${nodes_infos}"

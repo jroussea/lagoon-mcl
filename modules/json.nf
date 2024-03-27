@@ -55,7 +55,7 @@ process JsonSequenceInformation {
 	
 	script:
 
-		println("${json_file}/${annot_tab.baseName}.json")
+		//println("${json_file}/${annot_tab.baseName}.json")
 		"""
 		
 		json_annotations.py ${annot_tab.baseName} ${annotation}/${annot_tab.baseName}.tsv \
