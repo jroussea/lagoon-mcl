@@ -23,7 +23,8 @@ def main(path_network):
     col = network.pop("CC")
     network.insert(0, col.name, col)
     
-    network.to_csv(f"{path_network}.tsv", sep = "\t", index = None)
+    network.to_csv(f"{path_network}.tsv", sep = "\t", index = None, 
+                   na_rep = "NA")
 
 if __name__ == '__main__':
     

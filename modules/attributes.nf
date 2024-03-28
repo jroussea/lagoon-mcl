@@ -68,8 +68,7 @@ process SelectInfosNodes {
 		//println(name.get(0))
 		"""
 
-		select_infos_nodes.py ${annot_seq_id} "${params.test}" ${annot_seq_id.baseName}
+		select_infos_nodes.py ${annot_seq_id} "${params.columns_attributes}" ${annot_seq_id.baseName}
 
 		"""
 }
-//		select_infos_nodes.py ${annot_seq_id} ${params.test} ${annot_seq_id.baseName}

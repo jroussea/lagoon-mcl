@@ -85,18 +85,39 @@ process NetworkMclToTsv {
 	output:
 		//path("tmp.*")
 
-		path "network_I*"
+		path "network_I*", emit: network
         //stdout
 
 	script:
 		//println("${pos} ---- ")
 		"""
 
-        mcl_to_tsv.py ${network_mcl}
+        dump_to_tsv.py ${network_mcl}
         
-        mcl_to_tsv.R ${network_mcl}.tsv
+        dump_to_tsv.R ${network_mcl}.tsv
 
 		"""
 }
 
+process NetworkAddAttributes {
+    
+    label 'darkdino'
+
+	publishDir "${params.outdir}", mode: 'copy', pattern: "*.tsv"
+
+    input:
+        path select_annotation
+        path network
+    
+    output:
+        path "*.tsv", emit: homogeneity_score        
+
+    script:
+        """
+        network_add_attributes.py ${params.columns_attributes} ${network} ${select_annotation}
+        """
+
+}
+
+//network_add_attributes.py
 //		select_infos_nodes.py ${annot_seq_id} "${nodes_infos}"

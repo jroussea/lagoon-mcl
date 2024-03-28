@@ -1,7 +1,8 @@
 #!/usr/bin/env Rscript
 
-library(tidyr)
 library(dplyr)
+library(magrittr)
+library(tidyr)
 
 MainFunction <- function() {
   
@@ -19,7 +20,7 @@ MainFunction <- function() {
                  values_to = "darkdino_sequence_id") %>% 
     select(-sert) %>% 
     drop_na()
-  
+    
   inflation <- strsplit(path_network, split = ".", fixed = T)
   
   inflation <- unlist(inflation)
