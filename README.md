@@ -18,7 +18,7 @@ The objective of this pipeline is to be able to construct Putative Protein Famil
 ## Documentation
 
 The online documentation is located at the [GitHub Wiki](https://github.com/jroussea/LAGOON-MCL/wiki). \
-The online documentation is located at the <a target="_blank" href="https://jroussea.github.io/LAGOON-MCL/">GitHub Page</a>. \
+The online documentation is located at the [GitHub Pages](https://jroussea.github.io/LAGOON-MCL/). \
 _**`The github wiki and page is currently being written`**_
 
 ## Contributions and Support
