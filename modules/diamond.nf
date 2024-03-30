@@ -1,6 +1,13 @@
 process DiamondDB {
 
-	tag "Step 5"
+    /*
+	* Processus : Création de la banque de donnée utilisé par diamond blastp
+    *
+    * Input:
+    * 	- séquences fasta issus de tos les fichiers fasta
+    * Output:
+    *	- banque de donnée construite avec toutes les séquences fasta
+    */
 
 	label "diamond"
 
@@ -13,16 +20,22 @@ process DiamondDB {
         path "${params.diamond_db}.dmnd", emit: diamond_db
 
 	script:
-	"""
-
-    diamond makedb --in ${fasta_rename} -d ${params.diamond_db} -p ${task.cpus}
-
-	"""
+		"""
+    	diamond makedb --in ${fasta_rename} -d ${params.diamond_db} -p ${task.cpus}
+		"""
 }
 
 process DiamondBLASTp {
 
-	tag "Step 6"
+    /*
+	* Processus :BLASTp toutes les séquences contre toutes les séquences
+    *
+    * Input:
+    * 	- séquences fasta issus de tous les fichiers fasta
+	*	- banque de donnée issus de diamond makedb
+    * Output:
+    *	- alignement par pair (fichier tsv)
+    */
 
 	label "diamond"
 
@@ -36,16 +49,14 @@ process DiamondBLASTp {
         path "${params.diamond}", emit: diamond_alignment
 
 	script:
-	"""
-
-    diamond blastp -d ${diamond_db} \
-    -q ${fasta_rename} \
-    -o ${params.diamond} \
-    --${params.sensitivity} \
-    -p ${task.cpus} \
-    -e ${params.evalue} \
-    --matrix ${params.matrix} \
-	--outfmt 6 qseqid sseqid pident ppos length mismatch gapopen qstart qend sstart send evalue bitscore
-
-	"""
+		"""
+    	diamond blastp -d ${diamond_db} \
+    	-q ${fasta_rename} \
+    	-o ${params.diamond} \
+    	--${params.sensitivity} \
+    	-p ${task.cpus} \
+    	-e ${params.evalue} \
+    	--matrix ${params.matrix} \
+		--outfmt 6 qseqid sseqid pident ppos length mismatch gapopen qstart qend sstart send evalue bitscore
+		"""
 }

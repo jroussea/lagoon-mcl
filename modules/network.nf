@@ -1,123 +1,145 @@
 process NetworkMcxload {
 
-	tag "Step 8.1.1"
+    /*
+	* Processus : 
+    *
+    * Input:
+    * 	- 
+    * Output:
+    *	- 
+    */
 
 	label "mcl"
 
-    publishDir "${params.outdir}/network/mcl", mod: 'copy', pattern: "seq.dict"
-    publishDir "${params.outdir}/network/mcl", mod: 'copy', pattern: "seq.mci"
+    publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "seq.${filtration}.dict"
+    publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "seq.${filtration}.mci"
+
 
 	input:
-		path diamond_ssn
+		tuple path(diamond_ssn), val(filtration)
 
 	output:
-        path "seq.dict", emit: seq_dict
-        path "seq.mci", emit: seq_mci
+        
+        tuple path("seq.${filtration}.dict"), path("seq.${filtration}.mci"), val("${filtration}"), emit: tuple_seq_dict_mci
 
 	script:
-	"""
-    
-	sed 1d ${diamond_ssn} -i
+	    """
+	    sed 1d ${diamond_ssn} -i
 
-    mcxload -abc ${diamond_ssn} -write-tab seq.dict -o seq.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
+        mcxload -abc ${diamond_ssn} -write-tab seq.${filtration}.dict -o seq.${filtration}.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
 
-	"""
+	    """
 }
 
 process NetworkMcl {
 
-	tag "Step 8.1.2"
+    /*
+	* Processus : 
+    *
+    * Input:
+    * 	- 
+    * Output:
+    *	- 
+    */
 
 	label "mcl"
 
-    publishDir "${params.outdir}/network/mcl", mod: 'copy', pattern: "out.seq.mci.I*"
+    publishDir "${params.outdir}/network/mcl/mcl", mode: 'copy', pattern: "out.${seq_mci_filtration}.I*"
 
 	input:
 		each inflation
-        path seq_mci
+        tuple path(seq_dict_filtration), path(seq_mci_filtration), val(filtration)
 
 	output:
-        stdout
-        path "out.seq.mci.I*", emit: out_seq_mcl
+        tuple path("${seq_dict_filtration}"), path("${seq_mci_filtration}"), path("out.${seq_mci_filtration}.I*"), val("${inflation}"), val("${filtration}"), emit: tuple_mcl
 
 	script:
-        //println("tu n'est pas null mec: $inflation")
+        
         """
-        mcl $seq_mci -I $inflation -te ${task.cpus}
+        mcl $seq_mci_filtration -I $inflation -te ${task.cpus}
         """
 }
 
 process NetworkMcxdump {
 
-	tag "Step 8.1.3"
+    /*
+	* Processus : 
+    *
+    * Input:
+    * 	- 
+    * Output:
+    *	- 
+    */
 
 	label "mcl"
 
-    publishDir "${params.outdir}/network/mcl", mod: 'copy', pattern: "dump.${out_seq_mcl.fileName}"
+    publishDir "${params.outdir}/network/mcl/mcx_dump", mode: 'copy', pattern: "dump.${mcl_filtration}"
 
 	input:
-        each out_seq_mcl
-        path seq_dict
+        tuple path(seq_dict_filtration), path(seq_mci_filtration), path(mcl_filtration), val(inflation), val(filtration)
 
 	output:
-        //stdout
-        //path "dump.${out_seq_mcl.fileName}", emit: dump_out_seq_mcl
-        path "dump.out.seq.mci.I*", emit: network_mcl
+        tuple path("${seq_dict_filtration}"), path("${seq_mci_filtration}"), path("${mcl_filtration}"), path("dump.${mcl_filtration}"), val("${inflation}"), val("${filtration}"), emit: tuple_dump
 
 	script:
-        //println("tu n'est pas null mec: $out_seq_mcl")
-        //println("dump.${out_seq_mcl.fileName}")
         """
-        mcxdump -icl ${out_seq_mcl} -tabr ${seq_dict} -o dump.${out_seq_mcl.fileName}
+        mcxdump -icl ${mcl_filtration} -tabr ${seq_dict_filtration} -o dump.${mcl_filtration}
         """
 }
 
 process NetworkMclToTsv {
 
+    /*
+	* Processus : 
+    *
+    * Input:
+    * 	- 
+    * Output:
+    *	- 
+    */
+
 	label 'darkdino'
 
-	publishDir "${params.outdir}", mode: 'copy', pattern: "network_I*"
+	publishDir "${params.outdir}/network/mcl/tsv", mode: 'copy', pattern: "network*"
 
 	input:
-        path network_mcl
-		//path annot_seq_id
+        tuple path(seq_dict_filtration), path(seq_mci_filtration), path(mcl_filtration), path(mcl_dump), val(inflation), val(filtration)
 
 	output:
-		//path("tmp.*")
-
-		path "network_I*", emit: network
-        //stdout
+        tuple path("network*"), val("${inflation}"), val("${filtration}"), emit: tuple_network
 
 	script:
-		//println("${pos} ---- ")
 		"""
-
-        dump_to_tsv.py ${network_mcl}
+        network_dump_to_tsv.py ${mcl_dump}
         
-        dump_to_tsv.R ${network_mcl}.tsv
-
+        network_dump_to_tsv.R ${mcl_dump}.tsv ${inflation} ${filtration}
 		"""
 }
 
 process NetworkAddAttributes {
     
+    /*
+	* Processus : 
+    *
+    * Input:
+    * 	- 
+    * Output:
+    *	- 
+    */
+
     label 'darkdino'
 
-	publishDir "${params.outdir}", mode: 'copy', pattern: "*.tsv"
+	publishDir "${params.outdir}/homogeneity_score", mode: 'copy', pattern: "*.tsv"
 
     input:
         path select_annotation
-        path network
+        tuple path(network), val(inflation), val(filtration)
     
     output:
-        path "*.tsv", emit: homogeneity_score        
+        path "*.tsv"      
 
     script:
         """
-        network_add_attributes.py ${params.columns_attributes} ${network} ${select_annotation}
+        network_add_attributes.py ${params.columns_attributes} ${network} ${select_annotation} ${inflation} ${filtration}
         """
-
 }
-
-//network_add_attributes.py
-//		select_infos_nodes.py ${annot_seq_id} "${nodes_infos}"

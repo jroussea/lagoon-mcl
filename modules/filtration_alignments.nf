@@ -1,30 +1,48 @@
 process FiltrationAlignedItself {
-
-    tag "Step 7"
+    
+	/*
+	* Processus : suppression des séquences fasta qui n'apparaissent qu'une seul foit dans le fichier d'alignement
+	* cela signifie que les séquences se sont uniquement aligné contre elle même
+    *
+    * Input:
+    * 	- fichier d'alignement tsv issu de diamond balstp
+    * Output:
+    *	- fichier d'alignement tsv
+    */
 
 	label 'darkdino'
-
-	//publishDir "${params.outdir}/diamond", mode: 'copy', pattern: 'diamond_ssn*.tsv'
-	//publishDir "${params.outdir}/distribution", mode: 'copy', pattern: "*.pdf"
 
 	input:
         path diamond_alignment
 
 	output:
         path "*.itself_tsv", emit: diamond_itself
-        //path "*.pdf"
 
 	script:
 	"""
-
     filtration_alignment.py ${diamond_alignment} ${diamond_alignment.baseName}
-
 	"""
 }
 
 process FiltrationAlignments {
 
-    tag "Step 7"
+    /*
+	* Processus : filtration des alignements issus de diamond blastp en fonction d'un seuilminimal pour le pourcentage d'identité, le pourcentage d'overlap et la evalue
+	* il est possible de ne pas faire cette filtration
+    * création d'un pdf contenant des plots pour visualiser la distribution des pourcentage d'identité, pourcentaghe d'overlap et evalue
+	*
+    * Input:
+    * 	- fichier d'alignement tsv issu de diamond blastp
+	*	- paramètre du pourcentage d'identité (id) pourcentage overlap (ov) et evalue (ev)
+	*	  réalise toute les combinaison possible entre les paramètre indiqué
+	*
+    * Output:
+    *	- fichier d'alignement tsv filtré
+	*	- fichier pdf contenant 3 plots avec la distribution des identidité overlap evalue
+	*		-> dans le cas ou la filtration est faite 2 pdf sont généré, le premier avant la filtration, le deuxième après la filtration
+	*			permet ainsi lacomparaisont
+	*		-> dans le cas ou la filtraiton n'est pas réalisé un seul pdf est généré
+    */
 
 	label 'darkdino'
 
@@ -33,15 +51,17 @@ process FiltrationAlignments {
 
 	input:
         path diamond_alignment
+		each id
+		each ov
+		each ev
 
 	output:
         path "diamond_ssn*.tsv", emit: diamond_ssn
         path "*.pdf"
+		tuple path("diamond_ssn*.tsv"), val("${id}_${ov}_${ev}"), emit: tuple_diamond_ssn
 
 	script:
-	"""
-
-    filtration_alignments.R ${diamond_alignment} ${params.flt_id} ${params.flt_ov} ${params.flt_ev} ${params.filter}
-
-	"""
+		"""
+    	filtration_alignments.R ${diamond_alignment} ${id} ${ov} ${ev} ${params.filter}
+		"""
 }
