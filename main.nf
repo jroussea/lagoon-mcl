@@ -58,6 +58,10 @@ def logInformations() {
 
 logInformations()
 
+/*
+Test des paramètres
+si ne rempli pas les conditions renvoi un message d'erreur
+*/
 
 if (params.help) {
 	helpMessage()
@@ -134,18 +138,15 @@ if (params.filter != true && params.filter != false) {
 	helpMessage()
 	exit 0
 }
-if (params.flt_id instanceof java.lang.String
-	|| params.flt_id > 100 || params.flt_id < 0) {
+if (!(params.flt_id instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 } 
-if (params.flt_ov instanceof java.lang.String
-	|| params.flt_ov > 100 || params.flt_ov < 0) {
+if (!(params.flt_ov instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 }
-if (params.flt_ev instanceof java.lang.String
-	|| params.flt_ev > 1 || params.flt_ev < 0) {
+if (!(params.flt_ev instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 }
@@ -169,7 +170,6 @@ include { NetworkMcl              } from './modules/network.nf'
 include { NetworkMcxdump          } from './modules/network.nf'
 include { NetworkMclToTsv         } from './modules/network.nf'
 include { NetworkAddAttributes    } from './modules/network.nf'
-include { Test    } from './modules/network.nf'
 
 /*
 In development
@@ -180,9 +180,9 @@ In development
 
 // préparation des liste de paramètre
 List<Number> list_inflation = Arrays.asList(params.I.split(","))
-List<Number> list_identity = Arrays.asList(params.test_id.split(","))
-List<Number> list_overlap = Arrays.asList(params.test_ov.split(","))
-List<Number> list_evalue = Arrays.asList(params.test_ev.split(","))
+List<Number> list_identity = Arrays.asList(params.flt_id.split(","))
+List<Number> list_overlap = Arrays.asList(params.flt_ov.split(","))
+List<Number> list_evalue = Arrays.asList(params.flt_ev.split(","))
 
 // Channel
 proteome = Channel.fromPath(params.fasta, checkIfExists: true)
