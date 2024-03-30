@@ -80,16 +80,16 @@ def condition2(column_name, network_attributes):
     return(dataframe)
 
 
-def save_dataframe(dataframe, column_name, basename):
+def save_dataframe(dataframe, column_name, inflation, filtration):
     
-    basename = basename.split("_")
-    inflation = basename[1]
+    #basename = basename.split("_")
+    #inflation = basename[1]
     
-    dataframe.to_csv(f"{inflation}_{column_name[-1]}_homogeneity_score.tsv", 
+    dataframe.to_csv(f"{'-'.join(column_name)}_{inflation}_{filtration}_homogeneity_score.tsv", 
                      sep = "\t", index = None, na_rep = "NA")
 
 
-def main(columns_infos, path_network, path_attributes, basename):
+def main(columns_infos, path_network, path_attributes, inflation, filtration):
     
     columns_infos_split = columns_infos.split(",")
     list_infos = []
@@ -118,13 +118,13 @@ def main(columns_infos, path_network, path_attributes, basename):
 
             dataframe = condition1(column_name, network_attributes)
             
-            save_dataframe(dataframe, column_name, basename)
+            save_dataframe(dataframe, column_name, inflation, filtration)
             
         if len(column_name) == 2:
             
             dataframe = condition2(column_name, network_attributes)
             
-            save_dataframe(dataframe, column_name, basename)
+            save_dataframe(dataframe, column_name, inflation, filtration)
 
 
 if __name__ == '__main__':
@@ -132,14 +132,15 @@ if __name__ == '__main__':
     columns_infos = sys.argv[1]
     path_network = sys.argv[2]
     path_attributes = sys.argv[3]
-    basename = sys.argv[4]
+    inflation = sys.argv[4]
+    filtration = sys.argv[5]
 
     #columns_infos = "database-identifiant,interproscan"
     #path_network = "network_I14.tsv"
     #path_attributes = "test.tsv"
     #basename = "network_I14"
 
-    main(columns_infos, path_network, path_attributes, basename)
+    main(columns_infos, path_network, path_attributes, inflation, filtration)
 
 
 

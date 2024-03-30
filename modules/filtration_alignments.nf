@@ -33,6 +33,9 @@ process FiltrationAlignments {
 	*
     * Input:
     * 	- fichier d'alignement tsv issu de diamond blastp
+	*	- paramètre du pourcentage d'identité (id) pourcentage overlap (ov) et evalue (ev)
+	*	  réalise toute les combinaison possible entre les paramètre indiqué
+	*
     * Output:
     *	- fichier d'alignement tsv filtré
 	*	- fichier pdf contenant 3 plots avec la distribution des identidité overlap evalue

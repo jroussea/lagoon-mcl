@@ -59,12 +59,12 @@ process Attributes {
 process SelectInfosNodes {
 
 	/*
-    * Processus : 
+    * Processus : récupéer les colonnes contenant les informations utile pour l'annotation des réseaux
     *
     * Input:
     *	- fichier tsv contenant les annotations (informations) pour les séquences => les noms des séquences ont été remplacé par les identifiants
     * Output:
-	* 	- fichier temporaire (tsv) contenant les colonnes issus des fichiers d'annotations qui vont être utilisé pour annoter le 
+	* 	- fichier temporaire (tsv) contenant les colonnes issus des fichiers d'annotations qui vont être utilisé pour annoter les réseau
     */
 
 	label 'darkdino'
