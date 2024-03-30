@@ -2,6 +2,11 @@
 
 _**`Currently in development. The pipeline is not fully operational.`**_
 
+![Static Badge](https://img.shields.io/badge/LAGOON--MCL-v1.0.0-red?labelColor=000000)
+![Static Badge](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_2.10.0-23aa62?labelColor=000000)
+![Static Badge](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)
+![Static Badge](https://img.shields.io/badge/run_with-conda-3eb049?logo=anaconda&labelColor=000000)
+
 ## Introduction
 
 LArGe cOmparative Omics Networks (LAGOON) Markov CLustering algorithm (MCL) is developed by the [Atelier de BioInformatique](https://bioinfo.mnhn.fr/abi/presentation.FR.html) team of the [Institut de Systématique, Évolution, Biodiversité - UMR 7205](https://isyeb.mnhn.fr/fr) ([National Museum of Natural History](https://www.mnhn.fr/fr), Paris, France).\
