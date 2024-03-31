@@ -44,11 +44,28 @@ LoadingData <- function() {
   
   args <- commandArgs(TRUE)
   
-  return_list <- list(path_dataframe = args[1],
+  #return_list <- list(path_dataframe = "",
+  #                    identity = 60,
+  #                    overlap = 80,
+  #                    evalue = 1e-50,
+  #                    filtration = "true",
+  #                    column_query = 1,
+  #                    column_subject = 2,
+  #                    column_id = 8,
+  #                    column_ov = 9,
+  #                    column_ev = 10)
+  
+  
+  return_list <- list(path_dataframe = as.character(args[1]),
                       identity = as.numeric(args[2]),
                       overlap = as.numeric(args[3]),
                       evalue = as.numeric(args[4]),
-                      filtration = as.character(args[5]))
+                      filtration = as.character(args[5]),
+                      column_query = as.numeric(args[6]),
+                      column_subject = as.numeric(args[7]),
+                      column_id = as.numeric(args[8]),
+                      column_ov = as.numeric(args[9]),
+                      column_ev = as.numeric(args[10]))
   
   return(return_list)
 }
@@ -75,8 +92,8 @@ LoadingDataframe <- function(path_dataframe) {
 }
 
 
-SelectColumns <- function(dataframe) {
-
+SelectColumns <- function(dataframe, columns) {
+  
   "
   
   Parameters
@@ -91,15 +108,17 @@ SelectColumns <- function(dataframe) {
   
   "
   
+  
+  
   dataframe <- dataframe %>% 
-    select(V1, V2, V3, V4, V12)
+    select(all_of(columns))
   
   return(dataframe)
 }
 
 
-RenameColumns <- function(dataframe) {
-
+RenameColumns <- function(dataframe, columns) {
+  
   "
   
   Parameters
@@ -115,18 +134,18 @@ RenameColumns <- function(dataframe) {
   "
   
   dataframe <- rename(dataframe,
-         query_seq = V1,
-         subject_seq = V2,
-         identity = V3,
-         overlap = V4,
-         evalue = V12)
+                      query_seq = columns[1],
+                      subject_seq = columns[2],
+                      identity = columns[3],
+                      overlap = columns[4],
+                      evalue = columns[5])
   
   return(dataframe)
 }
 
 
 NegLogTransformation <- function(dataframe) {
-
+  
   "
   
   Parameters
@@ -168,7 +187,7 @@ CreationPlots <- function(dataframe, column) {
   plot of percentage identity distribution, overlap and evalue
   
   "
-
+  
   if (column == "identity") {
     title_labs <- "Identity percentage"
     x_labs <- "Identity (%)"
@@ -181,8 +200,8 @@ CreationPlots <- function(dataframe, column) {
     title_labs <- "Evalue transformed with negative logarithm base 10"
     x_labs <- "Evalue (-log10 transformation)"
   }
-
-    graph <- dataframe %>%
+  
+  graph <- dataframe %>%
     ggplot(aes(x = dataframe[,column])) +
     geom_histogram(bins = 50, color="darkblue", fill="lightblue") +
     scale_y_continuous(labels = label_number()) + 
@@ -199,7 +218,7 @@ CreationPlots <- function(dataframe, column) {
 
 
 MultiPlot <- function(dataframe, file_name) {
-
+  
   "
   
   Parameters
@@ -227,7 +246,7 @@ MultiPlot <- function(dataframe, file_name) {
          function(variable){
            graph <- CreationPlots(dataframe, variable)
            print(graph)
-           })
+         })
   
   dev.off()
 }
@@ -235,7 +254,7 @@ MultiPlot <- function(dataframe, file_name) {
 
 FiltrationAlignments <- function(dataframe, val_identity, val_overlap, 
                                  val_evalue) {
-
+  
   "
   
   Parameters
@@ -331,9 +350,13 @@ MainFunction <- function() {
   
   tab_diamond_aln <- LoadingDataframe(args$path_dataframe)
   
-  tab_diamond_aln <- SelectColumns(tab_diamond_aln)
+  list_columns <- colnames(tab_diamond_aln)
+  columns <- list_columns[c(args$column_query, args$column_subject, args$column_id,
+                            args$column_ov, args$column_ev)]
   
-  tab_diamond_aln <- RenameColumns(tab_diamond_aln)
+  tab_diamond_aln <- SelectColumns(tab_diamond_aln, columns)
+  
+  tab_diamond_aln <- RenameColumns(tab_diamond_aln, columns)
   
   tab_diamond_aln <- NegLogTransformation(tab_diamond_aln)
   
