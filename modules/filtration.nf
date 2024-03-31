@@ -50,17 +50,25 @@ process FiltrationAlignments {
 	publishDir "${params.outdir}/distribution", mode: 'copy', pattern: "*.pdf"
 
 	input:
-        path diamond_alignment
+        path diamond_itself
 		each id
 		each ov
 		each ev
 
 	output:
         path "*.pdf"
-		tuple path("diamond_ssn*.tsv"), val("${id}_${ov}_${ev}"), emit: tuple_diamond_ssn
+		tuple path("diamond_ssn*.tsv"), val("${condition}"), emit: tuple_diamond_ssn
 
 	script:
+
+		if (params.filter == true) {
+			String condition = "${id}_${ov}_${ev}";
+		}
+		if (params.filter == false) {
+			String condition = "without_filtration";
+		}
+		
 		"""
-    	filtration_alignments.R ${diamond_alignment} ${id} ${ov} ${ev} ${params.filter}
+    	filtration_alignments.R ${diamond_itself} ${id} ${ov} ${ev} ${params.filter} ${params.column_query} ${params.column_subject} ${params.column_id} ${params.column_ov} ${params.column_ev}
 		"""
 }

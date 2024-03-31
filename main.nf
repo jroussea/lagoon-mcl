@@ -30,9 +30,9 @@ def helpMessage() {
 
 def logInformations() {
 	log.info """\
-	LAGOON-MCL
+	LAGOON-MCL - YOUR PARAMETERS
 	===================================================
-	General informations
+	General parameters
 		projectName                 : ${params.projectName}
 		fasta                       : ${params.fasta}
 		annotation                  : ${params.annotation}
@@ -51,6 +51,8 @@ def logInformations() {
 		minimum overlap percentage  : ${params.flt_ov}
 		evalue maximum              : ${params.flt_ev}
 
+	command run:
+		nextflow run main.nf -profile [profiles]
 
 		${params.run_mcl}
 	"""
@@ -129,8 +131,8 @@ if (params.matrix != "BLOSUM45"
 	helpMessage()
 	exit 0
 }
-if (params.evalue instanceof java.lang.String
-	|| params.evalue > 1 || params.evalue < 0) {
+if (params.diamond_evalue instanceof java.lang.String
+	|| params.diamond_evalue > 1 || params.diamond_evalue < 0) {
 	helpMessage()
 	exit 0
 }
@@ -138,15 +140,15 @@ if (params.filter != true && params.filter != false) {
 	helpMessage()
 	exit 0
 }
-if (!(params.flt_id instanceof java.lang.String)) {
+if (!(params.identity instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 } 
-if (!(params.flt_ov instanceof java.lang.String)) {
+if (!(params.overlap instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 }
-if (!(params.flt_ev instanceof java.lang.String)) {
+if (!(params.evalue instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 }
@@ -156,15 +158,16 @@ if (params.run_mcl != true && params.run_mcl != false) {
 } 
 
 // Import modules
-include { RenameFastaSequences    } from './modules/data_preparation.nf'
-include { HeaderFasta             } from './modules/data_preparation.nf'
+include { RenameFastaSequences    } from './modules/preparation.nf'
+include { HeaderFasta             } from './modules/preparation.nf'
 include { Merge2Dataframe         } from './modules/attributes.nf'
 include { Attributes              } from './modules/attributes.nf'
 include { SelectInfosNodes        } from './modules/attributes.nf'
 include { DiamondDB               } from './modules/diamond.nf'
 include { DiamondBLASTp           } from './modules/diamond.nf'
-include { FiltrationAlignments    } from './modules/filtration_alignments.nf'
-include { FiltrationAlignedItself } from './modules/filtration_alignments.nf'
+include { OtherAlignments         } from './modules/diamond.nf'
+include { FiltrationAlignedItself } from './modules/filtration.nf'
+include { FiltrationAlignments    } from './modules/filtration.nf'
 include { NetworkMcxload          } from './modules/network.nf'
 include { NetworkMcl              } from './modules/network.nf'
 include { NetworkMcxdump          } from './modules/network.nf'
@@ -178,20 +181,32 @@ In development
 //include { JsonSequenceInformation } from './modules/json.nf'
 */
 
-// préparation des liste de paramètre
+// préparation des paramètres
 List<Number> list_inflation = Arrays.asList(params.I.split(","))
-List<Number> list_identity = Arrays.asList(params.flt_id.split(","))
-List<Number> list_overlap = Arrays.asList(params.flt_ov.split(","))
-List<Number> list_evalue = Arrays.asList(params.flt_ev.split(","))
+List<Number> list_identity = Arrays.asList(params.identity.split(","))
+List<Number> list_overlap = Arrays.asList(params.overlap.split(","))
+List<Number> list_evalue = Arrays.asList(params.evalue.split(","))
 
 // Channel
 proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 annotation = Channel.fromPath(params.annotation, checkIfExists: true)
-//inflation = Channel.of(params.I1, params.I2, params.I3).filter(Number)
 inflation = Channel.fromList(list_inflation)
 id = Channel.fromList(list_identity)
 ov = Channel.fromList(list_overlap)
 ev = Channel.fromList(list_evalue)
+
+if (params.run_diamond == false) {
+	alignment_file = Channel.fromPath(params.alignment_file, checkIfExists: true)
+}
+
+
+/*
+if (params.filter == false) {
+	id 
+	ov
+	ev
+}
+*/
 
 /*
 In development
@@ -239,6 +254,10 @@ workflow{
 	annot_seq_id = Attributes.out.annot_seq_id
 	//annot_tab.view()
 
+	SelectInfosNodes(annot_seq_id)
+	select_annotation = SelectInfosNodes.out.select_annotation
+	select_annotation.collectFile(name: "${params.outdir}/network/attributes/attributes.tsv")
+
 	/*
 	Creation of JSON file for storing information.
 	In development.
@@ -249,54 +268,44 @@ workflow{
 	JsonSequenceInformation(json_file, annotation, annot_tab)
 	*/
 
-	// diamond database
-	DiamondDB(fasta_rename)
-	diamond_db = DiamondDB.out.diamond_db
-	//diamond_db.view()
+	if (params.run_diamond == true) {
+		// diamond database
+		DiamondDB(fasta_rename)
+		diamond_db = DiamondDB.out.diamond_db
+		//diamond_db.view()
 
-	// diamond blastp
-	DiamondBLASTp(fasta_rename, diamond_db)
-	diamond_alignment = DiamondBLASTp.out.diamond_alignment
-
-	//diamond_alignment.view()
+		// diamond blastp
+		DiamondBLASTp(fasta_rename, diamond_db)
+		diamond_alignment = DiamondBLASTp.out.diamond_alignment
+		//diamond_alignment.view()
+	}
+	if (params.run_diamond == false) {
+		AttributesAlignments(cor_table, alignment_file)
+		diamond_alignment = AttributesAlignments.out.diamond_alignment
+	}
 
 	// filtration des données
 	FiltrationAlignedItself(diamond_alignment)
 	diamond_itself = FiltrationAlignedItself.out.diamond_itself
+		
 	FiltrationAlignments(diamond_itself, id, ov, ev)
-	diamond_ssn = FiltrationAlignments.out.diamond_ssn
 	tuple_diamond_ssn = FiltrationAlignments.out.tuple_diamond_ssn
 
 	if (params.run_mcl == true) {
 
-		NetworkMcxload(tuple_diamond_ssn)
-		//seq_dict = NetworkMcxload.out.seq_dict
-		//seq_mci = NetworkMcxload.out.seq_mci
-
-		//tuple_seq_dict = NetworkMcxload.out.tuple_seq_dict
-		//tuple_seq_mci = NetworkMcxload.out.tuple_seq_mci
-        
+		NetworkMcxload(tuple_diamond_ssn)        
 		tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
 
 		NetworkMcl(inflation, tuple_seq_dict_mci)
-		//out_seq_mcl = NetworkMcl.out.out_seq_mcl
-		//tuple_out_seq_mcl = NetworkMcl.out.tuple_out_seq_mcl
-
 		tuple_mcl = NetworkMcl.out.tuple_mcl
 
 		NetworkMcxdump(tuple_mcl)
 		tuple_dump = NetworkMcxdump.out.tuple_dump
-		//network_mcl.view()
 
 		NetworkMclToTsv(tuple_dump)
 		tuple_network = NetworkMclToTsv.out.tuple_network
 
-		SelectInfosNodes(annot_seq_id)
-		select_annotation = SelectInfosNodes.out.select_annotation
-		select_annotation.collectFile(name: "${params.outdir}/network/attributes/attributes.tsv")
-
 		NetworkAddAttributes(select_annotation, tuple_network)
-
 	}
 }
 

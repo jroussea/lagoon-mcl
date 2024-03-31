@@ -55,8 +55,36 @@ process DiamondBLASTp {
     	-o ${params.diamond} \
     	--${params.sensitivity} \
     	-p ${task.cpus} \
-    	-e ${params.evalue} \
+    	-e ${params.diamond_evalue} \
     	--matrix ${params.matrix} \
 		--outfmt 6 qseqid sseqid pident ppos length mismatch gapopen qstart qend sstart send evalue bitscore
+		"""
+}
+
+process OtherAlignments {
+
+	/*
+    * Processus : 
+    *
+    * Input:
+    * 	- 
+    * Output:
+	* 	- 
+	*/
+
+	label "darkdino"
+
+	input:
+		path cor_table
+        path alignment_file
+
+	output:
+		path "*.tsv", emit: diamond_alignment
+
+	script:
+		"""
+		attributes_alignments.sh ${cor_table} ${alignment_file} ${params.column_query} ${params.column_subject}
+	
+		attributes_alignments.R column_query.tab column_subject.tab ${alignment_file} ${params.column_query} ${params.column_subject}
 		"""
 }
