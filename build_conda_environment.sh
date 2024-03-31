@@ -4,7 +4,7 @@
 
 start=`date`
 
-conda env create -p $PWD/containers/conda/darkdino_1_0  -f $PWD/containers/conda/darkdino_1_0.yaml
+conda env create -p $PWD/containers/conda/lagoon_mcl_1-0-0  -f $PWD/containers/conda/lagoon_mcl_1-0-0.yaml
 conda env create -p $PWD/containers/conda/diamond_2_1_8 -f $PWD/containers/conda/diamond_2_1_8.yaml
 conda env create -p $PWD/containers/conda/mcl_22_282  -f $PWD/containers/conda/mcl_22_282.yaml
 conda env create -p $PWD/containers/conda/seqkit_2_6_1  -f $PWD/containers/conda/seqkit_2_6_1.yaml
