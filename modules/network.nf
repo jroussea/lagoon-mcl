@@ -140,6 +140,6 @@ process NetworkAddAttributes {
 
     script:
         """
-        network_add_attributes.py ${params.columns_attributes} ${network} ${select_annotation} ${inflation} ${filtration}
+        network_homogeneity_score.py ${params.columns_attributes} ${network} ${select_annotation} ${inflation} ${filtration}
         """
 }

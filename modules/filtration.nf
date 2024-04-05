@@ -61,11 +61,13 @@ process FiltrationAlignments {
 
 	script:
 
-		if (params.filter == true) {
-			String condition = "${id}_${ov}_${ev}";
+		if ("${params.filter}" == true) {
+			condition = "${id}_${ov}_${ev}"
+			//println("${condition}")
 		}
-		if (params.filter == false) {
-			String condition = "without_filtration";
+		if ("${params.filter}" == false) {
+			condition = "without_filtration"
+			//println("${condition}")
 		}
 		
 		"""

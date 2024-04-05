@@ -16,11 +16,11 @@ params {
     projectName = "LAGOON-MCL"
 
     // input fasta
-    fasta =  "$baseDir/tests/full/tr_files_test/*.fasta" 
-    annotation = "$baseDir/tests/full/an_files_test"
-    pep_colname = "protein_accession"
+    fasta =  "$baseDir/tests/small/tr_files_test/*.fasta" 
+    annotation = "$baseDir/tests/small/an_files_test"
+    pep_colname = "peptides"
 
-    columns_attributes = "analysis-signature_accession,interpro_accession"
+    columns_attributes = "database-identifiant,interproscan"
 
     // other
     concat_fasta = "all_sequences"

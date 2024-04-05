@@ -284,7 +284,8 @@ workflow{
 		// diamond blastp
 		DiamondBLASTp(fasta_rename, diamond_db)
 		diamond_alignment = DiamondBLASTp.out.diamond_alignment
-		//diamond_alignment.view()
+		diamond_alignment.view()
+	
 	}
 	if (params.run_diamond == false) {
 		AttributesAlignments(cor_table, alignment_file)
@@ -294,9 +295,12 @@ workflow{
 	// filtration des données
 	FiltrationAlignedItself(diamond_alignment)
 	diamond_itself = FiltrationAlignedItself.out.diamond_itself
-		
+	diamond_itself.view()
+
 	FiltrationAlignments(diamond_itself, id, ov, ev)
+	id.view()
 	tuple_diamond_ssn = FiltrationAlignments.out.tuple_diamond_ssn
+	tuple_diamond_ssn.view()
 
 	if (params.run_mcl == true) {
 
