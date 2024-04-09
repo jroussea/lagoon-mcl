@@ -7,7 +7,7 @@
 
 ## Introduction
 
-LArGe cOmparative Omics Networks (LAGOON) Markov CLustering algorithm (MCL) is developed by the [Atelier de BioInformatique](https://bioinfo.mnhn.fr/abi/presentation.FR.html target="_blank) team of the ![Institut de Systématique, Évolution, Biodiversité - UMR 7205](https://isyeb.mnhn.fr/fr) (![National Museum of Natural History](https://www.mnhn.fr/fr), Paris, France).\
+LArGe cOmparative Omics Networks (LAGOON) Markov CLustering algorithm (MCL) is developed by the [Atelier de BioInformatique](https://bioinfo.mnhn.fr/abi/presentation.FR.html" target="_blank) team of the ![Institut de Systématique, Évolution, Biodiversité - UMR 7205](https://isyeb.mnhn.fr/fr) (![National Museum of Natural History](https://www.mnhn.fr/fr), Paris, France).\
 LAGOON-MCL is a new version of ![LAGOON](https://github.com/Dylkln/LAGOON.git) developed by Dylan Klein.
 
 LAGOON-MCL is a FAIR pipeline that uses ![Nextflow](https://www.nextflow.io/) as a workflow manager.\
