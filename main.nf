@@ -214,6 +214,8 @@ include { NetworkMcl              } from './modules/network.nf'
 include { NetworkMcxdump          } from './modules/network.nf'
 include { NetworkMclToTsv         } from './modules/network.nf'
 include { NetworkAddAttributes    } from './modules/network.nf'
+include { HomogeneityScorePlot    } from './modules/network.nf'
+
 
 // préparation des paramètres
 List<Number> list_inflation = Arrays.asList(params.I.split(","))
@@ -292,7 +294,8 @@ workflow{
 		diamond_alignment = AttributesAlignments.out.diamond_alignment
 	}
 
-	// filtration des données
+	// filtration des données	
+
 	FiltrationAlignedItself(diamond_alignment)
 	diamond_itself = FiltrationAlignedItself.out.diamond_itself
 	diamond_itself.view()
@@ -301,6 +304,7 @@ workflow{
 	id.view()
 	tuple_diamond_ssn = FiltrationAlignments.out.tuple_diamond_ssn
 	tuple_diamond_ssn.view()
+	
 
 	if (params.run_mcl == true) {
 
@@ -317,6 +321,9 @@ workflow{
 		tuple_network = NetworkMclToTsv.out.tuple_network
 
 		NetworkAddAttributes(select_annotation, tuple_network)
+		tuple_hom_score = NetworkAddAttributes.out.tuple_hom_score
+		HomogeneityScorePlot(tuple_hom_score)
+
 	}
 }
 

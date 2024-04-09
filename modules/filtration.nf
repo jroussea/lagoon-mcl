@@ -1,5 +1,5 @@
 process FiltrationAlignedItself {
-    
+    publishDir "${params.outdir}/diamond", mode: 'copy', pattern: '*.itself_tsv'
 	/*
 	* Processus : suppression des séquences fasta qui n'apparaissent qu'une seul foit dans le fichier d'alignement
 	* cela signifie que les séquences se sont uniquement aligné contre elle même
@@ -72,5 +72,29 @@ process FiltrationAlignments {
 		
 		"""
     	filtration_alignments.R ${diamond_itself} ${id} ${ov} ${ev} ${params.filter} ${params.column_query} ${params.column_subject} ${params.column_id} ${params.column_ov} ${params.column_ev}
+		"""
+}
+
+process PatchFiltration1 {
+
+	label 'darkdino'
+
+	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: 'diamond_ssn*.tsv'
+	publishDir "${params.outdir}/distribution", mode: 'copy', pattern: "*.pdf"
+
+	input:
+        path diamond_itself
+
+	output:
+        path "*.pdf"
+		tuple path("diamond_ssn*.tsv"), val("${condition}"), emit: tuple_diamond_ssn
+
+	script:
+
+		//println("${condition}")
+		
+		
+		"""
+		cp ${diamond_itself} diamond_ssn_without_filtration.tsv
 		"""
 }
