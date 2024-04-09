@@ -11,11 +11,11 @@ LArGe cOmparative Omics Networks (LAGOON) Markov CLustering algorithm (MCL) is d
 LAGOON-MCL is a new version of [LAGOON](https://github.com/Dylkln/LAGOON.git?target="_blank") developed by Dylan Klein.
 
 LAGOON-MCL is a FAIR pipeline that uses [Nextflow](https://www.nextflow.io/?target=_blank) as a workflow manager.\
-The objective of this pipeline is to be able to construct Putative Protein Family (clusters) using [Markov CLustering algorithm](https://github.com/micans/mcl?target=_blank) and pairwise alignments obtained with [Diamond](https://github.com/bbuchfink/diamond?target=_blank).
+The objective of this pipeline is to be able to construct Putative Protein Family (clusters) using [Markov CLustering algorithm](https://github.com/micans/mcl?target=_blank) and pairwise alignments obtained with [Diamond](https://github.com/bbuchfink/diamond){:target="_blanck" rel="noopener"}.
 
 ## Documentation
 
-The online documentation is located at the [GitHub Pages](https://jroussea.github.io/LAGOON-MCL/?target=_blank).
+The online documentation is located at the [GitHub Pages](https://jroussea.github.io/LAGOON-MCL/){:target="_blanck"}.
 
 ## Contributions and Support
 
