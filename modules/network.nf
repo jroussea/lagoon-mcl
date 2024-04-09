@@ -136,10 +136,29 @@ process NetworkAddAttributes {
         tuple path(network), val(inflation), val(filtration)
     
     output:
-        path "*.tsv"      
+        tuple path("*.tsv"), val("${inflation}"), val("${filtration}"), emit: tuple_hom_score
 
     script:
         """
         network_homogeneity_score.py ${params.columns_attributes} ${network} ${select_annotation} ${inflation} ${filtration}
         """
+}
+
+process HomogeneityScorePlot {
+
+    label 'darkdino'
+
+    publishDir "${params.outdir}/homogeneity_score", mode: 'copy', pattern: "*.pdf"
+
+    input:
+        tuple path(hom_score), val(inflation), val(filtration)
+    
+    output:
+        path "*.pdf"
+
+    script:
+        """
+        distribution_homogeneity_score.R ${hom_score} ${inflation} ${filtration}
+        """
+
 }
