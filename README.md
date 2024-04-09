@@ -8,7 +8,7 @@
 ## Introduction
 
 LArGe cOmparative Omics Networks (LAGOON) Markov CLustering algorithm (MCL) is developed by the [Atelier de BioInformatique](https://bioinfo.mnhn.fr/abi/presentation.FR.html) team of the [Institut de Systématique, Évolution, Biodiversité - UMR 7205](https://isyeb.mnhn.fr/fr) ([National Museum of Natural History](https://www.mnhn.fr/fr), Paris, France).\
-LAGOON-MCL is a new version of ![LAGOON](https://github.com/Dylkln/LAGOON.git) developed by Dylan Klein.
+LAGOON-MCL is a new version of [LAGOON](https://github.com/Dylkln/LAGOON.git) developed by Dylan Klein.
 
 LAGOON-MCL is a FAIR pipeline that uses [Nextflow](https://www.nextflow.io/) as a workflow manager.\
 The objective of this pipeline is to be able to construct Putative Protein Family (clusters) using [Markov CLustering algorithm](https://github.com/micans/mcl) and pairwise alignments obtained with [Diamond](https://github.com/bbuchfink/diamond).
@@ -21,7 +21,7 @@ The online documentation is located at the [GitHub Pages](https://jroussea.githu
 
 LAGOON-MCL is actively supported and developed pipeline. Please use the [issue tracker](https://github.com/jroussea/LAGOON-MCL/issues) for malfunctions and the [GitHub discussions](https://github.com/jroussea/LAGOON-MCL/discussions/1) for questions, comments, feature requests, etc.
 
-You can also contact : [jeremy.rousseau@edu.mnhn.fr](mailto:jeremy.rousseau@edu.mnhn.fr).
+You can also contact: [jeremy.rousseau@edu.mnhn.fr](mailto:jeremy.rousseau@edu.mnhn.fr).
 
 ## Citations
 
