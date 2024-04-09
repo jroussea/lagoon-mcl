@@ -122,19 +122,19 @@ Default: `reference`
 * `--sensitivity`
 
 Diamond sensitivity setting (`fast`, `mid-sensitive`, `more-sensitive`, `very-sensitive`, `sensitive`, `ultra-sensitive`). \
-For more information, see the [Diamond documentation](https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#sensitivity-modes?target=_blank). \
+For more information, see the [Diamond documentation](https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#sensitivity-modes). \
 Default: `sensitive`. 
 
 * `--matrix`
 
 Matrix used for alignment (`BLOSUM45`, `BLOSUM50`, `BLOSUM62`, `BLOSUM80`, `BLOSUM90`, `PAM250`, `PAM70`, `PAM30`). \
-For more information, see the [Diamond documentation](https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#alignment-options?target=_blank). \
+For more information, see the [Diamond documentation](https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#alignment-options). \
 Default: `BLOSUM62`. 
 
 * `--diamond_evalue`
 
 Evalue used by `diamond blastp`. \ 
-For more information, see the [Diamond documentation](https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#output-options?target=_blank). \
+For more information, see the [Diamond documentation](https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#output-options). \
 Dafault: `0.001`.
 
 ## Network parameters
@@ -146,7 +146,7 @@ Default: `false`.
 
 * `--I`
 
-Inflation parameter for Markov CLustering algorithm. For more information, see the [MCL documentation](https://micans.org/mcl/?target=_blank). \
+Inflation parameter for Markov CLustering algorithm. For more information, see the [MCL documentation](https://micans.org/mcl/). \
 It is possible to specify several inflation parameter. In this case it separates them by `,`. \
 Default: `1.4`
 
