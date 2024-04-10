@@ -1,6 +1,6 @@
 # LAGOON-MCL
 
-version 1.0.0 \
+version 1.0.1 \
 [Back to table of contents](index.md#table-of-content)
 
 ## General parameters
