@@ -182,7 +182,7 @@ def main(columns_infos, path_network, path_attributes, inflation, filtration):
                 .rename(columns={None: "homogeneity_score"})
             
             df_homogeneity_score = df_homogeneity_score \
-                .pivot(index = "CC", columns="analysis", 
+                .pivot(index = "CC", columns=columnA, 
                        values="homogeneity_score")
     
             df_homogeneity_score.columns += "_homogeneity_score"
