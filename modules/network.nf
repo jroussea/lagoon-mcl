@@ -110,11 +110,13 @@ process NetworkMclToTsv {
 
 	script:
 		"""
-        network_dump_to_tsv.py ${mcl_dump}
-        
-        network_dump_to_tsv.R ${mcl_dump}.tsv ${inflation} ${filtration}
+        network_dump_to_tsv.sh ${mcl_dump} ${inflation} ${filtration}
 		"""
 }
+
+//        network_dump_to_tsv.py ${mcl_dump}
+        
+//        network_dump_to_tsv.R ${mcl_dump}.tsv ${inflation} ${filtration}
 
 process NetworkAddAttributes {
     
