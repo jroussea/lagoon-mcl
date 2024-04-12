@@ -322,7 +322,7 @@ workflow{
 
 		NetworkAddAttributes(select_annotation, tuple_network)
 		tuple_hom_score = NetworkAddAttributes.out.tuple_hom_score
-		HomogeneityScorePlot(tuple_hom_score)
+		//HomogeneityScorePlot(tuple_hom_score)
 
 	}
 }

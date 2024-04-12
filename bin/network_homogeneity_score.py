@@ -77,43 +77,59 @@ def negative_homogeneity_score(dataframe, column):
         return(lLabel)
 
 
-def homogeneity_score(df, column, cluster_size):
+def homogeneity_score(df, column, cluster_size, hom_score_type):
     
-    df.replace('-', np.nan, inplace = True)
+    #df.replace(np.nan, "NA", inplace = True)
+    
+    df = df.dropna()
+    
     
     list_value = df[column].unique().tolist()
+    #print(list_value)
+    cc = df["CC"].unique().tolist()
+    num_annot = df[column].value_counts().count()
     
-    if len(list_value) == 1 and list_value[0] == np.nan:
-        hom_score = 0
-        
-    elif len(list_value) == 1 and list_value[0] != np.nan:
-        hom_score = 1
-    
-    elif len(list_value) > 1:
-        df_drop_na = df.dropna()
+    if hom_score_type == "all":
+        #df_drop_na = df.dropna()
         cc = df["CC"].unique().tolist()
-        num_annot = df_drop_na[column].value_counts().count()
+        num_annot = df[column].value_counts().count()
         cc_size = cluster_size.loc[cluster_size["CC"] == cc[0]]
         
         num_sequence = list(cc_size["number_of_sequence"])[0]
+
+    elif hom_score_type == "annotated":
+        
+        num_sequence = len(df["darkdino_sequence_id"].unique().tolist())
+        
+
+    if len(list_value) == 1:# and list_value[0] != np.nan:
+        #print("1")
+        #print(list_value)
+        hom_score = 1
+            
+    elif len(list_value) > 1:
         
         hom_score = 1-(num_annot/num_sequence)
-        
         #print(df_drop_na)
-        
+                
         if hom_score < 0:
             
-            lLabel = negative_homogeneity_score(df_drop_na, column)
+            #hom_score = 0.25
+            
+            lLabel = negative_homogeneity_score(df, column)
             
             hom_score = 1-(len(lLabel)/num_sequence)
             #print(cc)
             #print(hom_score)
+        else:
+            hom_score = hom_score
+
     return(hom_score)
 
 
-def save_dataframe(dataframe, inflation, filtration):
+def save_dataframe(dataframe, dataframe_type, inflation, filtration):
     
-    dataframe.to_csv(f"homogeneity_score_{inflation}_{filtration}.tsv", 
+    dataframe.to_csv(f"homogeneity_score_{dataframe_type}_{inflation}_{filtration}.tsv", 
                      sep = "\t", index = None)
 
 
@@ -121,85 +137,129 @@ def main(columns_infos, path_network, path_attributes, inflation, filtration):
     
     columns_infos_split = columns_infos.split(",")
     list_infos = []
-    
+        
     for position in columns_infos_split:
         position = position.split("-")
         list_infos.append(position)
-    
+        
     colname = columns_infos.replace("-", ",")
-    
+        
     list_columns = colname.split(",")
-    
+        
     list_columns.append("darkdino_sequence_id")
-    
-    
+        
+        
     network, attributes = load_dataframe(path_network, path_attributes,
-                                             list_columns)
-    
-    
+                                         list_columns)
+        
+        
     network_attributes = pd.merge(network, attributes, how="left",
-                                      on="darkdino_sequence_id")
-           
-    
+                                          on="darkdino_sequence_id")
+               
+        
     cluster_size = network.groupby('CC', as_index=False).count()
     cluster_size = cluster_size \
-        .rename(columns={"darkdino_sequence_id": "number_of_sequence"})
+            .rename(columns={"darkdino_sequence_id": "number_of_sequence"})
     result = cluster_size
+    result_annot = cluster_size
+    network_attributes.replace('-', np.nan, inplace = True)
     
-    
+        
     for column_name in list_infos:
         print(column_name)
         if len(column_name) == 1:
             print("condition 1")
             column = column_name[0]
-            
+                
             cc_attributes = network_attributes[["CC", "darkdino_sequence_id",
-                                                column]]
+                                                    column]]
             
-            df_homogeneity_score = cc_attributes.groupby("CC", 
-                                                         as_index = False) \
-                .apply(lambda df: homogeneity_score(df, column, cluster_size))
+            cc_attribute_drop_na = cc_attributes.dropna()
             
+            df_homogeneity_score = cc_attribute_drop_na.groupby("CC", 
+                                                             as_index = False) \
+                    .apply(lambda df: homogeneity_score(df, column, cluster_size, "all"))
+                
             df_homogeneity_score = df_homogeneity_score \
-                .rename(columns={None: f"{column}_homogeneity_score"})
-            
+                    .rename(columns={None: f"{column}_homogeneity_score"})
+                
             result = pd.merge(result, df_homogeneity_score, how = "left", 
-                              on = "CC")
+                                  on = "CC")
             
+            df_homogeneity_score = cc_attribute_drop_na.groupby("CC", 
+                                                             as_index = False) \
+                    .apply(lambda df: homogeneity_score(df, column, cluster_size, "annotated"))
+                
+            df_homogeneity_score = df_homogeneity_score \
+                    .rename(columns={None: f"{column}_homogeneity_score"})
+                
+            result_annot = pd.merge(result_annot, df_homogeneity_score, how = "left", 
+                                  on = "CC")
+    
+    
         elif len(column_name) > 1:
             print("condition2")
             columnA = column_name[0]
             columnB = column_name[1]
-            
+                
             cc_attributes = network_attributes[["CC", "darkdino_sequence_id", 
-                                                columnA, columnB]]
-    
-            df_homogeneity_score = cc_attributes.groupby(["CC", columnA], 
-                                                         as_index = False) \
-                .apply(lambda df: homogeneity_score(df, columnB, cluster_size))
+                                                    columnA, columnB]]
             
+            cc_attribute_drop_na = cc_attributes.dropna()
+        
+            df_homogeneity_score = cc_attribute_drop_na.groupby(["CC", columnA], 
+                                                             as_index = False) \
+                    .apply(lambda df: homogeneity_score(df, columnB, cluster_size, "all"))
+                
             df_homogeneity_score = df_homogeneity_score \
-                .rename(columns={None: "homogeneity_score"})
-            
+                    .rename(columns={None: "homogeneity_score"})
+                
             df_homogeneity_score = df_homogeneity_score \
-                .pivot(index = "CC", columns=columnA, 
-                       values="homogeneity_score")
-    
+                    .pivot(index = "CC", columns=columnA, 
+                           values="homogeneity_score")
+        
             df_homogeneity_score.columns += "_homogeneity_score"
-    
+        
             df_homogeneity_score = df_homogeneity_score \
-                .rename(columns={"CC_homogeneity_score": "CC"})
-    
+                    .rename(columns={"CC_homogeneity_score": "CC"})
+        
             df_homogeneity_score = df_homogeneity_score.reset_index()
-    
+        
             result = pd.merge(result, df_homogeneity_score, how = "left", 
-                              on = "CC")
+                                  on = "CC")
+            #######################################################################
+    
+            df_homogeneity_score = cc_attribute_drop_na.groupby(["CC", columnA], 
+                                                             as_index = False) \
+                    .apply(lambda df: homogeneity_score(df, columnB, cluster_size, "annotated"))
+                
+            df_homogeneity_score = df_homogeneity_score \
+                    .rename(columns={None: "homogeneity_score"})
+                
+            df_homogeneity_score = df_homogeneity_score \
+                    .pivot(index = "CC", columns=columnA, 
+                           values="homogeneity_score")
+        
+            df_homogeneity_score.columns += "_homogeneity_score"
+        
+            df_homogeneity_score = df_homogeneity_score \
+                    .rename(columns={"CC_homogeneity_score": "CC"})
+        
+            df_homogeneity_score = df_homogeneity_score.reset_index()
+        
+            result_annot = pd.merge(result_annot, df_homogeneity_score, how = "left", 
+                                  on = "CC")
+
     
     
+        
     result.replace(np.nan, 0, inplace = True)
+    result_annot.replace(np.nan, 0, inplace = True)
     
     # sauvegarde du dataframe
-    save_dataframe(result, inflation, filtration)
+    save_dataframe(result, "all", inflation, filtration)
+    save_dataframe(result_annot, "annotated", inflation, filtration)
+
 
 
 if __name__ == '__main__':
@@ -211,7 +271,7 @@ if __name__ == '__main__':
     filtration = sys.argv[5]
 
     #columns_infos = "database-identifiant,interproscan"
-    #path_network = "network_I14.tsv"
+    #path_network = "network_1.4_without_filtration.tsv"
     #path_attributes = "test.tsv"
     #basename = "network_I14"
 
