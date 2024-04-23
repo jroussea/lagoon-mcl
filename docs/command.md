@@ -1,7 +1,14 @@
 # LAGOON-MCL
 
-version 1.0.1 \
-[Back to table of contents](index.md#table-of-content)
+version 1.1.0
+
+## Table of content
+
+* [Presentation](index.md)
+* [Intallation](installation.md)
+* [Command line options](command.md)
+* [Citing LAGOON-MCL](citation.md)
+* [Contribution and Support](contact.md)
 
 ## General parameters
 
@@ -61,51 +68,20 @@ Example: `"$baseDir/tests/alignment/diamond_alignment_test.tsv"`. \
 The file must be in `TSV` format (Tab-separated values). \
 It is mandatory to specify the options: `--column_query`, `--column_subject`, `--column_id`, `--column_ov`, `--column_ev`. 
 
-* `--column_query`
+* `--query`
 
 Position of the column in the alignment file containing the query sequences. \
 Default: `1`
 
-* `--column_subject`
+* `--subject`
 
 Position of the column in the alignment file containing the subject sequences. \
 Default: `2`
 
-* `--column_id`
-
-Position of the column in the alignment file containing the percent identity between the query and subject sequences. \
-Default: `3`
-
-* `--column_ov`
-
-Position of the column in the alignment file containing the percentage of overlap between the query and subject sequences. \
-Default: `4`
-
-* `--column_ev`
+* `--evalue`
 
 Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences. \
 Default: `12`
-
-* `--filter`
-
-Boolean: `true` or `false`. \
-Alignment filtration can be done based on identity an overlap percentages and evalue. This parameter can be specified with options: `--identity`, `--overlap`, `--evalue`. \
-Default: `true`.
-
-* `--identity`
-
-Identity percentage. It is possible to specify several percentages of identity. In this case it separates them by `,`. \
-Default: `60`
-
-* `--overlap` 
-
-Overlap percentage. It is possible to specify several percentages of overlap. In this case it separates them by `,`. \
-Default: `80`
-
-* `--evalue`
-
-Evalue. It is possible to specify several evalue. In this case it separates them by `,`. \
-Default: `1e-50`
 
 ### Diamond parameters
 

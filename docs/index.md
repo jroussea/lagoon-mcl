@@ -1,6 +1,6 @@
 # LAGOON-MCL
 
-version 1.0.1
+version 1.1.0
 
 ## Table of content
 
@@ -21,9 +21,8 @@ LAGOON-MCL is a FAIR pipeline that uses [Nextflow](https://www.nextflow.io/) as 
 * [Nextflow version 23.10.0.5889](https://www.nextflow.io/docs/latest/index.html)
 * [Singularity version 4.1.0](https://docs.sylabs.io/guides/4.1/user-guide/)
 * [Diamond version 2.1.8](https://github.com/bbuchfink/diamond/wiki?)
-* [SeqKit version 2.6.1](https://bioinf.shenwei.me/seqkit/)
 * [Markov CLustering algorithm version 22-282](https://github.com/micans/mcl)
 
 ## Pipeline
 
-![pipeline](images/pipeline.jpg)
+![pipeline](images/pipeline.svg)
