@@ -1,7 +1,15 @@
 # LAGOON-MCL
 
-version 1.0.1 \
-[Back to table of contents](index.md#table-of-content)
+version 1.1.0
+
+## Table of content
+
+* [Presentation](index.md)
+* [Intallation](installation.md)
+* [Command line options](command.md)
+* [Citing LAGOON-MCL](citation.md)
+* [Contribution and Support](contact.md)
+
 
 ## Citation
 
@@ -13,6 +21,4 @@ If you use the pipeline, please cite the references:
 
 3. B. Buchfink, K. Reuter, et H.-G. Drost, « Sensitive protein alignments at tree-of-life scale using DIAMOND », Nat Methods, vol. 18, no 4, Art. no 4, avr. 2021, doi: [10.1038/s41592-021-01101-x](https://doi.org/10.1038/s41592-021-01101-x).
 
-4. W. Shen, S. Le, Y. Li, et F. Hu, « SeqKit: A Cross-Platform and Ultrafast Toolkit for FASTA/Q File Manipulation », PLOS ONE, vol. 11, no 10, p. e0163962, oct. 2016, doi: [10.1371/journal.pone.0163962](https://doi.org/10.1371/journal.pone.0163962).
-
-5. S. Van Dongen, « Graph Clustering Via a Discrete Uncoupling Process », SIAM J. Matrix Anal. Appl., vol. 30, no 1, p. 121-141, janv. 2008, doi: [10.1137/040608635](https://doi.org/10.1137/040608635).
+4. S. Van Dongen, « Graph Clustering Via a Discrete Uncoupling Process », SIAM J. Matrix Anal. Appl., vol. 30, no 1, p. 121-141, janv. 2008, doi: [10.1137/040608635](https://doi.org/10.1137/040608635).

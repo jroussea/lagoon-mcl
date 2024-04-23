@@ -11,11 +11,13 @@ LoadData <- function() {
   
   return_list <- list(path_homogeneity_score = as.character(args[1]),
                       inflation = as.character(args[2]),
-                      filtration = as.character(args[3]))
+                      label = as.character(args[3]),
+                      characteristic = as.character(args[4]))
   
-  #return_list <- list(path_homogeneity_score = "homogeneity_score_annotated_1.4_without_filtration.tsv",
+  #return_list <- list(path_homogeneity_score = "homogeneity_score_label_Pfam_I1.4_all.tsv",
   #                    inflation = "1.4",
-  #                    filtration = "without_filtration")
+  #                    label = "label_Pfam",
+  #                    characteristic = "all")
   
   return(return_list)
 }
@@ -28,25 +30,17 @@ LoadDataframe <- function(path_dataframe) {
 }
 
 
-CreationPlots <- function(dataframe, variable) {
+CreationPlots <- function(dataframe, inflation, label) {
   
-  x_labs <- gsub("_", " ", variable)
+  x_labs <- gsub("_", " ", label)
   
-  title_labs <- paste("Distribution", x_labs)
+  title_labs <- paste("Distribution", x_labs, "- Inflation: ", inflation)
   
-  max_hom_score <- dataframe %>% 
-    group_by(get(variable)) %>% 
-    count() %>% 
-    max()
-  
-  
-  count_hom_score <- dataframe %>% 
-    filter(get(variable) > 0) 
-  
-  min_hom_score <- sum(count_hom_score$n)
+  cc_sup_0 <- dataframe %>% 
+    filter(homogeneity_score > 0)
   
   graph <- dataframe %>%
-    ggplot(aes(x = dataframe[,variable])) +
+    ggplot(aes(x = homogeneity_score)) +
     geom_histogram(bins = 100, color = "darkblue", fill = "lightblue") +
     theme_light() +
     labs(title = title_labs,
@@ -55,23 +49,21 @@ CreationPlots <- function(dataframe, variable) {
     theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           axis.title = element_text(size = 14),
           axis.text = element_text(size = 12))
+
+  title_labs <- paste("Distribution", x_labs, "- Inflation: ", inflation)
   
-  
-  zoom <- count_hom_score %>% 
-    ggplot(aes(x = count_hom_score[,variable])) +
-    geom_histogram(bins = 50, color = "darkblue", fill = "lightblue") +
+  zoom <- cc_sup_0 %>% 
+    ggplot(aes(x = homogeneity_score)) +
+    geom_histogram(bins = 100, color = "darkblue", fill = "lightblue") +
     theme_light() +
     labs(title = title_labs,
+         subtitle = "Homogeneity score strictly greater than 0",
          x = x_labs,
          y = "Count")+
     theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+          plot.subtitle = element_text(size = 14, face = "italic"),
           axis.title = element_text(size = 14),
           axis.text = element_text(size = 12))
-  
-  
-  #graph_final <- graph + annotation_custom(ggplotGrob(zoom), xmin = 0.1, 
-  #                                   xmax = 0.9, ymin = 0, 
-  #                                   ymax = max_hom_score) 
   
   plot_list = list(graph = graph, zoom = zoom)
   return(plot_list)
@@ -81,20 +73,15 @@ CreationPlots <- function(dataframe, variable) {
 MainFunction <- function() {
   args <- LoadData()
   
-  homogeneity_score <- LoadDataframe(args$path_homogeneity_score)
+  df_homogeneity_score <- LoadDataframe(args$path_homogeneity_score)
   
-  columns_homogeneity_score <- colnames(homogeneity_score)
+  pdf(file = paste("distribution_homogeneity_score_", args$label, "_I",
+                   args$inflation, "_", args$characteristic, ".pdf"), 
+      onefile = TRUE)
   
-  columns_homogeneity_score <- columns_homogeneity_score[-c(1,2)]
-  
-  pdf(file = paste("distribution_homogeneity_score_", args$inflation, "_", args$filtration, ".pdf"), onefile = TRUE)
-  
-  lapply(columns_homogeneity_score,
-         function(variable){
-           plot_list <- CreationPlots(homogeneity_score, variable)
-           print(plot_list$graph)
-           print(plot_list$zoom)
-         })
+  plot_list <- CreationPlots(df_homogeneity_score, args$inflation, args$label)
+  print(plot_list$graph)
+  print(plot_list$zoom)
   
   dev.off()
 }

@@ -2,13 +2,13 @@
 
 mcl_dump=${1}
 inflation=${2}
-filtration=${3}
+column=${3}
 
 count=0
 
-file_name="network_"$inflation"_"$filtration".tsv"
+file_name="network_I"$inflation".tsv"
 
-echo -e "CC\tdarkdino_sequence_id" > $file_name
+echo -e "CC\t"$column > $file_name
 
 while read cluster
 do

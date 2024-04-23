@@ -1,7 +1,15 @@
 # LAGOON-MCL
 
-version 1.0.1 \
-[Back to table of contents](index.md#table-of-content)
+version 1.1.0
+
+## Table of content
+
+* [Presentation](index.md)
+* [Intallation](installation.md)
+* [Command line options](command.md)
+* [Citing LAGOON-MCL](citation.md)
+* [Contribution and Support](contact.md)
+
 
 ## Contribution and Support
 

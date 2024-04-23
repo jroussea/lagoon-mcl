@@ -76,14 +76,6 @@ def logInformations() {
 		LAGOON-MCL parameters
 			--run_diamond        : ${params.run_diamond}
 			--alignment_file     : ${params.alignment_file}
-			--column_query       : ${params.column_query}
-			--column_subject     : ${params.column_subject}
-			--column_id          : ${params.column_id}
-			--column_ov          : ${params.column_ov}
-			--column_ev          : ${params.column_ev}
-			--filter             : ${params.filter}
-			--identity           : ${params.identity}
-			--overlap            : ${params.overlap}
 			--evalue             : ${params.evalue}
 		Diamond parameters
 			--diamond            : ${params.diamond}
@@ -177,62 +169,37 @@ if (params.diamond_evalue instanceof java.lang.String
 	helpMessage()
 	exit 0
 }
-if (params.filter != true && params.filter != false) {
-	helpMessage()
-	exit 0
-}
-if (!(params.identity instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-} 
-if (!(params.overlap instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.evalue instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
 if (params.run_mcl != true && params.run_mcl != false) {
 	helpMessage()
 	exit 0
 } 
 
 // Import modules
-include { RenameFastaSequences    } from './modules/preparation.nf'
-include { HeaderFasta             } from './modules/preparation.nf'
-include { Merge2Dataframe         } from './modules/attributes.nf'
-include { Attributes              } from './modules/attributes.nf'
-include { SelectInfosNodes        } from './modules/attributes.nf'
-include { DiamondDB               } from './modules/diamond.nf'
-include { DiamondBLASTp           } from './modules/diamond.nf'
-include { OtherAlignments         } from './modules/diamond.nf'
-include { FiltrationAlignedItself } from './modules/filtration.nf'
-include { FiltrationAlignments    } from './modules/filtration.nf'
-include { NetworkMcxload          } from './modules/network.nf'
-include { NetworkMcl              } from './modules/network.nf'
-include { NetworkMcxdump          } from './modules/network.nf'
-include { NetworkMclToTsv         } from './modules/network.nf'
-include { NetworkAddAttributes    } from './modules/network.nf'
-include { HomogeneityScorePlot    } from './modules/network.nf'
-
+include { HeaderFasta                          } from './modules/preparation.nf'
+include { SelectLabels                         } from './modules/attributes.nf'
+include { LabelHomogeneityScore                } from './modules/attributes.nf'
+include { DiamondDB                            } from './modules/diamond.nf'
+include { DiamondBLASTp                        } from './modules/diamond.nf'
+include { FiltrationAlignments                 } from './modules/filtration.nf'
+include { NetworkMcxload                       } from './modules/network.nf'
+include { NetworkMcl                           } from './modules/network.nf'
+include { NetworkMcxdump                       } from './modules/network.nf'
+include { NetworkMclToTsv                      } from './modules/network.nf'
+include { HomogeneityScore                     } from './modules/statistics.nf'
+include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
+include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
+include { PlotClusterSize                      } from './modules/statistics.nf'
 
 // préparation des paramètres
 List<Number> list_inflation = Arrays.asList(params.I.split(","))
-List<Number> list_identity = Arrays.asList(params.identity.split(","))
-List<Number> list_overlap = Arrays.asList(params.overlap.split(","))
-List<Number> list_evalue = Arrays.asList(params.evalue.split(","))
 
 // Channel
 proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 annotation = Channel.fromPath(params.annotation, checkIfExists: true)
 inflation = Channel.fromList(list_inflation)
-id = Channel.fromList(list_identity)
-ov = Channel.fromList(list_overlap)
-ev = Channel.fromList(list_evalue)
 
 if (params.run_diamond == false) {
-	alignment_file = Channel.fromPath(params.alignment_file, checkIfExists: true)
+	diamond_alignment = Channel.fromPath(params.alignment_file, checkIfExists: true)
 }
 
 /*
@@ -247,68 +214,34 @@ workflow{
 	// concaténer tous les fichiers fasta en un seul et renommer les séquences de la mannière suivante seq1, seq2, ..., seq100, ... 
 	// créer une table de correspondance
 	all_sequences = proteome.collectFile(name: "${params.concat_fasta}.fasta")
-	RenameFastaSequences(all_sequences)
-	fasta_rename = RenameFastaSequences.out.fasta_rename
-	//fasta_rename.view()
-	cor_table = RenameFastaSequences.out.cor_table
-	//cor_table.view()
 	
-	// récupérer les noms des des séquences fasta par fichier (fichier avant concaténation)
-	HeaderFasta(proteome)
-	proteome_name = HeaderFasta.out.proteome_name
-	//proteome_name.view()
+	HeaderFasta(all_sequences)
+	fasta_rename = HeaderFasta.out.fasta_rename
 
-	// ajout d'une colonne contenant le nom de ficghier à la table d ccorrespondance précédemment créer
-	Merge2Dataframe(proteome_name, cor_table)
-	m2d_cor_table = Merge2Dataframe.out.m2d_cor_table
-	//m2d_cor_table.view()
+	SelectLabels(annotation)
+	select_annotation = SelectLabels.out.select_annotation
+	select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/attributes/attributes.tsv")
 
-	// concaténation des tables de cottespondances en un seul fichier
-	cor_table = m2d_cor_table.collectFile(name: "${params.outdir}/correspondence_table/correspondance_table.tsv")
-	//cor_table.view()
-	
-	// remplacement des sont des séquences par les identifiants précédement créer dasn les fichiers d'annotation
-	Attributes(m2d_cor_table, annotation)
-	annot_tab = Attributes.out.annot_tab
-	annot_seq_id = Attributes.out.annot_seq_id
-	//annot_tab.view()
-
-	SelectInfosNodes(annot_seq_id)
-	select_annotation = SelectInfosNodes.out.select_annotation
-	select_annotation.collectFile(name: "${params.outdir}/network/attributes/attributes.tsv")
+	LabelHomogeneityScore(select_annotation)
+	label_network = LabelHomogeneityScore.out.label_network
+	label_network = label_network.collect()
 
 	if (params.run_diamond == true) {
 		// diamond database
 		DiamondDB(fasta_rename)
 		diamond_db = DiamondDB.out.diamond_db
-		//diamond_db.view()
 
 		// diamond blastp
 		DiamondBLASTp(fasta_rename, diamond_db)
-		diamond_alignment = DiamondBLASTp.out.diamond_alignment
-		diamond_alignment.view()
-	
-	}
-	if (params.run_diamond == false) {
-		AttributesAlignments(cor_table, alignment_file)
-		diamond_alignment = AttributesAlignments.out.diamond_alignment
+		diamond_alignment = DiamondBLASTp.out.diamond_alignment	
 	}
 
-	// filtration des données	
-
-	FiltrationAlignedItself(diamond_alignment)
-	diamond_itself = FiltrationAlignedItself.out.diamond_itself
-	diamond_itself.view()
-
-	FiltrationAlignments(diamond_itself, id, ov, ev)
-	id.view()
-	tuple_diamond_ssn = FiltrationAlignments.out.tuple_diamond_ssn
-	tuple_diamond_ssn.view()
+	FiltrationAlignments(diamond_alignment)
+	diamond_ssn = FiltrationAlignments.out.diamond_ssn
 	
-
 	if (params.run_mcl == true) {
 
-		NetworkMcxload(tuple_diamond_ssn)        
+		NetworkMcxload(diamond_ssn)        
 		tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
 
 		NetworkMcl(inflation, tuple_seq_dict_mci)
@@ -320,10 +253,15 @@ workflow{
 		NetworkMclToTsv(tuple_dump)
 		tuple_network = NetworkMclToTsv.out.tuple_network
 
-		NetworkAddAttributes(select_annotation, tuple_network)
-		tuple_hom_score = NetworkAddAttributes.out.tuple_hom_score
-		//HomogeneityScorePlot(tuple_hom_score)
+		HomogeneityScore(label_network, tuple_network)
+		tuple_hom_score_all = HomogeneityScore.out.tuple_hom_score_all
+		tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
+		//tuple_hom_score.view()
 
+		PlotHomScAll(tuple_hom_score_all)
+		PlotHomScAn(tuple_hom_score_annotated)
+
+		PlotClusterSize(tuple_network)
 	}
 }
 
