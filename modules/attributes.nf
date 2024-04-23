@@ -28,6 +28,7 @@ process SelectLabels {
 process LabelHomogeneityScore {
 
 	label 'darkdino'
+	
 	publishDir "${params.outdir}/network/attributes/labels", mode: 'copy', pattern: "label_*.tsv"
 
 	input:
