@@ -30,15 +30,15 @@ def save_dataframe(dataframe, basename):
 def main(path_sequence_annotation, columns_infos, basename):
     
     columns_infos = columns_infos.replace("-", ",")
-        
+            
     list_infos = columns_infos.split(",")
-    
-    list_infos.append("darkdino_sequence_id")
-    
+        
+    list_infos.append(column_peptides)
+        
     sequence_annotation = load_dataframe(path_sequence_annotation)
-    
+        
     sequence_annotation_select = sequence_annotation[list_infos]
-     
+         
     save_dataframe(sequence_annotation_select, basename)
 
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     
     path_sequence_annotation = sys.argv[1]
     columns_infos = sys.argv[2]
-    basename = sys.argv[3]
+    column_peptides = sys.argv[3]
+    basename = sys.argv[4]
     
     main(path_sequence_annotation, columns_infos, basename)
-

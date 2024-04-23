@@ -11,12 +11,22 @@ import pandas as pd
 import sys
 
 
-def load_dataframe(path_network, path_attributes, list_columns):
+def load_dataframe(path_network, path_label):
     
     network = pd.read_csv(path_network, sep = "\t")
-    attributes = pd.read_csv(path_attributes, names = list_columns, sep = "\t")
+    label = pd.read_csv(path_label, sep = "\t")
     
-    return(network, attributes)
+    return(network, label)
+
+
+def select_singleton(cluster_size):
+    
+    singleton = cluster_size.loc[cluster_size["CC_size"] == 1]
+    
+    cluster_size.drop(cluster_size[cluster_size.CC_size == 1].index,
+                      inplace=True)
+    
+    return(singleton, cluster_size)
 
 
 def modification_of_sets(value, slabels):
@@ -24,255 +34,164 @@ def modification_of_sets(value, slabels):
     return value - slabels
 
 
-def negative_homogeneity_score(dataframe, column):
+def negative_homogeneity_score(cluster, columns_name, column_peptides):
     
     # étape 1 : un set de tous les noeuds
-    sNoeuds = set(dataframe["darkdino_sequence_id"].unique().tolist())
+    set_nodes = set(cluster[column_peptides].unique().tolist())
 
-    # ÉÉtape 2 construire un dictionnaire 
+    # ÉÉtape 2 construire un dictionnaire dictionnaire : clé = label value = 
+    #set des noeuds
     # supprimer la colonne CC qui est inutile
-    dfLabels = dataframe.drop("CC", axis = 1)
-    dLabels = dfLabels.groupby([column])["darkdino_sequence_id"] \
-        .apply(lambda grp: set(grp.value_counts().index)).to_dict()
+    dict_labels = cluster.drop("CC", axis = 1) \
+        .groupby([columns_name])[column_peptides] \
+            .apply(lambda group: set(group.value_counts().index)) \
+                .to_dict()
 
     # Étape 3 dataframes du nombre de Noeuds par label
     # à mettre à jour à chaque itération
+    df_labels = cluster.drop(["CC", "peptides"], axis = 1) \
+        .assign(size = cluster.groupby(columns_name).transform('size')) \
+            .drop_duplicates(keep = 'first')
 
-    dfLabels = dfLabels.drop("darkdino_sequence_id", axis = 1)
-    dfLabels[f"{column}_count"] = dfLabels.groupby(column).transform('size')
-    dfLabels = dfLabels.drop_duplicates(keep = 'first')
     # étape 4 l'algorithme
+    list_labels = []
 
-    lLabel = []
+    while len(set_nodes) > 0:
 
-    #print(dLabels)
+        label_max = df_labels.loc[df_labels["size"].idxmax()][columns_name]
+        
+        list_labels.append(label_max)
+        
+        set_labels = dict_labels[label_max]
 
-    while len(sNoeuds) > 0:
-        SeriesLabels = dfLabels.loc[dfLabels[f"{column}_count"].idxmax()]
-        label = SeriesLabels[column]
+        set_nodes = set_nodes - set_labels
         
-        #print(label)
-        
-        lLabel.append(label)
-        
-        sLabels = dLabels[label]
-        #print(sNoeuds)
-        sNoeuds = sNoeuds - sLabels
-        
-        dLabels = {key:modification_of_sets(value, sLabels) for key, 
-                   value in dLabels.items()}
-        
-        #print(dLabels)
-        
+        dict_labels = {key:modification_of_sets(value, set_labels) for key, 
+                   value in dict_labels.items()}
+                
         # modification du dataframe qui compte les labels
-        tmp = pd.DataFrame.from_dict(dLabels, orient='index')
-        tmp_columns = list(tmp.columns)
-        tmp.reset_index(inplace=True, names = column)
-        tmp = pd.melt(tmp, id_vars = column, value_vars = tmp_columns).dropna()
+        df_tmp = pd.DataFrame.from_dict(dict_labels, orient='index') \
+            .reset_index()
+        columns_tmp = list(df_tmp.columns)
+        df_labels = pd.melt(df_tmp, id_vars = "index", value_vars = columns_tmp) \
+            .dropna().drop(["variable", "value"], axis = 1)
+        df_labels = df_labels.assign(size = df_labels.groupby("index") \
+                                     .transform("size")) \
+            .drop_duplicates(keep = 'first')
         
-        dfLabels = tmp.drop(["variable", "value"], axis = 1)
-        dfLabels[f"{column}_count"] = dfLabels.groupby(column).transform('size')
-        dfLabels = dfLabels.drop_duplicates(keep = 'first')
-        
-        return(lLabel)
+    return(list_labels)
 
 
-def homogeneity_score(df, column, cluster_size, hom_score_type):
-    
-    #df.replace(np.nan, "NA", inplace = True)
-    
-    df = df.dropna()
-    
-    
-    list_value = df[column].unique().tolist()
-    #print(list_value)
-    cc = df["CC"].unique().tolist()
-    num_annot = df[column].value_counts().count()
-    
-    if hom_score_type == "all":
-        #df_drop_na = df.dropna()
-        cc = df["CC"].unique().tolist()
-        num_annot = df[column].value_counts().count()
-        cc_size = cluster_size.loc[cluster_size["CC"] == cc[0]]
+def homogeneity_score(cluster, columns_name, cluster_size, column_peptides):
         
-        num_sequence = list(cc_size["number_of_sequence"])[0]
-
-    elif hom_score_type == "annotated":
+    cluster.dropna(inplace = True)
+    
+    list_label = cluster[columns_name].unique().tolist()
+    cc = cluster["CC"].unique().tolist()[0]
+    
+    if len(list_label) == 1:
         
-        num_sequence = len(df["darkdino_sequence_id"].unique().tolist())
-        
-
-    if len(list_value) == 1:# and list_value[0] != np.nan:
-        #print("1")
-        #print(list_value)
         hom_score = 1
             
-    elif len(list_value) > 1:
+    elif len(list_label) > 1:
         
-        hom_score = 1-(num_annot/num_sequence)
-        #print(df_drop_na)
-                
+        sequence_label = len(cluster[column_peptides].unique().tolist())
+        
+        cc_size = list(cluster_size.loc[cluster_size["CC"] == cc]["CC_size"])[0]
+
+        hom_score = 1-(sequence_label/cc_size)
+        
+    #return(hom_score)
         if hom_score < 0:
+                        
+            list_labels = negative_homogeneity_score(cluster, columns_name,
+                                                     column_peptides)
             
-            #hom_score = 0.25
-            
-            lLabel = negative_homogeneity_score(df, column)
-            
-            hom_score = 1-(len(lLabel)/num_sequence)
-            #print(cc)
-            #print(hom_score)
-        else:
-            hom_score = hom_score
+            hom_score = 1-(len(list_labels)/cc_size)
 
     return(hom_score)
 
 
-def save_dataframe(dataframe, dataframe_type, inflation, filtration):
+def save_dataframe(dataframe, dataframe_type, inflation, basename):
     
-    dataframe.to_csv(f"homogeneity_score_{dataframe_type}_{inflation}_{filtration}.tsv", 
+    dataframe.rename(columns={None: "homogeneity_score"}, inplace= True)
+    
+    dataframe.to_csv(f"homogeneity_score_{basename}_I{inflation}_{dataframe_type}.tsv", 
                      sep = "\t", index = None)
 
 
-def main(columns_infos, path_network, path_attributes, inflation, filtration):
+def main(path_network, path_label, column_peptides, inflation, basename):
     
-    columns_infos_split = columns_infos.split(",")
-    list_infos = []
-        
-    for position in columns_infos_split:
-        position = position.split("-")
-        list_infos.append(position)
-        
-    colname = columns_infos.replace("-", ",")
-        
-    list_columns = colname.split(",")
-        
-    list_columns.append("darkdino_sequence_id")
-        
-        
-    network, attributes = load_dataframe(path_network, path_attributes,
-                                         list_columns)
-        
-        
-    network_attributes = pd.merge(network, attributes, how="left",
-                                          on="darkdino_sequence_id")
-               
-        
-    cluster_size = network.groupby('CC', as_index=False).count()
-    cluster_size = cluster_size \
-            .rename(columns={"darkdino_sequence_id": "number_of_sequence"})
-    result = cluster_size
-    result_annot = cluster_size
-    network_attributes.replace('-', np.nan, inplace = True)
+    network, label = load_dataframe(path_network, path_label)
     
-        
-    for column_name in list_infos:
-        print(column_name)
-        if len(column_name) == 1:
-            print("condition 1")
-            column = column_name[0]
-                
-            cc_attributes = network_attributes[["CC", "darkdino_sequence_id",
-                                                    column]]
-            
-            cc_attribute_drop_na = cc_attributes.dropna()
-            
-            df_homogeneity_score = cc_attribute_drop_na.groupby("CC", 
-                                                             as_index = False) \
-                    .apply(lambda df: homogeneity_score(df, column, cluster_size, "all"))
-                
-            df_homogeneity_score = df_homogeneity_score \
-                    .rename(columns={None: f"{column}_homogeneity_score"})
-                
-            result = pd.merge(result, df_homogeneity_score, how = "left", 
-                                  on = "CC")
-            
-            df_homogeneity_score = cc_attribute_drop_na.groupby("CC", 
-                                                             as_index = False) \
-                    .apply(lambda df: homogeneity_score(df, column, cluster_size, "annotated"))
-                
-            df_homogeneity_score = df_homogeneity_score \
-                    .rename(columns={None: f"{column}_homogeneity_score"})
-                
-            result_annot = pd.merge(result_annot, df_homogeneity_score, how = "left", 
-                                  on = "CC")
+    label = label.replace('-', np.nan).dropna()
+    
+    network_label = pd.merge(network, label, on = column_peptides,
+                             how = 'left').replace('-', np.nan,).dropna()
+    
+    cluster_size = network.groupby('CC', as_index=False).count() \
+        .rename(columns={column_peptides: 'CC_size'})
+    
+    #singleton, cluster_size = select_singleton(cluster_size)
+    
+    columns_name = list(network_label.columns)
+    for col in ["CC", column_peptides]:
+        columns_name.remove(col)
+    columns_name = str(columns_name[0])
+    
+    network_annotated = network_label.drop([columns_name], axis = 1) \
+        .drop_duplicates()
+    
+    cluster_size_annotated = network_annotated.groupby('CC', as_index=False) \
+        .count().rename(columns={column_peptides: 'CC_size'})
+    cluster_size_annotated = pd.merge(cluster_size \
+                                      .drop("CC_size", axis = 1),
+                                      cluster_size_annotated, 
+                                      on = "CC", how = "left") \
+        .replace(np.nan, 0)
     
     
-        elif len(column_name) > 1:
-            print("condition2")
-            columnA = column_name[0]
-            columnB = column_name[1]
-                
-            cc_attributes = network_attributes[["CC", "darkdino_sequence_id", 
-                                                    columnA, columnB]]
-            
-            cc_attribute_drop_na = cc_attributes.dropna()
-        
-            df_homogeneity_score = cc_attribute_drop_na.groupby(["CC", columnA], 
-                                                             as_index = False) \
-                    .apply(lambda df: homogeneity_score(df, columnB, cluster_size, "all"))
-                
-            df_homogeneity_score = df_homogeneity_score \
-                    .rename(columns={None: "homogeneity_score"})
-                
-            df_homogeneity_score = df_homogeneity_score \
-                    .pivot(index = "CC", columns=columnA, 
-                           values="homogeneity_score")
-        
-            df_homogeneity_score.columns += "_homogeneity_score"
-        
-            df_homogeneity_score = df_homogeneity_score \
-                    .rename(columns={"CC_homogeneity_score": "CC"})
-        
-            df_homogeneity_score = df_homogeneity_score.reset_index()
-        
-            result = pd.merge(result, df_homogeneity_score, how = "left", 
-                                  on = "CC")
-            #######################################################################
+    df_homogeneity_score = network_label.groupby("CC", as_index = False) \
+                        .apply(lambda cluster: \
+                               homogeneity_score(cluster, 
+                                                 columns_name,
+                                                 cluster_size,
+                                                 column_peptides))
     
-            df_homogeneity_score = cc_attribute_drop_na.groupby(["CC", columnA], 
-                                                             as_index = False) \
-                    .apply(lambda df: homogeneity_score(df, columnB, cluster_size, "annotated"))
-                
-            df_homogeneity_score = df_homogeneity_score \
-                    .rename(columns={None: "homogeneity_score"})
-                
-            df_homogeneity_score = df_homogeneity_score \
-                    .pivot(index = "CC", columns=columnA, 
-                           values="homogeneity_score")
-        
-            df_homogeneity_score.columns += "_homogeneity_score"
-        
-            df_homogeneity_score = df_homogeneity_score \
-                    .rename(columns={"CC_homogeneity_score": "CC"})
-        
-            df_homogeneity_score = df_homogeneity_score.reset_index()
-        
-            result_annot = pd.merge(result_annot, df_homogeneity_score, how = "left", 
-                                  on = "CC")
-
+    df_homogeneity_score_annotated = network_label.groupby("CC", 
+                                                           as_index = False) \
+                        .apply(lambda cluster: \
+                               homogeneity_score(cluster, 
+                                                 columns_name, 
+                                                 cluster_size_annotated,
+                                                 column_peptides))
     
     
-        
-    result.replace(np.nan, 0, inplace = True)
-    result_annot.replace(np.nan, 0, inplace = True)
+    df_homogeneity_score = df_homogeneity_score \
+        .merge(cluster_size, on = "CC", how = "right") \
+            .replace(np.nan, 0)
     
-    # sauvegarde du dataframe
-    save_dataframe(result, "all", inflation, filtration)
-    save_dataframe(result_annot, "annotated", inflation, filtration)
-
+    df_homogeneity_score_annotated = df_homogeneity_score_annotated \
+        .merge(cluster_size_annotated, on = "CC", how = "right") \
+            .replace(np.nan, 0)
+    
+    save_dataframe(df_homogeneity_score, "all", inflation, basename)
+    save_dataframe(df_homogeneity_score_annotated, "annotated", inflation, 
+                   basename)
 
 
 if __name__ == '__main__':
     
-    columns_infos = sys.argv[1]
-    path_network = sys.argv[2]
-    path_attributes = sys.argv[3]
+    path_network = sys.argv[1]
+    path_label = sys.argv[2]
+    column_peptides = sys.argv[3]
     inflation = sys.argv[4]
-    filtration = sys.argv[5]
+    basename = sys.argv[5]
 
-    #columns_infos = "database-identifiant,interproscan"
-    #path_network = "network_1.4_without_filtration.tsv"
-    #path_attributes = "test.tsv"
-    #basename = "network_I14"
+    #path_network = "network_I2.tsv"
+    #path_label = "label_interproscan.tsv"
+    #column_peptides = "peptides"
+    #inflation = 2
+    #basename = "label_interproscan"
 
-    main(columns_infos, path_network, path_attributes, inflation, filtration)
+    main(path_network, path_label, column_peptides, inflation, basename)

@@ -28,65 +28,19 @@ def download_dataframe(dataframe):
 
     """
     
-    dl_dataframe = pd.read_table(dataframe,
-                                 names=["qsedid", "sseqid", "pident", "ppos", 
-                                        "lenght", "mismatch", "gapopen", 
-                                        "qstart", "qend", "sstart", "send",
-                                        "evalue", "bitscore"],
-                                 header=None)
+    df_dataframe = pd.read_table(dataframe, header=None)
+    df_dataframe.columns = \
+        [ i for i in range(1, len(df_dataframe.columns)+1, 1) ]
     
-    return(dl_dataframe)
+    return(df_dataframe)
 
-
-def index_alignement(dataframe):
+def save_dataframe(dataframe):
     """
     
     Parameters
     ----------
     dataframe : PANDAS DATAFRAME
         pandas datafame containing diamond results
-
-    Returns
-    -------
-    (list) index of rows where column qsedid is equal to column sseqid
-
-    """
-    
-    index_al = dataframe[(dataframe['qsedid'] == dataframe['sseqid'])].index
-    
-    return(index_al)
-
-
-def drop_alignment(dataframe, index):
-    """
-    
-    Parameters
-    ----------
-    dataframe : PANDAS DATAFRAME
-        pandas datafame containing diamond results
-    index : LIST
-        list containing row indexes where column qsedid is equal to column sseqid
-        
-    Returns
-    -------
-    dataframe with deleted rows (column qsedid equals column sseqid)
-
-    """
-    
-    dataframe.drop(index, inplace = True)
-
-    return(dataframe)
-
-
-def save_dataframe(dataframe, dataframe_name):
-    """
-    
-    Parameters
-    ----------
-    dataframe : PANDAS DATAFRAME
-        pandas datafame containing diamond results
-    dataframe_name : STRING
-        TSV file name
         
     Returns
     -------
@@ -94,11 +48,11 @@ def save_dataframe(dataframe, dataframe_name):
 
     """
     
-    dataframe.to_csv(f"{dataframe_name}.itself_tsv", sep = "\t", index = False, 
+    dataframe.to_csv("diamond_ssn.tsv", sep = "\t", index = False, 
                      header = False) 
 
 
-def main(diamond_alignment, diamond_al_name):
+def main(diamond_alignment, query, subject, evalue):
     """
     
     Parameters
@@ -116,24 +70,20 @@ def main(diamond_alignment, diamond_al_name):
 
     df_diamond_alignment = download_dataframe(diamond_alignment)
     
-    index_al = index_alignement(df_diamond_alignment)
+    index = df_diamond_alignment[(df_diamond_alignment[query] == \
+                                  df_diamond_alignment[subject])].index
     
-    df_diamond_alignment = drop_alignment(df_diamond_alignment, index_al)
-    print(df_diamond_alignment)
+    df_diamond_alignment.drop(index, inplace = True)
     
-    save_dataframe(df_diamond_alignment, diamond_al_name)
+    df_diamond_alignment = df_diamond_alignment[[query, subject, evalue]]
+    
+    save_dataframe(df_diamond_alignment)
 
 
 if __name__ == '__main__':
     diamond_alignment = sys.argv[1]
-    diamond_al_name = sys.argv[2]
+    query = int(sys.argv[2])
+    subject = int(sys.argv[3])
+    evalue = int(sys.argv[4])
     
-    main(diamond_alignment, diamond_al_name)
-
-
-
-
-
-
-
-
+    main(diamond_alignment, query, subject, evalue)
