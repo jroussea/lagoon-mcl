@@ -45,7 +45,7 @@ CreationPlots <- function(dataframe, inflation, label) {
     theme_light() +
     labs(title = title_labs,
          x = x_labs,
-         y = "Count") +
+         y = "Number of clusters") +
     theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           axis.title = element_text(size = 14),
           axis.text = element_text(size = 12))
@@ -59,7 +59,7 @@ CreationPlots <- function(dataframe, inflation, label) {
     labs(title = title_labs,
          subtitle = "Homogeneity score strictly greater than 0",
          x = x_labs,
-         y = "Count")+
+         y = "Number of clusters")+
     theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           plot.subtitle = element_text(size = 14, face = "italic"),
           axis.title = element_text(size = 14),

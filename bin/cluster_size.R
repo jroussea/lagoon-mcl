@@ -33,16 +33,18 @@ SaveDataframe <- function(dataframe, inflation) {
   
 }
 
-CreationPlot <- function(cc_size) {
+CreationPlot <- function(cc_size, inflation) {
   
   graph <- cc_size %>%
     ggplot(aes(x = CC_size)) +
     geom_histogram(bins = 100, color = "darkblue", fill = "lightblue") +
     theme_light() +
-    labs(title = "title_labs",
-         x = "x_labs",
-         y = "Count") +
+    labs(title = "Cluster size distribution",
+         subtitle = paste("Inflation parameter:", inflation),
+         x = "Cluster size",
+         y = "Number of clusters") +
     theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+          plot.subtitle = element_text(size = 14, face = "italic"),
           axis.title = element_text(size = 14),
           axis.text = element_text(size = 12))
   
@@ -64,7 +66,7 @@ MainFunction <- function() {
   pdf(file = paste("distribution_cluster_size_network_I", args$inflation, 
                    ".pdf", sep = ""))
   
-  graph <- CreationPlot(cc_size)
+  graph <- CreationPlot(cc_size, args$inflation)
   print(graph)
   
   dev.off()
