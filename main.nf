@@ -7,7 +7,7 @@ def helpMessage() {
 	log.info ABIHeader()
 	log.info """
 	
-	LAGOON-MCL v1.0.0
+	LAGOON-MCL v1.2.1
 
 	For more information, see the documentation: https://github.com/jroussea/LAGOON-MCL/wiki/
 	=========================================================================================
@@ -28,20 +28,17 @@ def helpMessage() {
     		--projectName           Name of the project 
     		--outdir                Path to the folder containing the results
 			--concat_fasta          Name of the file that will contain all the fasta sequences
-
+			--information
+			--information_files
+			--information_attributes
+			
 	Alignment parameters
 		LAGOON-MCL parameters
 			--run_diamond           Allows you to specify whether you want to execute diamond (true or false)
 			--alignment_file        Path to a file containing pairwise alignments (if --run_diamond false)
-			--column_query          Position of the column in the alignment file containing the query sequences
-			--column_subject        Position of the column in the alignment file containing the subject sequences
-			--column_id             Position of the column in the alignment file containing the percent identity between the query and subject sequences
-			--column_ov             Position of the column in the alignment file containing the percentage of overlap between the query and subject sequences 
-			--column_ev             Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences 
-			--filter                Alignment filtration can be done based on identity an overlap percentages and evalue (true or false)
-			--identity              Identity percentage
-			--overlap               Overlap percentage
-			--evalue                Evalue
+			--query                 Position of the column in the alignment file containing the query sequences
+			--subject               Position of the column in the alignment file containing the subject sequences
+			--evalue                Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences 
 		Diamond parameters
 			--diamond               Name of the file containing the pairwise alignment from Diamond blastp
 			--diamond_db            Name of the database created with the diamond makedb command
@@ -50,7 +47,6 @@ def helpMessage() {
 			--diamond_evalue        Evalue used by diamond blastp
 
 	Network parameters
-			--run_mcl               Running Markov CLustering algorithm (true or false)
 			--I                     Inflation parameter for MCL
 			--max_weight            Maximum weight for edges
 
@@ -61,6 +57,7 @@ def logInformations() {
 	log.info """\
 	LAGOON-MCL - ANALYSIS PARAMETERS
 	===================================================
+
 	General parameters
 		Mandatory parameters
 			--fasta              : ${params.fasta}
@@ -94,8 +91,7 @@ def logInformations() {
 logInformations()
 
 /*
-Test des paramètres
-si ne rempli pas les conditions renvoi un message d'erreur
+Checking the parameters
 */
 
 if (params.help) {
@@ -130,11 +126,43 @@ if (!(params.concat_fasta instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 }
+if (params.information != true && params.information != false) {
+	helpMessage()
+	exit 0
+} 
+if (!(params.information_files instanceof java.lang.String)) {
+	helpMessage()
+	exit 0
+}
+if (!(params.information_attributes instanceof java.lang.String)) {
+	helpMessage()
+	exit 0
+}
 if (!(params.outdir instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
 }
+if (params.run_diamond != true && params.run_diamond != false) {
+	helpMessage()
+	exit 0
+} 
 if (!(params.diamond_db instanceof java.lang.String)) {
+	helpMessage()
+	exit 0
+}
+if (!(params.alignment_file instanceof java.lang.String)) {
+	helpMessage()
+	exit 0
+}
+if (!(params.query instanceof java.lang.Integer)) {
+	helpMessage()
+	exit 0
+}
+if (!(params.subject instanceof java.lang.Integer)) {
+	helpMessage()
+	exit 0
+}
+if (!(params.evalue instanceof java.lang.Integer)) {
 	helpMessage()
 	exit 0
 }
@@ -169,10 +197,10 @@ if (params.diamond_evalue instanceof java.lang.String
 	helpMessage()
 	exit 0
 }
-if (params.run_mcl != true && params.run_mcl != false) {
+if (!(params.I instanceof java.lang.String)) {
 	helpMessage()
 	exit 0
-} 
+}
 
 // Import modules
 include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
@@ -257,30 +285,27 @@ workflow{
 
 	FiltrationAlignments(diamond_alignment)
 	diamond_ssn = FiltrationAlignments.out.diamond_ssn
-	
-	if (params.run_mcl == true) {
 
-		NetworkMcxload(diamond_ssn)        
-		tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
+	NetworkMcxload(diamond_ssn)        
+	tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
 
-		NetworkMcl(inflation, tuple_seq_dict_mci)
-		tuple_mcl = NetworkMcl.out.tuple_mcl
+	NetworkMcl(inflation, tuple_seq_dict_mci)
+	tuple_mcl = NetworkMcl.out.tuple_mcl
 
-		NetworkMcxdump(tuple_mcl)
-		tuple_dump = NetworkMcxdump.out.tuple_dump
+	NetworkMcxdump(tuple_mcl)
+	tuple_dump = NetworkMcxdump.out.tuple_dump
 
-		NetworkMclToTsv(tuple_dump)
-		tuple_network = NetworkMclToTsv.out.tuple_network
+	NetworkMclToTsv(tuple_dump)
+	tuple_network = NetworkMclToTsv.out.tuple_network
 
-		HomogeneityScore(label_network, tuple_network)
-		tuple_hom_score_all = HomogeneityScore.out.tuple_hom_score_all
-		tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
+	HomogeneityScore(label_network, tuple_network)
+	tuple_hom_score_all = HomogeneityScore.out.tuple_hom_score_all
+	tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
 
-		PlotHomScAll(tuple_hom_score_all)
-		PlotHomScAn(tuple_hom_score_annotated)
+	PlotHomScAll(tuple_hom_score_all)
+	PlotHomScAn(tuple_hom_score_annotated)
 
-		PlotClusterSize(tuple_network)
-	}
+	PlotClusterSize(tuple_network)
 }
 
 /*
