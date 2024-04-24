@@ -76,13 +76,6 @@ Cette option est identique à l'option `--columns_attributes`. Pour plus d'infor
 
 ### LAGOON-MCL parameters
 
-* `--run_diamond`
-
-Boolean: `true` or `false`. \
-Allows you to specify whether you want to execute `diamond`. \
-If `false` then you must specify the path to the file containing pairwise alignments with the command `--alignment_file`. \
-Default: `true`.
-
 * `--alignment_file`
 
 Path to a file containing pairwise alignments, to be used if `--run_diamond false`. \
