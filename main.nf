@@ -175,8 +175,11 @@ if (params.run_mcl != true && params.run_mcl != false) {
 } 
 
 // Import modules
-include { SelectLabels                         } from './modules/attributes.nf'
-include { LabelHomogeneityScore                } from './modules/attributes.nf'
+include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
+include { SelectLabels as SelectLabelInfo      } from './modules/attributes.nf'
+include { InformationFiles                     } from './modules/attributes.nf'
+include { LabelHomogeneityScore as LabHomScAt  } from './modules/attributes.nf'
+include { LabelHomogeneityScore as LabHomScIn  } from './modules/attributes.nf'
 include { DiamondDB                            } from './modules/diamond.nf'
 include { DiamondBLASTp                        } from './modules/diamond.nf'
 include { FiltrationAlignments                 } from './modules/filtration.nf'
@@ -197,6 +200,10 @@ proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 annotation = Channel.fromPath(params.annotation, checkIfExists: true)
 inflation = Channel.fromList(list_inflation)
 
+if (params.information == true) {
+	information_files = Channel.fromPath(params.information_files, checkIfExists: true)
+}
+
 if (params.run_diamond == false) {
 	diamond_alignment = Channel.fromPath(params.alignment_file, checkIfExists: true)
 }
@@ -214,13 +221,29 @@ workflow{
 	// créer une table de correspondance
 	all_sequences = proteome.collectFile(name: "${params.concat_fasta}.fasta")
 
-	SelectLabels(annotation)
-	select_annotation = SelectLabels.out.select_annotation
-	select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/attributes/attributes.tsv")
+	SelectLabelAttrib(annotation, params.columns_attributes)
+	select_annotation = SelectLabelAttrib.out.select_annotation
+	select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/labels/attributes.tsv")
 
-	LabelHomogeneityScore(select_annotation)
-	label_network = LabelHomogeneityScore.out.label_network
-	label_network = label_network.collect()
+	LabHomScAt(select_annotation, params.columns_attributes, "attributes")
+	label_network = LabHomScAt.out.label_network
+
+	if (params.information == true) {
+		InformationFiles(proteome, information_files)
+		proteome_info = InformationFiles.out.proteome_info
+
+		SelectLabelInfo(proteome_info, params.information_attributes)
+		select_info = SelectLabelInfo.out.select_annotation
+		select_info = select_info.collectFile(name: "${params.outdir}/network/labels/informations.tsv")
+
+		LabHomScIn(select_info, params.information_attributes, "information")
+		info_network = LabHomScIn.out.label_network
+
+		label_network = label_network.concat(info_network).collect()
+	}
+	else if (params.information == false) {
+		label_network = label_network.collect()
+	}
 
 	if (params.run_diamond == true) {
 		// diamond database
@@ -252,7 +275,6 @@ workflow{
 		HomogeneityScore(label_network, tuple_network)
 		tuple_hom_score_all = HomogeneityScore.out.tuple_hom_score_all
 		tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
-		//tuple_hom_score.view()
 
 		PlotHomScAll(tuple_hom_score_all)
 		PlotHomScAn(tuple_hom_score_annotated)
