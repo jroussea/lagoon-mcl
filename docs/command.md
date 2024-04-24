@@ -1,6 +1,6 @@
 # LAGOON-MCL
 
-version 1.1.1
+version 1.2.0
 
 ## Table of content
 
@@ -51,13 +51,35 @@ Default: `"$baseDir/results"`
 
 Name of the file that will contain all the fasta sequences.
 
+* `--information`
+Boolean: `true` or `false`. \
+Specify `true` if you have a `TSV` file which contains information that applies to all sequences in a file.
+If `true` then use parameters `--information_files` and `--information_attributes`. \
+Default: `false`
+
+* `--information_files`
+
+Mandatory if `--information true`
+
+Path to the `TSV` file containing general information about each `FASTA` file. One line in the `TSV` file corresponds to one `FASTA` file. \
+Example: if you have 30 `FASTA` files containing the genomes of 30 different species (1 file = 1 species) then the `TSV` file will contain 30 lines. For example, each line can correspond to the taxonomy of each species. \
+/!\ WARNING 1 - the first column contains the `FASTA` file name (without the `.fasta` extension). /!\ \
+/!\ WARNING 2 - it is possible to specify only one `TSV` file with this option /!\
+
+* `--information_attributes`
+
+Mandatory if `--information true`
+
+Cette option est identique à l'option `--columns_attributes`. Pour plus d'information, voir les information concernant [`--columns_attributes`](command.md#mandatory-parameters).
+
 ## Alignment parameters
 
 ### LAGOON-MCL parameters
 
 * `--run_diamond`
 
-Boolean: `true` or `false`. Allows you to specify whether you want to execute `diamond`. \
+Boolean: `true` or `false`. \
+Allows you to specify whether you want to execute `diamond`. \
 If `false` then you must specify the path to the file containing pairwise alignments with the command `--alignment_file`. \
 Default: `true`.
 
