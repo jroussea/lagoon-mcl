@@ -175,7 +175,6 @@ if (params.run_mcl != true && params.run_mcl != false) {
 } 
 
 // Import modules
-include { HeaderFasta                          } from './modules/preparation.nf'
 include { SelectLabels                         } from './modules/attributes.nf'
 include { LabelHomogeneityScore                } from './modules/attributes.nf'
 include { DiamondDB                            } from './modules/diamond.nf'
@@ -214,9 +213,6 @@ workflow{
 	// concaténer tous les fichiers fasta en un seul et renommer les séquences de la mannière suivante seq1, seq2, ..., seq100, ... 
 	// créer une table de correspondance
 	all_sequences = proteome.collectFile(name: "${params.concat_fasta}.fasta")
-	
-	HeaderFasta(all_sequences)
-	fasta_rename = HeaderFasta.out.fasta_rename
 
 	SelectLabels(annotation)
 	select_annotation = SelectLabels.out.select_annotation
@@ -228,11 +224,11 @@ workflow{
 
 	if (params.run_diamond == true) {
 		// diamond database
-		DiamondDB(fasta_rename)
+		DiamondDB(all_sequences)
 		diamond_db = DiamondDB.out.diamond_db
 
 		// diamond blastp
-		DiamondBLASTp(fasta_rename, diamond_db)
+		DiamondBLASTp(all_sequences, diamond_db)
 		diamond_alignment = DiamondBLASTp.out.diamond_alignment	
 	}
 
