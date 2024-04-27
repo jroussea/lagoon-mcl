@@ -21,8 +21,6 @@ The online documentation is located at the [GitHub Pages](https://jroussea.githu
 
 LAGOON-MCL is actively supported and developed pipeline. Please use the [issue tracker](https://github.com/jroussea/LAGOON-MCL/issues) for malfunctions and the [GitHub discussions](https://github.com/jroussea/LAGOON-MCL/discussions/1) for questions, comments, feature requests, etc.
 
-You can also contact: [jeremy.rousseau@edu.mnhn.fr](mailto:jeremy.rousseau@edu.mnhn.fr).
-
 ## Citations
 
 1. P. Di Tommaso, M. Chatzou, E. W. Floden, P. P. Barja, E. Palumbo, et C. Notredame, « Nextflow enables reproducible computational workflows », Nat Biotechnol, vol. 35, no 4, p. 316‑319, avr. 2017, doi: [10.1038/nbt.3820](https://doi.org/10.1038/nbt.3820).
