@@ -1,6 +1,6 @@
 # LAGOON-MCL
 
-version 1.2.1
+version 1.0.0
 
 ## Table of content
 
