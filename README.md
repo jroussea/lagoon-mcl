@@ -19,7 +19,7 @@ The online documentation is located at the [GitHub Pages](https://jroussea.githu
 
 ## Information supplémentaire
 
-Pour explorer une application [R SHiny](https://github.com/jroussea/LAGOON-MCL-Shiny-app) a été développé. Pour plus d'information, consulter la [documentation](https://jroussea.github.io/LAGOON-MCL/installation.html#shiny-application). Elle est disponible sur [shinyapps.io](https://jroussea.shinyapps.io/lagoon-mcl-shiny-app/).
+To explore the results of LAGOON-MCL, an [R Shiny](https://github.com/jroussea/LAGOON-MCL-Shiny-app) application is currently being developed. For more information, please consult the [documentation](https://jroussea.github.io/LAGOON-MCL/installation.html#shiny-application). It is available on [shinyapps.io](https://jroussea.shinyapps.io/lagoon-mcl-shiny-app/).
 
 ## Contributions and Support
 
