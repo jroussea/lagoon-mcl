@@ -1,4 +1,4 @@
-name: mcl_22_282
+name: mcl
 channels:
   - conda-forge
   - bioconda
