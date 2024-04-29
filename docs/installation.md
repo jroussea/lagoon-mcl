@@ -76,3 +76,26 @@ nextflow run main.nf -profile test_full,conda
 ```bash
 chmod +x bin/* 
 ```
+
+## Shiny application
+
+Une application est disponible pour explorer les résulatas généré par LAGOON-MCL. Elle est disponible en ligne sur [shinyapps.io](https://jroussea.shinyapps.io/lagoon-mcl-shiny-app/). \
+Elle peut également être utiliser en local, via l'interface Rstudio :
+
+```bash
+git clone git@github.com:jroussea/LAGOON-MCL-Shiny-app.git
+```
+
+Un environnement Conda est disponible afin de pouvoir utiliser l'application Shiny.
+
+```bash
+conda env create -n lagoon-mcl-shiny-app.yaml
+```
+
+Utiliser l'application
+
+```bash
+conda activate lagoo-mcl-shiny-app
+R
+runApp()
+```
