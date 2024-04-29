@@ -17,6 +17,10 @@ The objective of this pipeline is to be able to construct Putative Protein Famil
 
 The online documentation is located at the [GitHub Pages](https://jroussea.github.io/LAGOON-MCL/).
 
+## Information supplémentaire
+
+Pour explorer une application [R SHiny](https://github.com/jroussea/LAGOON-MCL-Shiny-app) a été développé. Pour plus d'information, consulter la [documentation](https://jroussea.github.io/LAGOON-MCL/installation.html#shiny-application). Elle est disponible sur [shinyapps.io](https://jroussea.shinyapps.io/lagoon-mcl-shiny-app/).
+
 ## Contributions and Support
 
 LAGOON-MCL is actively supported and developed pipeline. Please use the [issue tracker](https://github.com/jroussea/LAGOON-MCL/issues) for malfunctions and the [GitHub discussions](https://github.com/jroussea/LAGOON-MCL/discussions/1) for questions, comments, feature requests, etc.
