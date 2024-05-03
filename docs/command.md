@@ -63,8 +63,8 @@ Mandatory if `--information true`
 
 Path to the `TSV` file containing general information about each `FASTA` file. One line in the `TSV` file corresponds to one `FASTA` file. \
 Example: if you have 30 `FASTA` files containing the genomes of 30 different species (1 file = 1 species) then the `TSV` file will contain 30 lines. For example, each line can correspond to the taxonomy of each species. \
-/!\ WARNING 1 - the first column contains the `FASTA` file name (without the `.fasta` extension). /!\ \
-/!\ WARNING 2 - it is possible to specify only one `TSV` file with this option /!\
+/!\ **WARNING 1** - the first column contains the `FASTA` file name (without the `.fasta` extension). /!\ \
+/!\ **WARNING 2** - it is possible to specify only one `TSV` file with this option /!\
 
 * `--information_attributes`
 
