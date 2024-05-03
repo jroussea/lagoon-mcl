@@ -1,0 +1,8 @@
+backup/
+data/
+.nextflow.log*
+results/
+lagoon-mcl-shiny/
+preparation_test_datasets.sh
+LAGOON-MCL/
+.nextflow/

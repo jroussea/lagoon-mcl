@@ -1,6 +1,6 @@
 # LAGOON-MCL
 
-[![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.0.0-red?labelColor=000000)](https://jroussea.github.io/LAGOON-MCL/)
+[![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.0.1-red?labelColor=000000)](https://jroussea.github.io/LAGOON-MCL/)
 [![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_2.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
 [![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
 [![Conda](https://img.shields.io/badge/run_with-conda-3eb049?logo=anaconda&labelColor=000000)](https://docs.conda.io/projects/conda/en/stable/)
@@ -19,7 +19,7 @@ The online documentation is located at the [GitHub Pages](https://jroussea.githu
 
 ## Additional information
 
-To explore the results of LAGOON-MCL, an [R Shiny](https://github.com/jroussea/LAGOON-MCL-Shiny-app) application is currently being developed. For more information, please consult the [documentation](https://jroussea.github.io/LAGOON-MCL/installation.html#shiny-application). It is available on [shinyapps.io](https://jroussea.shinyapps.io/lagoon-mcl-shiny-app/).
+In order to interactively explore the results obtained with LAGOON-MCL, I am currently developing a R Shiny application. It is available on [GitHub](https://github.com/jroussea/LAGOON-MCL-Shiny-app).
 
 ## Contributions and Support
 
