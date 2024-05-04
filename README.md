@@ -18,7 +18,7 @@ The objective of this pipeline is to be able to construct Putative Protein Famil
 
 ## Documentation
 
-The online documentation is located at the [link](https://lagoon-mcl-docs.readthedocs.io/en/latest/).
+The online documentation is located [here](https://lagoon-mcl-docs.readthedocs.io/en/latest/).
 
 ## Additional information
 
