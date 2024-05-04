@@ -21,7 +21,7 @@ The online documentation is located at the [GitHub Pages](https://jroussea.githu
 
 ## Additional information
 
-In order to interactively explore the results obtained with LAGOON-MCL, I am currently developing a R Shiny application. It is available on [GitHub](https://github.com/jroussea/LAGOON-MCL-Shiny-app).
+In order to interactively explore the results obtained with LAGOON-MCL, I am currently developing a R Shiny application. It is available on [GitHub](https://github.com/jroussea/lagoon-mcl-Shiny-app).
 
 ## Contributions and Support
 
