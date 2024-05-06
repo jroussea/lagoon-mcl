@@ -14,7 +14,7 @@ LAGOON-MCL is a new version of [LAGOON](https://github.com/Dylkln/LAGOON.git) de
 LAGOON-MCL is a FAIR pipeline that uses [Nextflow](https://www.nextflow.io/) as a workflow manager.\
 The objective of this pipeline is to be able to construct Putative Protein Family (clusters) using [Markov CLustering algorithm](https://github.com/micans/mcl) and pairwise alignments obtained with [Diamond](https://github.com/bbuchfink/diamond).
 
-![pipeline](docs/images/pipeline.svg)
+![pipeline](assets/pipeline.svg)
 
 ## Documentation
 
