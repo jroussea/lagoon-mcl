@@ -7,10 +7,10 @@ def helpMessage() {
 	log.info ABIHeader()
 	log.info """
 	
-	LAGOON-MCL v1.2.1
+	LAGOON-MCL
 
-	For more information, see the documentation: https://github.com/jroussea/LAGOON-MCL/wiki/
-	=========================================================================================
+	For more information, see the documentation: https://lagoon-mcl-docs.readthedocs.io/en/latest
+	=============================================================================================
 
 	Test parameters:
 		nextflow run main.nf -profile test_full,singularity [params]
@@ -19,188 +19,67 @@ def helpMessage() {
 		nextflow run main.nf -profile custom,singularity [params]
 
 	General parameters
-		Mandatory parameters
-			--fasta                 Path to fasta files
-			--annotation            Path to sequence annotation files
-			--pep_colname           Name of the column containing the sequence names in the annotation file(s)
-			--columns_attributes    Name of the columns that will be used to annotate the networks
-		Optional parameters
-    		--projectName           Name of the project 
-    		--outdir                Path to the folder containing the results
-			--concat_fasta          Name of the file that will contain all the fasta sequences
-			--information
-			--information_files
-			--information_attributes
-			
-	Alignment parameters
-		LAGOON-MCL parameters
-			--run_diamond           Allows you to specify whether you want to execute diamond (true or false)
-			--alignment_file        Path to a file containing pairwise alignments (if --run_diamond false)
-			--query                 Position of the column in the alignment file containing the query sequences
-			--subject               Position of the column in the alignment file containing the subject sequences
-			--evalue                Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences 
-		Diamond parameters
-			--diamond               Name of the file containing the pairwise alignment from Diamond blastp
-			--diamond_db            Name of the database created with the diamond makedb command
-			--sensitivity           Diamond sensitivity setting
-			--matrix                Matrix used for alignment
-			--diamond_evalue        Evalue used by diamond blastp
+		
+		--help                    <bool>  true or false. Affiche cette aide
 
-	Network parameters
-			--I                     Inflation parameter for MCL
-			--max_weight            Maximum weight for edges
+		--max_cpus                <int>   cpus max qui peut être alloué au workflow (defaul: 15)
+		--max_memory              <int>   mem max qui peut être alloué au workflow (defaul: 60.GB)
+		--max_time                <int    max time qui peut être alloué au workflow (default: 336.h)
+
+   		--projectName             <str>   Name of the project 
+
+		--fasta                   <path>  Path to fasta files
+		--annotation              <path>  Path to sequence annotation files
+		--pep_colname             <str>   Name of the column containing the sequence names in the annotation file(s)
+		--columns_attributes      <list>  Name of the columns that will be used to annotate the networks
+
+   		--outdir                  <path>  Path to the folder containing the results
+
+		--concat_fasta            <str>   Name of the file that will contain all the fasta sequences
+
+		--information             <str>
+		--information_files       <paht>
+		--information_attributes  <list>
+
+		--run_diamond             <bool>  Allows you to specify whether you want to execute diamond (true or false)
+		--alignment_file          <path>  Path to a file containing pairwise alignments (if --run_diamond false)
+		--diamond_db              <str>   Name of the database created with the diamond makedb command
+
+		--query                   <int>   Position of the column in the alignment file containing the query sequences
+		--subject                 <int>   Position of the column in the alignment file containing the subject sequences
+		--evalue                  <int>   Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences 
+
+		--diamond                 <str>   Name of the file containing the pairwise alignment from Diamond blastp
+		--sensitivity             <str>   Diamond sensitivity setting
+		--matrix                  <str>   Matrix used for alignment
+		--diamond_evalue          <float> Evalue used by diamond blastp
+
+		--I                       <list>  Inflation parameter for MCL
+		--max_weight              <int>   Maximum weight for edges
 
 	"""
 }
-
-def logInformations() {
-	log.info """\
-	LAGOON-MCL - ANALYSIS PARAMETERS
-	===================================================
-
-	General parameters
-		Mandatory parameters
-			--fasta              : ${params.fasta}
-			--annotation         : ${params.annotation}
-			--pep_colname        : ${params.pep_colname}
-			--columns_attributes : ${params.columns_attributes}
-		Optional parameters
-    		--projectName        : ${params.projectName}
-    		--outdir             : ${params.outdir}
-			--concat_fasta       : ${params.concat_fasta}
-
-	Alignment parameters
-		LAGOON-MCL parameters
-			--run_diamond        : ${params.run_diamond}
-			--alignment_file     : ${params.alignment_file}
-			--evalue             : ${params.evalue}
-		Diamond parameters
-			--diamond            : ${params.diamond}
-			--diamond_db         : ${params.diamond_db}
-			--sensitivity        : ${params.sensitivity}
-			--matrix             : ${params.matrix}
-			--diamond_evalue     : ${params.diamond_evalue}
-
-	Network parameters
-			--run_mcl            : ${params.run_mcl}
-			--I                  : ${params.I}
-			--max_weight         : ${params.max_weight}
-	"""
-}
-
-logInformations()
-
-/*
-Checking the parameters
-*/
 
 if (params.help) {
 	helpMessage()
 	exit 0
 }
-if (!(params.projectName instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.tmpFile instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.fasta instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.annotation instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.pep_colname instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.columns_attributes instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.concat_fasta instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (params.information != true && params.information != false) {
-	helpMessage()
-	exit 0
-} 
-if (!(params.information_files instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.information_attributes instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.outdir instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (params.run_diamond != true && params.run_diamond != false) {
-	helpMessage()
-	exit 0
-} 
-if (!(params.diamond_db instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.alignment_file instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.query instanceof java.lang.Integer)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.subject instanceof java.lang.Integer)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.evalue instanceof java.lang.Integer)) {
-	helpMessage()
-	exit 0
-}
-if (!(params.diamond instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (params.sensitivity != "fast"
-	&& params.sensitivity != "mid-sensitive"
-	&& params.sensitivity != "more-sensitive"
-	&& params.sensitivity != "very-sensitive"
-	&& params.sensitivity != "sensitive"
-	&& params.sensitivity != "ultra-sensitive"
-	|| !(params.sensitivity instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (params.matrix != "BLOSUM45"
-	&& params.matrix != "BLOSUM50"
-	&& params.matrix != "BLOSUM62"
-	&& params.matrix != "BLOSUM80"
-	&& params.matrix != "BLOSUM90"
-	&& params.matrix != "PAM250"
-	&& params.matrix != "PAM70"
-	&& params.matrix != "PAM30"
-	|| !(params.matrix instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
-if (params.diamond_evalue instanceof java.lang.String
-	|| params.diamond_evalue > 1 || params.diamond_evalue < 0) {
-	helpMessage()
-	exit 0
-}
-if (!(params.I instanceof java.lang.String)) {
-	helpMessage()
-	exit 0
-}
+
+// PIPELINE INFO
+// Header log info
+def summary = [:]
+if (workflow.revision) summary['Pipeline Release'] = workflow.revision
+summary['Run Name'] = workflow.runName
+summary['Project Name'] = params.projectName
+summary['Output dir'] = params.outdir
+summary['Launch dir'] = workflow.launchDir
+summary['Working dir'] = workflow.workDir
+summary['Script dir'] = workflow.projectDir
+summary['User'] = workflow.userName
+summary['Execution profile'] = workflow.profile
+
+log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
+log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import modules
 include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
@@ -342,3 +221,4 @@ def ABIHeader() {
 	"""
 	.stripIndent()
 }
+
