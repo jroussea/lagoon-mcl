@@ -9,12 +9,12 @@ process HomogeneityScore {
     *	- 
     */
 
-    label 'darkdino'
+    tag ''
 
 	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
 	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
-   	publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
-   	publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
+   	//publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
+   	//publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
 
     input:
         each label_network
@@ -32,7 +32,7 @@ process HomogeneityScore {
 
 process PlotHomogeneityScore {
 
-    label 'darkdino'
+    tag ''
 
     publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/pdf_${characteristic}", mode: 'copy', pattern: "*${characteristic}*.pdf"
 
@@ -51,11 +51,11 @@ process PlotHomogeneityScore {
 
 process PlotClusterSize {
 
-    label 'darkdino'
+    tag ''
 
     publishDir "${params.outdir}/network_statistics/cluster_size/tsv", mode: 'copy', pattern: "*.tsv"
     publishDir "${params.outdir}/network_statistics/cluster_size/", mode: 'copy', pattern: "*.pdf"
-    publishDir "$baseDir/lagoon-mcl-shiny/data/cluster_size/tsv", mode: 'copy', pattern: "*.tsv"
+    //publishDir "$baseDir/lagoon-mcl-shiny/data/cluster_size/tsv", mode: 'copy', pattern: "*.tsv"
 
     input:
         tuple path(network_tsv), val(inflation)

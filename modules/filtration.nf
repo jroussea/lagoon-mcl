@@ -11,7 +11,7 @@ process FiltrationAlignments {
     *	- fichier d'alignement tsv
     */
 
-	label 'darkdino'
+	tag ''
 
 	input:
         path diamond_alignment
