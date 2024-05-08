@@ -1,7 +1,0 @@
-name: mcl
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - bioconda::mcl=22.282
