@@ -1,10 +1,12 @@
 # LAGOON-MCL
 
-[![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.0.2-red?labelColor=000000)](https://jroussea.github.io/LAGOON-MCL/)
-[![Documentation Status](https://img.shields.io/badge/docs-latest-green?labelColor=000000)](https://lagoon-mcl-docs.readthedocs.io/en/latest/)
+[![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.1.0-red?labelColor=000000)](https://jroussea.github.io/LAGOON-MCL/)
+[![Documentation Status](https://img.shields.io/badge/docs-passing-green?labelColor=000000)](https://lagoon-mcl-docs.readthedocs.io/en/latest/)
 [![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_2.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
-[![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
 [![Conda](https://img.shields.io/badge/run_with-conda-3eb049?logo=anaconda&labelColor=000000)](https://docs.conda.io/projects/conda/en/stable/)
+[![Mamba](https://img.shields.io/badge/run_with-mamba-3eb049?labelColor=000000)](https://docs.conda.io/projects/conda/en/stable/)
+[![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
+[![Docker](https://img.shields.io/badge/run_with-docker-32b4f1?logo=docker&labelColor=000000)](https://www.docker.com/)
 
 ## Introduction
 
