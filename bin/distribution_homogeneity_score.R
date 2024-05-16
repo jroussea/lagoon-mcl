@@ -30,17 +30,20 @@ LoadDataframe <- function(path_dataframe) {
 }
 
 
-CreationPlots <- function(dataframe, inflation, label) {
+CreationPlots <- function(dataframe_input, inflation, label) {
   
   x_labs <- gsub("_", " ", label)
   
   title_labs <- paste("Distribution", x_labs, "- Inflation: ", inflation)
   
+  dataframe <- dataframe_input %>% 
+    filter(homogeneity_score != "unannotated")
+  
   cc_sup_0 <- dataframe %>% 
     filter(homogeneity_score > 0)
   
   graph <- dataframe %>%
-    ggplot(aes(x = homogeneity_score)) +
+    ggplot(aes(x = as.numeric(homogeneity_score))) +
     geom_histogram(bins = 100, color = "darkblue", fill = "lightblue") +
     theme_light() +
     labs(title = title_labs,
@@ -53,7 +56,7 @@ CreationPlots <- function(dataframe, inflation, label) {
   title_labs <- paste("Distribution", x_labs, "- Inflation: ", inflation)
   
   zoom <- cc_sup_0 %>% 
-    ggplot(aes(x = homogeneity_score)) +
+    ggplot(aes(x = as.numeric(homogeneity_score))) +
     geom_histogram(bins = 100, color = "darkblue", fill = "lightblue") +
     theme_light() +
     labs(title = title_labs,

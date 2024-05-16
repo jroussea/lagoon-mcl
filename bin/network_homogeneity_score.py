@@ -169,11 +169,11 @@ def main(path_network, path_label, column_peptides, inflation, basename):
     
     df_homogeneity_score = df_homogeneity_score \
         .merge(cluster_size, on = "CC", how = "right") \
-            .replace(np.nan, 0)
+            .replace(np.nan, "unannotated")
     
     df_homogeneity_score_annotated = df_homogeneity_score_annotated \
         .merge(cluster_size_annotated, on = "CC", how = "right") \
-            .replace(np.nan, 0)
+            .replace(np.nan, "unannotated")
     
     save_dataframe(df_homogeneity_score, "all", inflation, basename)
     save_dataframe(df_homogeneity_score_annotated, "annotated", inflation, 
