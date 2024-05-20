@@ -8,3 +8,8 @@ LAGOON-MCL/
 .nextflow/
 workdir/
 containers/singularity/*.sif
+.ipynb_checkpoints
+result*
+an/
+dinoflagellata_v3.csv
+tr/
