@@ -82,7 +82,8 @@ def negative_homogeneity_score(cluster, columns_name, column_peptides):
     return(list_labels)
 
 
-def homogeneity_score(cluster, columns_name, cluster_size, column_peptides):
+def homogeneity_score(cluster, columns_name, cluster_size, column_peptides, 
+                      basename, selection):
         
     cluster.dropna(inplace = True)
     
@@ -101,13 +102,23 @@ def homogeneity_score(cluster, columns_name, cluster_size, column_peptides):
 
         hom_score = 1-(sequence_label/cc_size)
         
+        
+        
     #return(hom_score)
         if hom_score < 0:
                         
-            list_labels = negative_homogeneity_score(cluster, columns_name,
+            list_label = negative_homogeneity_score(cluster, columns_name,
                                                      column_peptides)
             
-            hom_score = 1-(len(list_labels)/cc_size)
+            hom_score = 1-(len(list_label)/cc_size)
+               
+    print(list_label)
+
+    for label in list_label:
+
+        with open(f"{basename}_{selection}.txt", 'a', encoding = "utf8") as f:
+        
+            f.write(f"{cc}\t{label}\n")
 
     return(hom_score)
 
@@ -156,7 +167,8 @@ def main(path_network, path_label, column_peptides, inflation, basename):
                                homogeneity_score(cluster, 
                                                  columns_name,
                                                  cluster_size,
-                                                 column_peptides))
+                                                 column_peptides, basename,
+                                                 "all"))
     
     df_homogeneity_score_annotated = network_label.groupby("CC", 
                                                            as_index = False) \
@@ -164,7 +176,9 @@ def main(path_network, path_label, column_peptides, inflation, basename):
                                homogeneity_score(cluster, 
                                                  columns_name, 
                                                  cluster_size_annotated,
-                                                 column_peptides))
+                                                 column_peptides,
+                                                 basename,
+                                                 "annotated"))
     
     
     df_homogeneity_score = df_homogeneity_score \
@@ -195,3 +209,4 @@ if __name__ == '__main__':
     #basename = "label_interproscan"
 
     main(path_network, path_label, column_peptides, inflation, basename)
+
