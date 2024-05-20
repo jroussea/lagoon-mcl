@@ -10,69 +10,21 @@ title: "LAGOON-MCL: LArGe Comparative Omics Network"
 version: 1.1.0
 date-released: 2024-05-20
 url: "https://github.com/jroussea/lagoon-mcl"
-references:
-  - authors:
-    - family-names: "Di Tommaso"
-      given-names: "Paolo"
-    - family-names: "Chatzou"
-      given-names: "Maria"
-    - family-names: "Floden"
-      given-names: "Evan W"
-    - family-names: "Barja"
-      given-names: "Pablo Prieto"
-    - family-names: "Palumbo"
-      given-names: "Emilio"
-    - family-names: "Notredame"
-      given-names: "Cedric"
-    type: article
-    doi: "10.1038/nbt.3820"
-    journal: "Nature Biotechnology"
-    month: 4
-    start: 316 # First page number
-    end: 319 # Last page number
-    title: "Nextflow enables reproducible computational workflows"
-    issue: 1546-1696
-    volume: 35
-    year: 2017
-  - authors:
-      - family-names: "Buchfink"
-        given-names: "Benjamin"
-      - family-names: "Reuter"
-        given-names: "Klaus"
-      - family-names: "Floden"
-        given-names: "Drost"
-    doi: "10.1038/s41592-021-01101-x"
-    journal: "Nature Methods"
-    month: 4
-    start: 366 # First page number
-    end: 368 # Last page number
-    title: "Fast and sensitive protein alignment using DIAMOND"
-    issue: 1548-7105
-    volume: 18
-    year: 2021
-  - authors:
-      - family-names: "Kurtzer"
-        given-names: "Gregory M."
-      - family-names: "Sochat"
-        given-names: "Vanessa"
-      - family-names: "Bauer"
-        given-names: "Michael W."
-    doi: "10.1371/journal.pone.0177459"
-    journal: "PLOS ONE"
-    month: 5
-    title: "Singularity: Scientific containers for mobility of compute"
-    issue: 1932-6203
-    volume: 12
-    year: 217
-  - authors:
-      - family-names: "Van Dongen"
-        given-names: "Stijn"
-    doi: "10.1137/040608635"
-    journal: "SIAM J. Matrix Anal. Appl."
-    month: 1
-    start: 121 # First page number
-    end: 141 # Last page number
-    title: "Graph Clustering Via a Discrete Uncoupling Process"
-    issue: 0895-4798
-    volume: 30
-    year: 2008
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Lisa"
+    given-names: "Mona"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Bot"
+    given-names: "Hew"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+  doi: "10.0000/00000"
+  journal: "Journal Title"
+  month: 9
+  start: 1 # First page number
+  end: 10 # Last page number
+  title: "My awesome research software"
+  issue: 1
+  volume: 1
+  year: 2021
