@@ -10,7 +10,7 @@ title: "LAGOON-MCL: LArGe Comparative Omics Network"
 version: 1.1.0
 date-released: 2024-05-20
 url: "https://github.com/jroussea/lagoon-mcl"
-preferred-citation:
+references:
   - authors:
     - family-names: "Di Tommaso"
       given-names: "Paolo"
