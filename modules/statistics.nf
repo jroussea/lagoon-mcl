@@ -11,8 +11,14 @@ process HomogeneityScore {
 
     tag ''
 
-	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
-	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
+	//publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
+	//publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
+    //publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/label_all", mode: 'copy', pattern: "*all*.txt"
+    //publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/label_annotated", mode: 'copy', pattern: "*annotated*.txt"
+
+	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv", mode: 'copy', pattern: "*all*.tsv"
+    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*all*.txt"
+
    	//publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
    	//publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
 
