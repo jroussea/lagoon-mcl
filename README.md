@@ -24,7 +24,7 @@ The online documentation is located [here](https://lagoon-mcl-docs.readthedocs.i
 
 ## Additional information
 
-In order to interactively explore the results obtained with LAGOON-MCL, I am currently developing a R Shiny application. It is available on [GitHub](https://github.com/jroussea/lagoon-mcl-shiny-app).
+In order to interactively explore the results obtained with LAGOON-MCL, I am currently developing a Jupyter Notebook. It is available in the folder : `lagoon-mcl-jupyter`. For more information, see the [documentation](https://github.com/jroussea/lagoon-mcl-shiny-app).
 
 ## Contributions and Support
 
