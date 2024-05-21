@@ -67,8 +67,7 @@ process PlotClusterSize {
         tuple path(network_tsv), val(inflation)
 
     output:
-
-        path("*.tsv")
+        path("*.tsv"), emit: cluster_size
         path("*.pdf")
 
     script:
