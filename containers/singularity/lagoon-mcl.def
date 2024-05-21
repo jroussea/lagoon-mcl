@@ -4,6 +4,7 @@ From: continuumio/anaconda3
 %post
 	apt-get update && apt install -y procps g++
     conda install -c conda-forge -c bioconda mcl==22.282=pl5321h031d066_1
+    conda install -c conda-forge -c bioconda foldseek=9.427df8a=pl5321hb365157_0
 	conda install -c bioconda diamond=2.1.8=h43eeafb_0
     conda install python=3.11.8=h955ad1f_0
     conda install pip=23.3.1=py311h06a4308_0
