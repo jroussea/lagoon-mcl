@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
-nextflow run main.nf -profile mamba \
+nextflow run main.nf -profile conda \
     --max_cpus 15 \
     --max_memory '60.GB' \
     --max_time '336.h' \
     --projectName LAGOON-MCL_2 \
-    --fasta "test/tr/*.fasta" \
-    --annotation "test/an/*.tsv" \
+    --fasta "test/full/tr_files_test/Fabrice-METDB_00194-gymnoxanthella-radiolariae-oki26++-paired_cut.fasta" \
+    --annotation "test/full/an_files_test/Fabrice-METDB_00194-gymnoxanthella-radiolariae-oki26++-paired_cut.tsv" \
     --pep_colname protein_accession \
     --columns_attributes analysis-signature_accession,interpro_accession \
     --concat_fasta all_sequences \
     --information true \
-    --information_files test/dinoflagellata_v3.csv \
-    --information_attributes Phylum,Class,Order,Family,Genus,Species \
-    --outdir results_2 \
+    --information_files test/full/in_files_test/information_files.tsv \
+    --information_attributes Phylum_Metdb,Genus_Metdb,trophic_mode \
+    --outdir results \
     --run_diamond true \
     --diamond_db reference \
     --alignment_file null \
