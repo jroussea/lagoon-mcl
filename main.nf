@@ -186,6 +186,7 @@ workflow{
 
 	HomogeneityScore(label_network, tuple_network)
 	tuple_hom_score_all = HomogeneityScore.out.tuple_hom_score_all
+	cluster_size = homogeneity_score.out.cluster_size
 	tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
 
 	PlotHomScAll(tuple_hom_score_all)
