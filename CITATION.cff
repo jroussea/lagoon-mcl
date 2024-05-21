@@ -6,6 +6,8 @@ authors:
   orcid: "https://orcid.org/0009-0001-7919-6469"
 - family-names: "Bittner"
   given-names: "Lucie"
+- family-names: "Carpentier"
+  given-names: "Mathilde"
 title: "LAGOON-MCL: LArGe Comparative Omics Network"
 version: 1.1.0
 date-released: 2024-05-20
