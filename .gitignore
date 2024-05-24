@@ -15,3 +15,5 @@ dinoflagellata_v3.csv
 tr/
 .Rhistory
 .idea
+test/benchmark/
+save/
