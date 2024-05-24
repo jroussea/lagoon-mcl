@@ -51,7 +51,7 @@ def negative_homogeneity_score(cluster, columns_name, column_peptides):
 
     # Étape 3 dataframes du nombre de Noeuds par label
     # à mettre à jour à chaque itération
-    df_labels = cluster.drop(["CC", "peptides"], axis = 1) \
+    df_labels = cluster.drop(["CC", column_peptides], axis = 1) \
         .assign(size = cluster.groupby(columns_name).transform('size')) \
             .drop_duplicates(keep = 'first')
 
