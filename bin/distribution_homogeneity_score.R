@@ -30,17 +30,17 @@ LoadDataframe <- function(path_dataframe) {
 }
 
 
-CreationPlots <- function(dataframe, inflation, label) {
+CreationPlots <- function(dataframe_input, inflation, label) {
   
   x_labs <- gsub("_", " ", label)
   
   title_labs <- paste("Distribution", x_labs, "- Inflation: ", inflation)
   
-  cc_sup_0 <- dataframe %>% 
-    filter(homogeneity_score > 0)
+  dataframe <- dataframe_input %>% 
+    filter(homogeneity_score != "unannotated")
   
   graph <- dataframe %>%
-    ggplot(aes(x = homogeneity_score)) +
+    ggplot(aes(x = as.numeric(homogeneity_score))) +
     geom_histogram(bins = 100, color = "darkblue", fill = "lightblue") +
     theme_light() +
     labs(title = title_labs,
@@ -49,23 +49,8 @@ CreationPlots <- function(dataframe, inflation, label) {
     theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           axis.title = element_text(size = 14),
           axis.text = element_text(size = 12))
-
-  title_labs <- paste("Distribution", x_labs, "- Inflation: ", inflation)
   
-  zoom <- cc_sup_0 %>% 
-    ggplot(aes(x = homogeneity_score)) +
-    geom_histogram(bins = 100, color = "darkblue", fill = "lightblue") +
-    theme_light() +
-    labs(title = title_labs,
-         subtitle = "Homogeneity score strictly greater than 0",
-         x = x_labs,
-         y = "Number of clusters")+
-    theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-          plot.subtitle = element_text(size = 14, face = "italic"),
-          axis.title = element_text(size = 14),
-          axis.text = element_text(size = 12))
-  
-  plot_list = list(graph = graph, zoom = zoom)
+  plot_list = list(graph = graph)
   return(plot_list)
 }
 
@@ -81,8 +66,7 @@ MainFunction <- function() {
   
   plot_list <- CreationPlots(df_homogeneity_score, args$inflation, args$label)
   print(plot_list$graph)
-  print(plot_list$zoom)
-  
+
   dev.off()
 }
 
