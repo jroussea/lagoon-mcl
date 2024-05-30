@@ -8,8 +8,10 @@ Created on Wed Mar 27 21:36:14 2024
 
 import numpy as np
 import pandas as pd
+#import decimal
 import sys
 
+#decimal.getcontext().prec = 6
 
 def load_dataframe(path_network, path_label):
     
@@ -49,7 +51,7 @@ def negative_homogeneity_score(cluster, columns_name, column_peptides):
 
     # Étape 3 dataframes du nombre de Noeuds par label
     # à mettre à jour à chaque itération
-    df_labels = cluster.drop(["CC", "peptides"], axis = 1) \
+    df_labels = cluster.drop(["CC", column_peptides], axis = 1) \
         .assign(size = cluster.groupby(columns_name).transform('size')) \
             .drop_duplicates(keep = 'first')
 
@@ -78,11 +80,14 @@ def negative_homogeneity_score(cluster, columns_name, column_peptides):
         df_labels = df_labels.assign(size = df_labels.groupby("index") \
                                      .transform("size")) \
             .drop_duplicates(keep = 'first')
-        
+            
+        df_labels.rename(columns={'index': columns_name}, inplace = True)
+
     return(list_labels)
 
 
-def homogeneity_score(cluster, columns_name, cluster_size, column_peptides):
+def homogeneity_score(cluster, columns_name, cluster_size, column_peptides, 
+                      basename, selection):
         
     cluster.dropna(inplace = True)
     
@@ -95,19 +100,30 @@ def homogeneity_score(cluster, columns_name, cluster_size, column_peptides):
             
     elif len(list_label) > 1:
         
-        sequence_label = len(cluster[column_peptides].unique().tolist())
+        # partie de code à vérifier
+        #sequence_label = len(cluster[column_peptides].unique().tolist())
         
         cc_size = list(cluster_size.loc[cluster_size["CC"] == cc]["CC_size"])[0]
 
-        hom_score = 1-(sequence_label/cc_size)
+        #hom_score = 1-(decimal.Decimal(len(list_label))/decimal.Decimal(cc_size))
         
-    #return(hom_score)
+        hom_score = 1-(len(list_label)/cc_size)
+
         if hom_score < 0:
                         
-            list_labels = negative_homogeneity_score(cluster, columns_name,
+            list_label = negative_homogeneity_score(cluster, columns_name,
                                                      column_peptides)
-            
-            hom_score = 1-(len(list_labels)/cc_size)
+
+            #hom_score = 1-(decimal.Decimal(len(list_label))/decimal.Decimal(cc_size))
+
+            hom_score = 1-(len(list_label)/cc_size)
+
+
+    for label in list_label:
+
+        with open(f"{basename}_{selection}.txt", 'a', encoding = "utf8") as f:
+        
+            f.write(f"{cc}\t{label}\n")
 
     return(hom_score)
 
@@ -156,7 +172,8 @@ def main(path_network, path_label, column_peptides, inflation, basename):
                                homogeneity_score(cluster, 
                                                  columns_name,
                                                  cluster_size,
-                                                 column_peptides))
+                                                 column_peptides, basename,
+                                                 "all"))
     
     df_homogeneity_score_annotated = network_label.groupby("CC", 
                                                            as_index = False) \
@@ -164,16 +181,18 @@ def main(path_network, path_label, column_peptides, inflation, basename):
                                homogeneity_score(cluster, 
                                                  columns_name, 
                                                  cluster_size_annotated,
-                                                 column_peptides))
+                                                 column_peptides,
+                                                 basename,
+                                                 "annotated"))
     
     
     df_homogeneity_score = df_homogeneity_score \
         .merge(cluster_size, on = "CC", how = "right") \
-            .replace(np.nan, 0)
+            .replace(np.nan, "unannotated")
     
     df_homogeneity_score_annotated = df_homogeneity_score_annotated \
         .merge(cluster_size_annotated, on = "CC", how = "right") \
-            .replace(np.nan, 0)
+            .replace(np.nan, "unannotated")
     
     save_dataframe(df_homogeneity_score, "all", inflation, basename)
     save_dataframe(df_homogeneity_score_annotated, "annotated", inflation, 
@@ -195,3 +214,12 @@ if __name__ == '__main__':
     #basename = "label_interproscan"
 
     main(path_network, path_label, column_peptides, inflation, basename)
+
+
+#path_network = "network_I2.tsv"
+#path_label = "label_SMART.tsv"
+#column_peptides = "peptides"
+#inflation = 2
+#basename = "label_SMART"
+
+#main(path_network, path_label, column_peptides, inflation, basename)
