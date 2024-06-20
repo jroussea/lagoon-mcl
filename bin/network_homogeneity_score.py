@@ -167,7 +167,7 @@ def main(path_network, path_label, column_peptides, inflation, basename):
         .replace(np.nan, 0)
     
     
-    df_homogeneity_score = network_label.groupby("CC", as_index = False) \
+    df_homogeneity_score_all = network_label.groupby("CC", as_index = False) \
                         .apply(lambda cluster: \
                                homogeneity_score(cluster, 
                                                  columns_name,
@@ -186,17 +186,24 @@ def main(path_network, path_label, column_peptides, inflation, basename):
                                                  "annotated"))
     
     
-    df_homogeneity_score = df_homogeneity_score \
+    df_homogeneity_score_all = df_homogeneity_score_all \
         .merge(cluster_size, on = "CC", how = "right") \
-            .replace(np.nan, "unannotated")
+            .replace(np.nan, "unannotated") \
+                .rename(columns = {None : "homogeneity_score_all", 
+                                   "CC_size" : "CC_size_all"})
     
     df_homogeneity_score_annotated = df_homogeneity_score_annotated \
         .merge(cluster_size_annotated, on = "CC", how = "right") \
-            .replace(np.nan, "unannotated")
+            .replace(np.nan, "unannotated") \
+                .rename(columns = {None : "homogeneity_score_annotated", 
+                                   "CC_size" : "CC_size_annotated"})
     
-    save_dataframe(df_homogeneity_score, "all", inflation, basename)
-    save_dataframe(df_homogeneity_score_annotated, "annotated", inflation, 
-                   basename)
+    
+    df_homogeneity_score = pd.merge(df_homogeneity_score_all, df_homogeneity_score_annotated, on = "CC")
+    
+    df_homogeneity_score.to_csv(f"homogeneity_score_{basename}_I{inflation}.tsv", 
+                     sep = "\t", index = None, header = True)
+
 
 
 if __name__ == '__main__':
@@ -207,19 +214,14 @@ if __name__ == '__main__':
     inflation = sys.argv[4]
     basename = sys.argv[5]
 
-    #path_network = "network_I2.tsv"
-    #path_label = "label_interproscan.tsv"
-    #column_peptides = "peptides"
-    #inflation = 2
-    #basename = "label_interproscan"
-
     main(path_network, path_label, column_peptides, inflation, basename)
 
 
-#path_network = "network_I2.tsv"
-#path_label = "label_SMART.tsv"
+#path_network = "network_I4.tsv"
+#path_label = "label_Gene3D.tsv"
 #column_peptides = "peptides"
-#inflation = 2
-#basename = "label_SMART"
+#inflation = 4
+#basename = "label_Gene3D"
+
 
 #main(path_network, path_label, column_peptides, inflation, basename)
