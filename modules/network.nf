@@ -14,6 +14,7 @@ process NetworkMcxload {
     publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "network.dict"
     publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "network.mci"
 
+    publishDir "${params.outdir}/network/mcl/matrice", mode: 'copy', pattern: "network.matrice"
 
 	input:
 		path diamond_ssn
@@ -21,12 +22,15 @@ process NetworkMcxload {
 	output:
         
         tuple path("network.dict"), path("network.mci"), emit: tuple_seq_dict_mci
+        path("network.matrice"), emit: network_matrice
 
 	script:
 	    """
 	    sed 1d ${diamond_ssn} > diamond_ssn.tmp
 
         mcxload -abc diamond_ssn.tmp -write-tab network.dict -o network.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
+
+        mcxdump -imx network.mci -tab network.dict -o network.matrice
 
 	    """
 }
