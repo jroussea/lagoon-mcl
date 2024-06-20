@@ -9,7 +9,7 @@ process DiamondDB {
     *	- banque de donnée construite avec toutes les séquences fasta
     */
 
-	label "diamond"
+	tag 'Diamond makedb'
 
 	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond_db}.dmnd"
 
@@ -37,7 +37,7 @@ process DiamondBLASTp {
     *	- alignement par pair (fichier tsv)
     */
 
-	label "diamond"
+	tag 'Diamond BLASTp'
 
 	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond}"
 

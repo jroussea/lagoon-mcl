@@ -1,7 +1,7 @@
 process InformationFiles {
 	
-	label 'darkdino'
-
+	tag ''
+	
 	input:
 		each proteome
 		path information_files
@@ -30,7 +30,8 @@ process SelectLabels {
 	* 	- fichier temporaire (tsv) contenant les colonnes issus des fichiers d'annotations qui vont être utilisé pour annoter les réseau
     */
 
-	label 'darkdino'
+	
+	tag ''
 
 	input:
 		path annot_seq_id
@@ -48,8 +49,8 @@ process SelectLabels {
 
 process LabelHomogeneityScore {
 
-	label 'darkdino'
-	
+	tag ''
+
 	publishDir "${params.outdir}/network/labels/${type}", mode: 'copy', pattern: "label_*.tsv"
 
 	input:

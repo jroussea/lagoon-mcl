@@ -12,11 +12,10 @@ def helpMessage() {
 	For more information, see the documentation: https://lagoon-mcl-docs.readthedocs.io/en/latest
 	=============================================================================================
 
-	Test parameters:
-		nextflow run main.nf -profile test_full,singularity [params]
-	
-	Custom parameters:
-		nextflow run main.nf -profile custom,singularity [params]
+	Profiles:
+		-profile conda
+		-profile mamba
+		-profile singularity
 
 	General parameters
 		
@@ -57,6 +56,14 @@ def helpMessage() {
 		--I                       <list>  Inflation parameter for MCL
 		--max_weight              <int>   Maximum weight for edges
 
+
+	Examples:
+
+	Test parameters:
+		nextflow run main.nf -profile test_full,singularity [params]
+	
+	Custom parameters:
+		nextflow run main.nf -profile custom,singularity [params]
 	"""
 }
 
@@ -185,6 +192,8 @@ workflow{
 	PlotHomScAn(tuple_hom_score_annotated)
 
 	PlotClusterSize(tuple_network)
+	cluster_size = PlotClusterSize.out.cluster_size
+
 }
 
 /*

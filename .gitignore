@@ -7,3 +7,13 @@ preparation_test_datasets.sh
 LAGOON-MCL/
 .nextflow/
 workdir/
+containers/singularity/*.sif
+.ipynb_checkpoints
+result*
+an/
+dinoflagellata_v3.csv
+tr/
+.Rhistory
+.idea
+test/benchmark/
+save/
