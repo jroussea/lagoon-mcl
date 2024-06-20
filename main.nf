@@ -102,8 +102,9 @@ include { NetworkMcl                           } from './modules/network.nf'
 include { NetworkMcxdump                       } from './modules/network.nf'
 include { NetworkMclToTsv                      } from './modules/network.nf'
 include { HomogeneityScore                     } from './modules/statistics.nf'
-include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
-include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
+include { PlotHomogeneityScore                 } from './modules/statistics.nf'
+//include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
+//include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
 include { PlotClusterSize                      } from './modules/statistics.nf'
 
 // préparation des paramètres
@@ -185,14 +186,14 @@ workflow{
 	tuple_network = NetworkMclToTsv.out.tuple_network
 
 	HomogeneityScore(label_network, tuple_network)
-	tuple_hom_score_all = HomogeneityScore.out.tuple_hom_score_all
-	tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
+	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
 
-	PlotHomScAll(tuple_hom_score_all)
-	PlotHomScAn(tuple_hom_score_annotated)
+	PlotHomogeneityScore(tuple_hom_score)
+	//PlotHomScAll(tuple_hom_score_all)
+	//PlotHomScAn(tuple_hom_score_annotated)
 
-	PlotClusterSize(tuple_network)
-	cluster_size = PlotClusterSize.out.cluster_size
+	//PlotClusterSize(tuple_network)
+	//cluster_size = PlotClusterSize.out.cluster_size
 
 }
 
