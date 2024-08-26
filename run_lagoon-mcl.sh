@@ -15,12 +15,13 @@ nextflow run main.nf -profile mamba \
     --max_time '336.h' \
     --projectName lagoon-mcl \
     --fasta "test/full/tr_files_test/*.fasta" \
+    --attributes true \
     --annotation "test/full/an_files_test/*.tsv" \
     --pep_colname peptides \
     --columns_attributes database-identifiant,interproscan \
     --concat_fasta all_sequences \
     --information true \
-    --information_files test/full/in_files_test/*.tsv \
+    --information_files test/full/in_files_test/information_files.tsv \
     --information_attributes Phylum_Metdb,Genus_Metdb,trophic_mode \
     --outdir results \
     --run_diamond true \
@@ -34,5 +35,9 @@ nextflow run main.nf -profile mamba \
     --matrix BLOSUM62 \
     --diamond_evalue 0.001 \
     --I 1.4,2,4 \
-    --max_weight 350
+    --max_weight 350 \
+    --run_gene3d false \
+    --gene3d "test/full/st_files_test/*.csv" \
+    --alphafold_db false \
+    --esm_atlas true \
     -resume
