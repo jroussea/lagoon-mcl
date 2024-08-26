@@ -11,6 +11,8 @@ process NetworkMcxload {
 
 	tag 'MCL'
 
+	label 'mcl'
+
     publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "network.dict"
     publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "network.mci"
 
@@ -48,6 +50,8 @@ process NetworkMcl {
 
 	tag 'MCL'
 
+	label 'mcl'
+
     publishDir "${params.outdir}/network/mcl/mcl", mode: 'copy', pattern: "out.network.mci.I*"
     publishDir "${params.outdir}/network/mcl/mcl", mode: 'copy', pattern: "network_mcl_I${inflation}.graph"
 
@@ -78,6 +82,8 @@ process NetworkMcxdump {
 
 	tag 'MCL'
 
+	label 'mcl'
+
     publishDir "${params.outdir}/network/mcl/mcx_dump", mode: 'copy', pattern: "dump.${network_mcl}"
 
 	input:
@@ -104,6 +110,8 @@ process NetworkMclToTsv {
     */
 
     tag ''
+
+	label 'lagoon'
 
 	publishDir "${params.outdir}/network/mcl/tsv", mode: 'copy', pattern: "network_I*.tsv"
 

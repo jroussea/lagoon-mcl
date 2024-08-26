@@ -11,9 +11,10 @@ process HomogeneityScore {
 
     tag ''
 
+    label 'lagoon'
+
 	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv", mode: 'copy', pattern: "*.tsv"
-    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*all*.txt"
-    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*annotated*.txt"
+    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "label*.txt"
 
     input:
         each label_network
@@ -21,6 +22,7 @@ process HomogeneityScore {
     
     output:
         tuple path("*.tsv"), val("${inflation}"), val("${label_network.baseName}"), emit: tuple_hom_score
+        path "label*.txt"
 
     script:
         """
@@ -31,6 +33,8 @@ process HomogeneityScore {
 process PlotHomogeneityScore {
 
     tag ''
+
+    label 'lagoon'
 
     publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/pdf", mode: 'copy', pattern: "*.pdf"
 
@@ -50,6 +54,8 @@ process PlotHomogeneityScore {
 process PlotClusterSize {
 
     tag ''
+
+    label 'lagoon'
 
     publishDir "${params.outdir}/network_statistics/cluster_size/tsv", mode: 'copy', pattern: "*.tsv"
     publishDir "${params.outdir}/network_statistics/cluster_size/", mode: 'copy', pattern: "*.pdf"

@@ -4,9 +4,6 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - foldseek=9.427df8a=pl5321hb365157_0
-  - diamond=2.1.8=h43eeafb_0
-  - mcl=22.282=pl5321h031d066_1
   - pandas=2.0.3=py311ha02d727_0
   - pip=23.3.1=py311h06a4308_0
   - python=3.11.8=h955ad1f_0

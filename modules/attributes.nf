@@ -2,6 +2,8 @@ process InformationFiles {
 	
 	tag ''
 	
+	label 'lagoon'
+
 	input:
 		each proteome
 		path information_files
@@ -33,6 +35,8 @@ process SelectLabels {
 	
 	tag ''
 
+	label 'lagoon'
+
 	input:
 		path annot_seq_id
 		val columns_attributes
@@ -50,6 +54,9 @@ process SelectLabels {
 process LabelHomogeneityScore {
 
 	tag ''
+
+	label 'lagoon'
+
 
 	publishDir "${params.outdir}/network/labels/${type}", mode: 'copy', pattern: "label_*.tsv"
 

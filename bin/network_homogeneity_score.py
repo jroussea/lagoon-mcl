@@ -119,11 +119,13 @@ def homogeneity_score(cluster, columns_name, cluster_size, column_peptides,
             hom_score = 1-(len(list_label)/cc_size)
 
 
-    for label in list_label:
-
-        with open(f"{basename}_{selection}.txt", 'a', encoding = "utf8") as f:
-        
-            f.write(f"{cc}\t{label}\n")
+    if selection == "all":
+    
+        for label in list_label:
+    
+            with open(f"{basename}.txt", 'a', encoding = "utf8") as f:
+            
+                f.write(f"{cc}\t{label}\n")
 
     return(hom_score)
 
@@ -217,11 +219,10 @@ if __name__ == '__main__':
     main(path_network, path_label, column_peptides, inflation, basename)
 
 
-#path_network = "network_I4.tsv"
+#path_network = "network_I1.4.tsv"
 #path_label = "label_Gene3D.tsv"
 #column_peptides = "peptides"
-#inflation = 4
+#inflation = 1.4
 #basename = "label_Gene3D"
-
 
 #main(path_network, path_label, column_peptides, inflation, basename)

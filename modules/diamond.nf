@@ -11,6 +11,9 @@ process DiamondDB {
 
 	tag 'Diamond makedb'
 
+	label 'diamond'
+
+
 	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond_db}.dmnd"
 
 	input:
@@ -39,20 +42,24 @@ process DiamondBLASTp {
 
 	tag 'Diamond BLASTp'
 
-	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond}"
+	label 'diamond'
+
+	publishDir "${params.outdir}/diamond/${name}", mode: 'copy', pattern: "${name}.tsv"
 
 	input:
 		path fasta_rename
         path diamond_db
+		val name
 
 	output:
-        path "${params.diamond}", emit: diamond_alignment
+		path "${name}.tsv", emit: diamond_alignment
 
 	script:
 		"""
-    	diamond blastp -d ${diamond_db} \
+    	diamond blastp \
+		-d ${diamond_db} \
     	-q ${fasta_rename} \
-    	-o ${params.diamond} \
+    	-o ${name}.tsv \
     	--${params.sensitivity} \
     	-p ${task.cpus} \
     	-e ${params.diamond_evalue} \

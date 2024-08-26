@@ -13,6 +13,8 @@ process FiltrationAlignments {
 
 	tag ''
 
+	label 'lagoon'
+
 	input:
         path diamond_alignment
 
