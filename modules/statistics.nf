@@ -11,24 +11,16 @@ process HomogeneityScore {
 
     tag ''
 
-	//publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
-	//publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
-    //publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/label_all", mode: 'copy', pattern: "*all*.txt"
-    //publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/label_annotated", mode: 'copy', pattern: "*annotated*.txt"
-
-	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv", mode: 'copy', pattern: "*all*.tsv"
+	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv", mode: 'copy', pattern: "*.tsv"
     publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*all*.txt"
-
-   	//publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_all", mode: 'copy', pattern: "*all*.tsv"
-   	//publishDir "$baseDir/lagoon-mcl-shiny/data/homogeneity_score/inflation_${inflation}/tsv_annotated", mode: 'copy', pattern: "*annotated*.tsv"
+    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*annotated*.txt"
 
     input:
         each label_network
         tuple path(network_tsv), val(inflation)
     
     output:
-        tuple path("*all*.tsv"), val("${inflation}"), val("${label_network.baseName}"), val("all"), emit: tuple_hom_score_all
-        tuple path("*annotated*.tsv"), val("${inflation}"), val("${label_network.baseName}"), val("annotated"), emit: tuple_hom_score_annotated
+        tuple path("*.tsv"), val("${inflation}"), val("${label_network.baseName}"), emit: tuple_hom_score
 
     script:
         """
@@ -40,17 +32,17 @@ process PlotHomogeneityScore {
 
     tag ''
 
-    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/pdf_${characteristic}", mode: 'copy', pattern: "*${characteristic}*.pdf"
+    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/pdf", mode: 'copy', pattern: "*.pdf"
 
     input:
-        tuple path(homogeneity_score), val(inflation), val(label_network), val(characteristic)
+        tuple path(homogeneity_score), val(inflation), val(label_network)
 
     output:
-        path "*${characteristic}*.pdf"
+        path "*.pdf"
 
     script:
         """
-        distribution_homogeneity_score.R ${homogeneity_score} ${inflation} ${label_network} ${characteristic}
+        distribution_homogeneity_score.R ${homogeneity_score} ${inflation} ${label_network}
         """
 
 }
