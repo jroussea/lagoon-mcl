@@ -17,3 +17,10 @@ tr/
 .idea
 test/benchmark/
 save/
+bin/homogeneity_score_label_Gene3D_I4.tsv
+bin/label_Gene3D_all.txt
+bin/label_Gene3D_annotated.txt
+bin/label_Gene3D.tsv
+bin/network_I4.tsv
+bin/.RData
+bin/test.pdf
