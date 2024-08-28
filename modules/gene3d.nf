@@ -14,6 +14,7 @@ process DownloadGene3D {
 
    	//publishDir "$baseDir/bin", mode: 'copy', pattern: "assign_cath_superfamilies.py"
 
+	label 'lagoon'
 
 	output:
 	    path "hmms/main.hmm", emit: hmms

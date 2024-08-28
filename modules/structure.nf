@@ -2,6 +2,8 @@ process DownloadAlphafoldDB {
     
     tag ''
     
+	label 'lagoon'
+
     output:
         //stdout
         path "sequences.fasta", emit: alfafoldSequence
@@ -16,6 +18,8 @@ process DownloadESMatlas {
     
     tag ''
     
+	label 'lagoon'
+
     output:
         //stdout
         path "highquality_clust30.fasta", emit: esmSequence
@@ -29,6 +33,8 @@ process DownloadESMatlas {
 process FilterStructure {
     
     tag ''
+
+	label 'lagoon'
 
     input:
         path structure_aln

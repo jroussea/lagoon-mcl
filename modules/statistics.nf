@@ -26,7 +26,7 @@ process HomogeneityScore {
 
     script:
         """
-        network_homogeneity_score.py ${network_tsv} ${label_network} ${params.pep_colname} ${inflation} ${label_network.baseName}
+        network_homogeneity_score.py ${network_tsv} ${label_network} ${params.peptides_column} ${inflation} ${label_network.baseName}
         """
 }
 

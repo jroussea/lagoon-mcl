@@ -16,7 +16,7 @@ process InformationFiles {
 	script:
 
 		"""
-		information_files.sh ${proteome} ${information_files} ${proteome.baseName} ${params.pep_colname}
+		information_files.sh ${proteome} ${information_files} ${proteome.baseName} ${params.peptides_column}
 		"""
 }
 
@@ -46,7 +46,7 @@ process SelectLabels {
 
 	script:
 		"""
-		select_labels.py ${annot_seq_id} ${columns_attributes} ${params.pep_colname} ${annot_seq_id.baseName}
+		select_labels.py ${annot_seq_id} ${columns_attributes} ${params.peptides_column} ${annot_seq_id.baseName}
 		"""
 }
 
@@ -71,6 +71,6 @@ process LabelHomogeneityScore {
 	script:
 
 		"""
-		label_homogeneity_score.py ${select_annotation} ${columns_attributes} ${params.pep_colname}
+		label_homogeneity_score.py ${select_annotation} ${columns_attributes} ${params.peptides_column}
 		"""
 }

@@ -123,6 +123,6 @@ process NetworkMclToTsv {
 
 	script:
 		"""
-        network_dump_to_tsv.sh ${network_dump} ${inflation} ${params.pep_colname}
+        network_dump_to_tsv.sh ${network_dump} ${inflation} ${params.peptides_column}
 		"""
 }
