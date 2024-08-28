@@ -44,22 +44,22 @@ process DiamondBLASTp {
 
 	label 'diamond'
 
-	publishDir "${params.outdir}/diamond/${name}", mode: 'copy', pattern: "${name}.tsv"
+	//publishDir "${params.outdir}/diamond/${name}", mode: 'copy', pattern: "${name}.tsv"
 
 	input:
 		path fasta_rename
         path diamond_db
-		val name
+		//val name
 
 	output:
-		path "${name}.tsv", emit: diamond_alignment
+		path "${fasta_rename.baseName}_alignment.tsv", emit: diamond_alignment
 
 	script:
 		"""
     	diamond blastp \
 		-d ${diamond_db} \
     	-q ${fasta_rename} \
-    	-o ${name}.tsv \
+    	-o ${fasta_rename.baseName}_alignment.tsv \
     	--${params.sensitivity} \
     	-p ${task.cpus} \
     	-e ${params.diamond_evalue} \

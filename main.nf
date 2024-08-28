@@ -221,13 +221,15 @@ workflow {
 		esmSeq = DownloadESMatlas.out.esmSequence
 		esmDb = DiamondDBEsm(esmSeq)
 		
-		DiamondBLASTpEsm(proteome, esmDb, 'esmAtlasDBaln')
-		structure_esm_aln = DiamondBLASTpEsm.out.diamond_alignment
+		DiamondBLASTpEsm(proteome, esmDb)
+		esm_alignment = DiamondBLASTpEsm.out.diamond_alignment
 	}
 	else if (params.esm_aln != null) {
 		esm_alignment = Channel.fromPath(params.esm_aln, checkIfExists: true)
-		structure_esm_aln = esm_alignment.collectFile()
+		//structure_esm_aln = esm_alignment.collectFile()
 	}
+
+	structure_esm_aln = esm_alignment.collectFile()
 
 	FilterStructureEsm(structure_esm_aln)	
 	structure_esm = FilterStructureEsm.out.structure
@@ -247,13 +249,15 @@ workflow {
 			afSeq = DownloadAlphafoldDB.out.alfafoldSequence
 			afDb = DiamondDBAf(afSeq)
 			
-			DiamondBLASTpAf(proteome, afDb, 'alphaFoldDBaln')
-			structure_af_aln = DiamondBLASTpEsm.out.diamond_alignment
+			DiamondBLASTpAf(proteome, afDb)
+			alphafold_alignment = DiamondBLASTpEsm.out.diamond_alignment
 		}
 		else if (params.alphafold_aln != null) {
 			alphafold_alignment = Channel.fromPath(params.alphafold_aln, checkIfExists: true)
-			structure_af_aln = alphafold_alignment.collectFile()
+			//structure_af_aln = alphafold_alignment.collectFile()
 		}
+
+		structure_af_aln = alphafold_alignment.collectFile()
 
 		FilterStructureAf(structure_af_aln)
 		structure_af = FilterStructureAf.out.structure
@@ -326,7 +330,7 @@ workflow {
 		diamond_db = DiamondDB.out.diamond_db
 
 		// diamond blastp
-		DiamondBLASTp(all_sequences, diamond_db, "diamond_alignment")
+		DiamondBLASTp(all_sequences, diamond_db)
 		diamond_alignment = DiamondBLASTp.out.diamond_alignment	
 	}
 	
