@@ -191,17 +191,23 @@ def main(path_network, path_label, column_peptides, inflation, basename):
     df_homogeneity_score_all = df_homogeneity_score_all \
         .merge(cluster_size, on = "CC", how = "right") \
             .replace(np.nan, "unannotated") \
-                .rename(columns = {None : "homogeneity_score_all", 
-                                   "CC_size" : "CC_size_all"})
+                .rename(columns = {
+                    "CC" : "cluster_id",
+                    None : f"{basename}_homogeneity_score_all", 
+                    "CC_size" : "cluster_size"
+                    })
     
     df_homogeneity_score_annotated = df_homogeneity_score_annotated \
         .merge(cluster_size_annotated, on = "CC", how = "right") \
             .replace(np.nan, "unannotated") \
-                .rename(columns = {None : "homogeneity_score_annotated", 
-                                   "CC_size" : "CC_size_annotated"})
+                .rename(columns = {
+                    "CC" : "cluster_id",
+                    None : f"{basename}_homogeneity_score_annotated", 
+                    "CC_size" : f"{basename}_annotated"
+                    })
     
     
-    df_homogeneity_score = pd.merge(df_homogeneity_score_all, df_homogeneity_score_annotated, on = "CC")
+    df_homogeneity_score = pd.merge(df_homogeneity_score_all, df_homogeneity_score_annotated, on = "cluster_id")
     
     df_homogeneity_score.to_csv(f"homogeneity_score_{basename}_I{inflation}.tsv", 
                      sep = "\t", index = None, header = True)
