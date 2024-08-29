@@ -281,7 +281,8 @@ workflow {
 		select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/labels/attributes.tsv")
 
 		LabHomScAt(select_annotation, params.annotation_attrib, "attributes")
-		label_network = LabHomScAt.out.label_network
+		annotation_network = LabHomScAt.out.label_network
+		println("plouf")
 	}
 
 	if (params.information_files != null) {
@@ -296,29 +297,28 @@ workflow {
 		select_info = select_info.collectFile(name: "${params.outdir}/network/labels/informations.tsv")
 
 		LabHomScIn(select_info, params.information_attrib, "information")
-		info_network = LabHomScIn.out.label_network
+		information_network = LabHomScIn.out.label_network
+		println("plaf")
 	}
 
 	if (params.annotation_files != null && params.information_files != null) {
-		label_network = label_network.concat(info_network).collect()
-		label_network = label_network.concat(label_network).collect()
+		label_network = label_network.concat(information_network).collect()
+		label_network = label_network.concat(annotation_network).collect()
 		println("A")
 	} 
 	else if (params.annotation_files == null && params.information_files != null) {
-		label_network = info_network.collect()
-		label_network = label_network.concat(label_network).collect()
+		label_network = label_network.concat(information_network).collect()
 		println("B")
 	}
 	else if (params.annotation_files != null && params.information_files == null) {
-		label_network = info_network.collect()
-		label_network = label_network.concat(label_network).collect()
+		label_network = label_network.concat(annotation_network).collect()
 		println("C")
 	}
-	else if (params.annotation_files == null && params.information_files == null) {
-		label_network = label_network.collect()
-		label_network = label_network.concat(label_network).collect()
-		println("D")
-	}
+	//else if (params.annotation_files == null && params.information_files == null) {
+	//	label_network = label_network.collect()
+	//	label_network = label_network.concat(label_network).collect()
+	//	println("D")
+	//}
 
 	/*
 	run diamond
