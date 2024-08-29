@@ -18,11 +18,8 @@ def main(path_dataframe):
     #                               "sstart", "send", "evalue", "bitscore"])
     
     dataframe = pd.read_csv(path_dataframe, sep = "\t",
-                            names=["qseqid", "sseqid", "pident", "ppos", "length", 
-                                   "mismatch", "gapopen", "qstart", "qend", 
-                                   "sstart", "send", "evalue", "bitscore"])
-    
-    
+                            names=["qseqid", "qlen", "qstart", "qend", "sseqid", "slen", "sstart", "send", "pident", "length", "nident", "mismatch", "gaps", "ppos", "evalue", "bitscore"])
+
     
     idx = dataframe.groupby(['qseqid'])['bitscore'] \
         .transform(max) == dataframe['bitscore']
