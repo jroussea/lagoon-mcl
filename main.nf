@@ -229,7 +229,7 @@ workflow {
 		//structure_esm_aln = esm_alignment.collectFile()
 	}
 
-	structure_esm_aln = esm_alignment.collectFile()
+	structure_esm_aln = esm_alignment.collectFile(name: "${params.outdir}/esm.tsv")
 
 	FilterStructureEsm(structure_esm_aln)	
 	structure_esm = FilterStructureEsm.out.structure
@@ -257,7 +257,7 @@ workflow {
 			//structure_af_aln = alphafold_alignment.collectFile()
 		}
 
-		structure_af_aln = alphafold_alignment.collectFile()
+		structure_af_aln = alphafold_alignment.collectFile(name: "${params.outdir}/af.tsv")
 
 		FilterStructureAf(structure_af_aln)
 		structure_af = FilterStructureAf.out.structure

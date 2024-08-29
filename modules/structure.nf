@@ -36,6 +36,8 @@ process FilterStructure {
 
 	label 'lagoon'
 
+	publishDir "${params.outdir}", mode: 'copy', pattern: "${structure_aln.baseName}_alignment.tsv"
+
     input:
         path structure_aln
 
