@@ -54,3 +54,22 @@ process FilterStructure {
         paste col2 col1 > ${structure_aln.baseName}_alignment.tsv
         """
 }
+
+process StatStructure {
+
+    tag ''
+
+    label 'lagoon'
+
+    input:
+        path structure
+        tuple path(network_tsv), val(inflation)
+        val peptides_column
+        val type
+
+    output:
+        stdout
+
+    script:
+        statistics_structure.py ${peptides_column} ${structure} {network_tsv} {inflation} ${structure.baseName}
+}

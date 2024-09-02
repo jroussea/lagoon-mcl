@@ -108,8 +108,10 @@ include { DiamondDB as DiamondDBEsm            } from './modules/diamond.nf'
 
 // Diamond tools (blastp)
 include { DiamondBLASTp                        } from './modules/diamond.nf'
-include { DiamondBLASTp as DiamondBLASTpAf   } from './modules/diamond.nf'
-include { DiamondBLASTp as DiamondBLASTpEsm  } from './modules/diamond.nf'
+// include { DiamondBLASTp as DiamondBLASTpAf   } from './modules/diamond.nf'
+// include { DiamondBLASTp as DiamondBLASTpEsm  } from './modules/diamond.nf'
+include { DiamondBLASTpStructure as BLASTpESM  } from './modules/diamond.nf'
+include { DiamondBLASTpStructure as BLASTpAF   } from './modules/diamond.nf'
 
 // create network
 include { FiltrationAlignments                 } from './modules/filtration.nf'
@@ -129,6 +131,8 @@ include { DownloadAlphafoldDB                  } from './modules/structure.nf'
 // include { FilterStructure                      } from './modules/structure.nf'
 include { FilterStructure as FilterStructureEsm} from './modules/structure.nf'
 include { FilterStructure as FilterStructureAf } from './modules/structure.nf'
+include { StatStructure as StatsEsm            } from './modules/structure.nf'
+include { StatStructure as StatsAf             } from './modules/structure.nf'
 
 include { DownloadGene3D                       } from './modules/gene3d.nf'
 include { HMMsearch                            } from './modules/gene3d.nf'
@@ -209,7 +213,7 @@ workflow {
 	classification = CathAnalysis.out.classification
 
 	HomScCath(classification, "class,architecture,topology,superfamily", "sequence_id")
-	cath_network = HomScCath.out.label_network
+	label_network = HomScCath.out.label_network
 
 	/*
 	structure prediction
@@ -221,8 +225,8 @@ workflow {
 		esmSeq = DownloadESMatlas.out.esmSequence
 		esmDb = DiamondDBEsm(esmSeq)
 		
-		DiamondBLASTpEsm(proteome, esmDb)
-		esm_alignment = DiamondBLASTpEsm.out.diamond_alignment
+		BLASTpESM(proteome, esmDb)
+		esm_alignment = BLASTpESM.out.diamond_alignment
 	}
 	else if (params.esm_aln != null) {
 		esm_alignment = Channel.fromPath(params.esm_aln, checkIfExists: true)
@@ -233,12 +237,14 @@ workflow {
 
 	FilterStructureEsm(structure_esm_aln)	
 	structure_esm = FilterStructureEsm.out.structure
-		
-	HomScEsm(structure_esm, "esmAtlas_structure", "structure")
-	structure_esm_network = HomScEsm.out.label_network
+	
+
+	
+	// HomScEsm(structure_esm, "esmAtlas_structure", "structure")
+	// structure_esm_network = HomScEsm.out.label_network
 
 	// structure = cath_network.concat(structure_esm_network).collect()
-	label_network = cath_network.concat(structure_esm_network).collect()
+	// label_network = cath_network.concat(structure_esm_network).collect()
 
 
 	if (params.scan_alphafold_db == true || params.alphafold_aln != null) {
@@ -249,8 +255,8 @@ workflow {
 			afSeq = DownloadAlphafoldDB.out.alfafoldSequence
 			afDb = DiamondDBAf(afSeq)
 			
-			DiamondBLASTpAf(proteome, afDb)
-			alphafold_alignment = DiamondBLASTpEsm.out.diamond_alignment
+			BLASTpAF(proteome, afDb)
+			alphafold_alignment = BLASTpAF.out.diamond_alignment
 		}
 		else if (params.alphafold_aln != null) {
 			alphafold_alignment = Channel.fromPath(params.alphafold_aln, checkIfExists: true)
@@ -262,10 +268,10 @@ workflow {
 		FilterStructureAf(structure_af_aln)
 		structure_af = FilterStructureAf.out.structure
 		
-		HomScAf(structure_af, "alpholdDb_structure", "structure")
-		structure_af_network = HomScAf.out.label_network
+		// HomScAf(structure_af, "alpholdDb_structure", "structure")
+		// structure_af_network = HomScAf.out.label_network
 
-		label_network = label_network.concat(structure_af_network).collect()
+		// label_network = label_network.concat(structure_af_network).collect()
 	}
 
 	/*

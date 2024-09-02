@@ -93,6 +93,8 @@ def homogeneity_score(cluster, columns_name, cluster_size, column_peptides,
     
     list_label = cluster[columns_name].unique().tolist()
     cc = cluster["CC"].unique().tolist()[0]
+
+
     
     if len(list_label) == 1:
         
@@ -121,11 +123,13 @@ def homogeneity_score(cluster, columns_name, cluster_size, column_peptides,
 
     if selection == "all":
     
+        plouf = cluster[column_peptides].unique().tolist()[0]
+
         for label in list_label:
-    
+
             with open(f"{basename}.txt", 'a', encoding = "utf8") as f:
             
-                f.write(f"{cc}\t{label}\n")
+                f.write(f"{cc}\t{plouf}\t{label}\n")
 
     return(hom_score)
 
