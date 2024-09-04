@@ -21,7 +21,7 @@ def load_dataframe(path_attributes, list_columns):
 
 def save_dataframe(df_label, label):
 
-    df_label.to_csv(f"label_{label}.tsv", sep='\t', index=False)    
+    df_label.to_csv(f"{label}.tsv", sep='\t', index=False)    
 
 
 def main(path_attributes, labels, column_peptides):

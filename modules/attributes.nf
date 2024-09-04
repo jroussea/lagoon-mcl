@@ -58,7 +58,7 @@ process LabelHomogeneityScore {
 	label 'lagoon'
 
 
-	publishDir "${params.outdir}/network/labels/${type}", mode: 'copy', pattern: "label_*.tsv"
+	publishDir "${params.outdir}/network/labels/${type}", mode: 'copy', pattern: "*.tsv"
 
 	input:
 		path select_annotation
@@ -66,11 +66,36 @@ process LabelHomogeneityScore {
 		val type
 
 	output:
-		path "label_*.tsv", emit: label_network
+		path "*.tsv", emit: label_network
 
 	script:
 
 		"""
 		label_homogeneity_score.py ${select_annotation} ${columns_attributes} ${params.peptides_column}
+		"""
+}
+
+
+process LabelTest {
+
+	tag ''
+
+	label 'lagoon'
+
+
+	publishDir "${params.outdir}/network/", mode: 'copy', pattern: "*.tsv"
+
+	input:
+		path information
+
+	output:
+		path "*.tsv", emit: lab
+
+	script:
+
+		"""
+		
+		test_label.py ${information} ${params.peptides_column} ${params.information_attrib}
+
 		"""
 }

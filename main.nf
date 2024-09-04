@@ -89,14 +89,15 @@ log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import modules
-include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
-include { SelectLabels as SelectLabelInfo      } from './modules/attributes.nf'
+//include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
+//include { SelectLabels as SelectLabelInfo      } from './modules/attributes.nf'
+
 
 include { InformationFiles                     } from './modules/attributes.nf'
 
 
-include { LabelHomogeneityScore as LabHomScAt  } from './modules/attributes.nf'
-include { LabelHomogeneityScore as LabHomScIn  } from './modules/attributes.nf'
+//include { LabelHomogeneityScore as LabHomScAt  } from './modules/attributes.nf'
+//include { LabelHomogeneityScore as LabHomScIn  } from './modules/attributes.nf'
 include { LabelHomogeneityScore as HomScCath   } from './modules/attributes.nf'
 include { LabelHomogeneityScore as HomScEsm    } from './modules/attributes.nf'
 include { LabelHomogeneityScore as HomScAf     } from './modules/attributes.nf'
@@ -105,6 +106,8 @@ include { LabelHomogeneityScore as HomScAf     } from './modules/attributes.nf'
 include { DiamondDB                            } from './modules/diamond.nf'
 include { DiamondDB as DiamondDBAf             } from './modules/diamond.nf'
 include { DiamondDB as DiamondDBEsm            } from './modules/diamond.nf'
+
+include { LabelTest         } from './modules/attributes.nf'
 
 // Diamond tools (blastp)
 include { DiamondBLASTp                        } from './modules/diamond.nf'
@@ -121,7 +124,7 @@ include { NetworkMcxdump                       } from './modules/network.nf'
 include { NetworkMclToTsv                      } from './modules/network.nf'
 include { HomogeneityScore                     } from './modules/statistics.nf'
 include { PlotHomogeneityScore                 } from './modules/statistics.nf'
-
+include { TestChannel } from './modules/statistics.nf'
 //include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
 //include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
 //include { PlotClusterSize                      } from './modules/statistics.nf'
@@ -280,14 +283,14 @@ workflow {
 
 	if (params.annotation_files != null) {
 
-		annotation_files = Channel.fromPath(params.annotation_files, checkIfExists: true)
+		annotation_network = Channel.fromPath(params.annotation_files, checkIfExists: true)
 
-		SelectLabelAttrib(annotation_files, params.annotation_attrib)
-		select_annotation = SelectLabelAttrib.out.select_annotation
-		select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/labels/attributes.tsv")
+		//SelectLabelAttrib(annotation_files, params.annotation_attrib)
+		//select_annotation = SelectLabelAttrib.out.select_annotation
+		//select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/labels/attributes.tsv")
 
-		LabHomScAt(select_annotation, params.annotation_attrib, "attributes")
-		annotation_network = LabHomScAt.out.label_network
+		//LabHomScAt(select_annotation, params.annotation_attrib, "attributes")
+		//annotation_network = LabHomScAt.out.label_network
 		println("plouf")
 	}
 
@@ -298,12 +301,16 @@ workflow {
 		InformationFiles(proteome, information_files)
 		proteome_info = InformationFiles.out.proteome_info
 
-		SelectLabelInfo(proteome_info, params.information_attrib)
-		select_info = SelectLabelInfo.out.select_annotation
-		select_info = select_info.collectFile(name: "${params.outdir}/network/labels/informations.tsv")
+		//SelectLabelInfo(proteome_info, params.information_attrib)
+		//select_info = SelectLabelInfo.out.select_annotation
+		select_info = proteome_info.collectFile(name: "${params.outdir}/network/plouf.tsv")
 
-		LabHomScIn(select_info, params.information_attrib, "information")
-		information_network = LabHomScIn.out.label_network
+		//LabHomScIn(select_info, params.information_attrib, "information")
+		//information_network = LabHomScIn.out.label_network
+		
+		LabelTest(select_info)
+		information_network = LabelTest.out.lab
+
 		println("plaf")
 	}
 
@@ -357,7 +364,11 @@ workflow {
 
 	HomogeneityScore(label_network, tuple_network)
 	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
-	
+
+	TestChannel(tuple_hom_score)
+
+	tuple_hom_score.merge(tuple_hom_score, name: "${params.outdir}/plaf.tsv").view()
+
 	//tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
 
 	//PlotHomScAll(tuple_hom_score_all)
