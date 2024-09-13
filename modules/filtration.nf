@@ -23,6 +23,6 @@ process FiltrationAlignments {
 
 	script:
 		"""
-    	filtration_alignment.py ${diamond_alignment} ${params.query} ${params.subject} ${params.evalue}
+		test.sh ${diamond_alignment}
 		"""
 }

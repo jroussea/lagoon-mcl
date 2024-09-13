@@ -83,7 +83,7 @@ nextflow run main.nf -profile mamba \
     --scan_esm_atlas true \
     --scan_alphafold_db false \
     --peptides_column peptides \
-    --annnotation_files "test/full/an_files_test/*.tsv" \
+    --annotation_files "test/full/an_files_test/*.tsv" \
     --annotation_attrib database-identifiant,interproscan \
     --information_files test/full/in_files_test/information_files.tsv \
     --information_attrib Phylum_Metdb,Genus_Metdb,trophic_mode \

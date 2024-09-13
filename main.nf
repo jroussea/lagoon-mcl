@@ -124,7 +124,7 @@ include { NetworkMcxdump                       } from './modules/network.nf'
 include { NetworkMclToTsv                      } from './modules/network.nf'
 include { HomogeneityScore                     } from './modules/statistics.nf'
 include { PlotHomogeneityScore                 } from './modules/statistics.nf'
-include { TestChannel } from './modules/statistics.nf'
+//include { TestChannel } from './modules/statistics.nf'
 //include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
 //include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
 //include { PlotClusterSize                      } from './modules/statistics.nf'
@@ -180,7 +180,7 @@ workflow {
 
 	// concaténation de tous les fichiers FASTA
 	
-	all_sequences = proteome.collectFile(name: "all_sequences.fasta")
+	all_sequences = proteome.collectFile(name: "${params.outdir}/all_sequences.fasta")
 
 	/*
 	CATH / Gene3D
@@ -365,9 +365,7 @@ workflow {
 	HomogeneityScore(label_network, tuple_network)
 	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
 
-	TestChannel(tuple_hom_score)
-
-	tuple_hom_score.merge(tuple_hom_score, name: "${params.outdir}/plaf.tsv").view()
+	//TestChannel(tuple_hom_score)
 
 	//tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
 

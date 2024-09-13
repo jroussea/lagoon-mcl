@@ -61,7 +61,7 @@ process DiamondBLASTp {
     	-p ${task.cpus} \
     	-e ${params.diamond_evalue} \
     	--matrix ${params.matrix} \
-		--outfmt 6 qseqid sseqid pident ppos length mismatch gapopen qstart qend sstart send evalue bitscore
+		--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
 		"""
 }
 

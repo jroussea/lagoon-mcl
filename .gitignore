@@ -43,3 +43,11 @@ test/p
 test/seqs.crh
 test/seqs.crh.csv
 test/seqs.hmmsearch
+p
+classification.csv
+MGYP002537940442.pdb
+test_align_structure/
+bin/A.tsv
+bin/basename.info
+bin/B.tsv
+bin/C.tsv
