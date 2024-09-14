@@ -1,0 +1,11 @@
+Bootstrap: docker
+From: continuumio/anaconda2
+
+%post
+	apt-get update && apt install -y procps g++
+	
+	conda install -c conda-forge -c bioconda cath-tools=0.16.5=h78a066a_0
+	
+%labels
+	Maintener Jérémy Rousseau, MNHN - Paris
+	Version 1.1.0
