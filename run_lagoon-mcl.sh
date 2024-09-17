@@ -76,9 +76,9 @@ nextflow run main.nf -profile singularity \
     --max_cpus 15 \
     --max_memory '60.GB' \
     --max_time '336.h' \
-    --projectName lagoon-mcl \
+    --projectName lagoon-mcl-2 \
     --fasta "test/full/tr_files_test/*.fasta" \
-    --outdir results \
+    --outdir results-2 \
     --scan_gene3d true \
     --scan_esm_atlas true \
     --scan_alphafold_db false \
