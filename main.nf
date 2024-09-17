@@ -12,12 +12,10 @@ def helpMessage() {
 	For more information, see the documentation: https://lagoon-mcl-docs.readthedocs.io/en/latest
 	=============================================================================================
 
-	Profiles:
-		-profile conda
-		-profile mamba
-		-profile singularity
+	/* Profiles */
+		-profile conda or mamba or singularity
 
-	General parameters
+	/* General parameters */
 		
 		--help                    <bool>  true or false. Affiche cette aide
 
@@ -28,26 +26,36 @@ def helpMessage() {
    		--projectName             <str>   Name of the project 
 
 		--fasta                   <path>  Path to fasta files
-		--annotation              <path>  Path to sequence annotation files
-		--pep_colname             <str>   Name of the column containing the sequence names in the annotation file(s)
-		--columns_attributes      <list>  Name of the columns that will be used to annotate the networks
-
    		--outdir                  <path>  Path to the folder containing the results
 
-		--concat_fasta            <str>   Name of the file that will contain all the fasta sequences
 
-		--information             <str>
-		--information_files       <paht>
-		--information_attributes  <list>
+
+	/* CATH / Gene3D */
+
+		--scan_gene3d	<bool>
+		--gene3d_aln	<path>
+
+
+
+	/* ESM Metagenomic Atlas */
+
+		--scan_esm_atlas	<bool>
+		--esm_aln	<path>
+
+
+
+	/* AlphaFolde Protein Structure Database */
+
+		--scan_alphafold_db	<bool>
+		--alphafold_aln	<path>
+
+
+
+	/* Sequence Similarity Sequence */
 
 		--run_diamond             <bool>  Allows you to specify whether you want to execute diamond (true or false)
-		--alignment_file          <path>  Path to a file containing pairwise alignments (if --run_diamond false)
 		--diamond_db              <str>   Name of the database created with the diamond makedb command
-
-		--query                   <int>   Position of the column in the alignment file containing the query sequences
-		--subject                 <int>   Position of the column in the alignment file containing the subject sequences
-		--evalue                  <int>   Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences 
-
+		--alignment_file          <path>  Path to a file containing pairwise alignments (if --run_diamond false)
 		--diamond                 <str>   Name of the file containing the pairwise alignment from Diamond blastp
 		--sensitivity             <str>   Diamond sensitivity setting
 		--matrix                  <str>   Matrix used for alignment
@@ -57,13 +65,27 @@ def helpMessage() {
 		--max_weight              <int>   Maximum weight for edges
 
 
+
+	/* Other attributes */
+
+		--pep_colname             <str>   Name of the column containing the sequence names in the annotation file(s)
+
+		--annotation_files		<path>
+		--annotation_attrib      <list>  Name of the columns that will be used to annotate the networks
+
+		--information_files       <paht>
+		--information_attrib  <list>
+
+
+
+
 	Examples:
 
 	Test parameters:
-		nextflow run main.nf -profile test_full,singularity [params]
+		nextflow run main.nf -profile singularity [params]
 	
 	Custom parameters:
-		nextflow run main.nf -profile custom,singularity [params]
+		nextflow run main.nf -profile singularity [params]
 	"""
 }
 
@@ -89,60 +111,77 @@ log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import modules
+
+/* CATH / Gene3D */
+
+include { DownloadGene3D                   } from './modules/gene3d.nf'
+include { HMMsearch                        } from './modules/gene3d.nf'
+include { CathResolveHits                  } from './modules/gene3d.nf'
+include { AssignSuperfamilies              } from './modules/gene3d.nf'
+include { SelectSuperfamilies              } from './modules/gene3d.nf'
+include { CathAnalysis                     } from './modules/gene3d.nf'
+
+/* ESM Metagenomic Atlas */
+
+include { DownloadESMatlas                 } from './modules/structure_database.nf'
+include { DiamondDB as DiamondDBEsm        } from './modules/diamond.nf'
+include { DiamondBLASTp as BLASTpESM       } from './modules/diamond.nf'
+include { FiltrationAlnStructure as StrEsm } from './modules/diamond.nf'
+// include { StatStructure as StatsEsm        } from './modules/structure_database.nf'
+
+/* AlphaFolde Protein Structure Database */
+
+include { DownloadAlphafoldDB              } from './modules/structure_database.nf'
+include { DiamondDB as DiamondDBAf         } from './modules/diamond.nf'
+include { DiamondBLASTp as BLASTpAF        } from './modules/diamond.nf'
+include { FiltrationAlnStructure as StrAf  } from './modules/diamond.nf'
+// include { StatStructure as StatsAf         } from './modules/structure_database.nf'
+
+/* Sequence Similarity Sequence */
+
+include { DiamondDB                        } from './modules/diamond.nf'
+include { DiamondBLASTp                    } from './modules/diamond.nf'
+include { FiltrationAlnNetwork             } from './modules/diamond.nf'
+include { NetworkMcxload                   } from './modules/network.nf'
+include { NetworkMcl                       } from './modules/network.nf'
+include { NetworkMcxdump                   } from './modules/network.nf'
+include { NetworkMclToTsv                  } from './modules/network.nf'
+
+/* Other attributes */
+
+include { InformationFiles                 } from './modules/attributes.nf'
+include { LabInformation                   } from './modules/attributes.nf'
+
+/* Statistics and homogeneity score */
+
+include { LabHomScore as HomScCath         } from './modules/attributes.nf'
+include { LabHomScore as HomScEsm          } from './modules/attributes.nf'
+include { LabHomScore as HomScAf           } from './modules/attributes.nf'
+include { HomogeneityScore                 } from './modules/statistics.nf'
+include { PlotHomogeneityScore             } from './modules/statistics.nf'
+
+/* CATH / Gene3D */
+
+
 //include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
 //include { SelectLabels as SelectLabelInfo      } from './modules/attributes.nf'
 
-
-include { InformationFiles                     } from './modules/attributes.nf'
-
-
 //include { LabelHomogeneityScore as LabHomScAt  } from './modules/attributes.nf'
 //include { LabelHomogeneityScore as LabHomScIn  } from './modules/attributes.nf'
-include { LabelHomogeneityScore as HomScCath   } from './modules/attributes.nf'
-include { LabelHomogeneityScore as HomScEsm    } from './modules/attributes.nf'
-include { LabelHomogeneityScore as HomScAf     } from './modules/attributes.nf'
 
 // Diamond tools (makedb)
-include { DiamondDB                            } from './modules/diamond.nf'
-include { DiamondDB as DiamondDBAf             } from './modules/diamond.nf'
-include { DiamondDB as DiamondDBEsm            } from './modules/diamond.nf'
-
-include { LabelTest         } from './modules/attributes.nf'
 
 // Diamond tools (blastp)
-include { DiamondBLASTp                        } from './modules/diamond.nf'
 // include { DiamondBLASTp as DiamondBLASTpAf   } from './modules/diamond.nf'
 // include { DiamondBLASTp as DiamondBLASTpEsm  } from './modules/diamond.nf'
-include { DiamondBLASTpStructure as BLASTpESM  } from './modules/diamond.nf'
-include { DiamondBLASTpStructure as BLASTpAF   } from './modules/diamond.nf'
 
 // create network
-include { FiltrationAlignments                 } from './modules/filtration.nf'
-include { NetworkMcxload                       } from './modules/network.nf'
-include { NetworkMcl                           } from './modules/network.nf'
-include { NetworkMcxdump                       } from './modules/network.nf'
-include { NetworkMclToTsv                      } from './modules/network.nf'
-include { HomogeneityScore                     } from './modules/statistics.nf'
-include { PlotHomogeneityScore                 } from './modules/statistics.nf'
 //include { TestChannel } from './modules/statistics.nf'
 //include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
 //include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
 //include { PlotClusterSize                      } from './modules/statistics.nf'
 
-include { DownloadESMatlas                     } from './modules/structure.nf'
-include { DownloadAlphafoldDB                  } from './modules/structure.nf'
 // include { FilterStructure                      } from './modules/structure.nf'
-include { FilterStructure as FilterStructureEsm} from './modules/structure.nf'
-include { FilterStructure as FilterStructureAf } from './modules/structure.nf'
-include { StatStructure as StatsEsm            } from './modules/structure.nf'
-include { StatStructure as StatsAf             } from './modules/structure.nf'
-
-include { DownloadGene3D                       } from './modules/gene3d.nf'
-include { HMMsearch                            } from './modules/gene3d.nf'
-include { CathResolveHits                      } from './modules/gene3d.nf'
-include { AssignSuperfamilies                  } from './modules/gene3d.nf'
-include { SelectSuperfamilies                  } from './modules/gene3d.nf'
-include { CathAnalysis                         } from './modules/gene3d.nf'
 
 // préparation des paramètres
 List<Number> list_inflation = Arrays.asList(params.I.split(","))
@@ -182,9 +221,7 @@ workflow {
 	
 	all_sequences = proteome.collectFile(name: "${params.outdir}/all_sequences.fasta")
 
-	/*
-	CATH / Gene3D
-	*/
+	/* CATH / Gene3D */
 
 	//if (params.run_gene3d == true) {
 	if (params.scan_gene3d == true && params.gene3d_aln == null) {
@@ -194,7 +231,9 @@ workflow {
 		cath_domain_list = DownloadGene3D.out.cath_domain_list
 		discontinuous_regs = DownloadGene3D.out.discontinuous_regs
 
-		HMMsearch(proteome, hmms)
+		split_fasta_cath = all_sequences.splitFasta(by: 10000, file: true)
+
+		HMMsearch(split_fasta_cath, hmms)
 		hmmsearch = HMMsearch.out.hmmsearch
 
 		CathResolveHits(hmmsearch)
@@ -218,9 +257,7 @@ workflow {
 	HomScCath(classification, "class,architecture,topology,superfamily", "sequence_id")
 	label_network = HomScCath.out.label_network
 
-	/*
-	structure prediction
-	*/
+	/* ESM Metagenomic Atlas */
 
 	if (params.scan_esm_atlas == true && params.esm_aln == null) {
 		DownloadESMatlas()
@@ -228,8 +265,12 @@ workflow {
 		esmSeq = DownloadESMatlas.out.esmSequence
 		esmDb = DiamondDBEsm(esmSeq)
 		
-		BLASTpESM(proteome, esmDb)
-		esm_alignment = BLASTpESM.out.diamond_alignment
+		split_fasta_esm = all_sequences.splitFasta(by: 10000, file: true)
+
+		BLASTpESM(split_fasta_esm, esmDb)
+		split_alignment_esm = BLASTpESM.out.diamond_alignment
+
+		esm_alignment = split_alignment_esm.collectFile()
 	}
 	else if (params.esm_aln != null) {
 		esm_alignment = Channel.fromPath(params.esm_aln, checkIfExists: true)
@@ -238,10 +279,8 @@ workflow {
 
 	structure_esm_aln = esm_alignment.collectFile(name: "${params.outdir}/esm.tsv")
 
-	FilterStructureEsm(structure_esm_aln)	
-	structure_esm = FilterStructureEsm.out.structure
-	
-
+	StrEsm(structure_esm_aln)	
+	structure_esm = StrEsm.out.structure
 	
 	// HomScEsm(structure_esm, "esmAtlas_structure", "structure")
 	// structure_esm_network = HomScEsm.out.label_network
@@ -249,6 +288,7 @@ workflow {
 	// structure = cath_network.concat(structure_esm_network).collect()
 	// label_network = cath_network.concat(structure_esm_network).collect()
 
+	/* AlphaFolde Protein Structure Database */
 
 	if (params.scan_alphafold_db == true || params.alphafold_aln != null) {
 
@@ -258,8 +298,12 @@ workflow {
 			afSeq = DownloadAlphafoldDB.out.alfafoldSequence
 			afDb = DiamondDBAf(afSeq)
 			
-			BLASTpAF(proteome, afDb)
-			alphafold_alignment = BLASTpAF.out.diamond_alignment
+			split_fasta_af = all_sequences.splitFasta(by: 100000)
+
+			BLASTpAF(split_fasta_af, afDb)
+			split_alignment_af = BLASTpAF.out.diamond_alignment
+
+			alphafold_alignment = split_alignment_af.collectFile()
 		}
 		else if (params.alphafold_aln != null) {
 			alphafold_alignment = Channel.fromPath(params.alphafold_aln, checkIfExists: true)
@@ -268,8 +312,8 @@ workflow {
 
 		structure_af_aln = alphafold_alignment.collectFile(name: "${params.outdir}/af.tsv")
 
-		FilterStructureAf(structure_af_aln)
-		structure_af = FilterStructureAf.out.structure
+		StrAf(structure_af_aln)
+		structure_af = StrAf.out.structure
 		
 		// HomScAf(structure_af, "alpholdDb_structure", "structure")
 		// structure_af_network = HomScAf.out.label_network
@@ -277,9 +321,7 @@ workflow {
 		// label_network = label_network.concat(structure_af_network).collect()
 	}
 
-	/*
-	annotation / information
-	*/
+	/* Other attributes */
 
 	if (params.annotation_files != null) {
 
@@ -291,7 +333,7 @@ workflow {
 
 		//LabHomScAt(select_annotation, params.annotation_attrib, "attributes")
 		//annotation_network = LabHomScAt.out.label_network
-		println("plouf")
+		//println("plouf")
 	}
 
 	if (params.information_files != null) {
@@ -301,6 +343,7 @@ workflow {
 		InformationFiles(proteome, information_files)
 		proteome_info = InformationFiles.out.proteome_info
 
+
 		//SelectLabelInfo(proteome_info, params.information_attrib)
 		//select_info = SelectLabelInfo.out.select_annotation
 		select_info = proteome_info.collectFile(name: "${params.outdir}/network/plouf.tsv")
@@ -308,24 +351,24 @@ workflow {
 		//LabHomScIn(select_info, params.information_attrib, "information")
 		//information_network = LabHomScIn.out.label_network
 		
-		LabelTest(select_info)
-		information_network = LabelTest.out.lab
+		LabInformation(select_info)
+		information_network = LabInformation.out.lab
 
-		println("plaf")
+		//println("plaf")
 	}
 
 	if (params.annotation_files != null && params.information_files != null) {
 		label_network = label_network.concat(information_network).collect()
 		label_network = label_network.concat(annotation_network).collect()
-		println("A")
+		//println("A")
 	} 
 	else if (params.annotation_files == null && params.information_files != null) {
 		label_network = label_network.concat(information_network).collect()
-		println("B")
+		//println("B")
 	}
 	else if (params.annotation_files != null && params.information_files == null) {
 		label_network = label_network.concat(annotation_network).collect()
-		println("C")
+		//println("C")
 	}
 	//else if (params.annotation_files == null && params.information_files == null) {
 	//	label_network = label_network.collect()
@@ -333,10 +376,8 @@ workflow {
 	//	println("D")
 	//}
 
-	/*
-	run diamond
-	*/
-	
+	/* Sequence Similarity Sequence */
+
 	if (params.run_diamond == true) {
 		// diamond database
 		DiamondDB(all_sequences)
@@ -347,8 +388,8 @@ workflow {
 		diamond_alignment = DiamondBLASTp.out.diamond_alignment	
 	}
 	
-	FiltrationAlignments(diamond_alignment)
-	diamond_ssn = FiltrationAlignments.out.diamond_ssn
+	FiltrationAlnNetwork(diamond_alignment)
+	diamond_ssn = FiltrationAlnNetwork.out.diamond_ssn
 
 	NetworkMcxload(diamond_ssn)        
 	tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
@@ -364,6 +405,8 @@ workflow {
 
 	HomogeneityScore(label_network, tuple_network)
 	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
+
+	/* Statistics and homogeneity score */
 
 	//TestChannel(tuple_hom_score)
 

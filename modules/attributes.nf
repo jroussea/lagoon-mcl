@@ -11,26 +11,52 @@ process InformationFiles {
 	output:
 		//stdout
 		//path "${params.concat_fasta}.rename.fasta", emit: fasta_rename
-		path  "${proteome.baseName}.info", emit: proteome_info
+		path  "${proteome.baseName}.info.tsv", emit: proteome_info
 
 	script:
 
 		"""
-		information_files.sh ${proteome} ${information_files} ${proteome.baseName} ${params.peptides_column}
+		information_for_all_sequences.sh ${proteome} ${information_files} ${proteome.baseName} ${params.peptides_column}
+
+		sequence_information_selection.py ${proteome.baseName}.info ${params.peptides_column} ${params.information_attrib}
 		"""
 }
 
+process LabInformation {
 
+	tag ''
+
+	label 'lagoon'
+
+
+	publishDir "${params.outdir}/network/", mode: 'copy', pattern: "*.tsv"
+
+	input:
+		path information
+
+	output:
+		path "*.tsv", emit: lab
+
+	script:
+
+		"""
+		
+		one_tsv_per_information.py ${information} ${params.peptides_column} ${params.information_attrib}
+
+		"""
+}
+
+/*
 process SelectLabels {
 
-	/*
+	
     * Processus : récupéer les colonnes contenant les informations utile pour l'annotation des réseaux
     *
     * Input:
     *	- fichier tsv contenant les annotations (informations) pour les séquences => les noms des séquences ont été remplacé par les identifiants
     * Output:
 	* 	- fichier temporaire (tsv) contenant les colonnes issus des fichiers d'annotations qui vont être utilisé pour annoter les réseau
-    */
+    
 
 	
 	tag ''
@@ -49,9 +75,9 @@ process SelectLabels {
 		select_labels.py ${annot_seq_id} ${columns_attributes} ${params.peptides_column} ${annot_seq_id.baseName}
 		"""
 }
+*/
 
-
-process LabelHomogeneityScore {
+process LabHomScore {
 
 	tag ''
 
@@ -76,26 +102,3 @@ process LabelHomogeneityScore {
 }
 
 
-process LabelTest {
-
-	tag ''
-
-	label 'lagoon'
-
-
-	publishDir "${params.outdir}/network/", mode: 'copy', pattern: "*.tsv"
-
-	input:
-		path information
-
-	output:
-		path "*.tsv", emit: lab
-
-	script:
-
-		"""
-		
-		test_label.py ${information} ${params.peptides_column} ${params.information_attrib}
-
-		"""
-}

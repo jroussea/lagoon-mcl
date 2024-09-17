@@ -65,6 +65,63 @@ process DiamondBLASTp {
 		"""
 }
 
+process FiltrationAlnNetwork {
+    
+	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: 'diamond_ssn.tsv'
+	/*
+	* Processus : suppression des séquences fasta qui n'apparaissent qu'une seul foit dans le fichier d'alignement
+	* cela signifie que les séquences se sont uniquement aligné contre elle même
+    *
+    * Input:
+    * 	- fichier d'alignement tsv issu de diamond balstp
+    * Output:
+    *	- fichier d'alignement tsv
+    */
+
+	tag ''
+
+	label 'lagoon'
+
+	input:
+        path diamond_alignment
+
+	output:
+        path "diamond_ssn.tsv", emit: diamond_ssn
+
+	script:
+		"""
+		filtration_diamond_blastp_network.sh ${diamond_alignment}
+		"""
+}
+
+process FiltrationAlnStructure {
+    
+    tag ''
+
+	label 'lagoon'
+
+	//publishDir "${params.outdir}", mode: 'copy', pattern: "${structure_aln.baseName}_alignment.tsv"
+
+    input:
+        path structure_aln
+
+    output:
+        path "${structure_aln.baseName}_alignment.tsv", emit: structure
+
+    script:
+        """
+        cut -f 1,5,10,13 ${structure_aln} > structure.aln
+
+        filtration_diamond_blastp_structure.py structure.aln
+
+        cut -f 1 filter_*.aln > col1 
+        cut -f 2 filter_*.aln > col2
+
+        paste col2 col1 > ${structure_aln.baseName}_alignment.tsv
+        """
+}
+
+/*
 process DiamondBLASTpStructure {
 	
 	tag 'Diamond BLASTp'
@@ -94,4 +151,4 @@ process DiamondBLASTpStructure {
 		--outfmt 6 qseqid sseqid pident evalue
 		"""
 }
-
+*/

@@ -30,7 +30,7 @@ process DownloadESMatlas {
         """
 }
 
-process FilterStructure {
+process FiltrationAlnStructure {
     
     tag ''
 
@@ -46,15 +46,18 @@ process FilterStructure {
 
     script:
         """
-        filter_structure.py ${structure_aln}
+        cut -f 1,5,10,13 ${structure_aln} > structure.aln
 
-        cut -f 1 filter_*.tsv > col1 
-        cut -f 2 filter_*.tsv > col2
+        filter_structure.py structure.aln
+
+        cut -f 1 filter_*.aln > col1 
+        cut -f 2 filter_*.aln > col2
 
         paste col2 col1 > ${structure_aln.baseName}_alignment.tsv
         """
 }
 
+/*
 process StatStructure {
 
     tag ''
@@ -71,5 +74,8 @@ process StatStructure {
         stdout
 
     script:
+        """
         statistics_structure.py ${peptides_column} ${structure} {network_tsv} {inflation} ${structure.baseName}
+        """
 }
+*/

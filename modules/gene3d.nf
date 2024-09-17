@@ -64,6 +64,7 @@ process HMMsearch {
 			-Z 10000000 \
 			--domE 0.001 \
 			--incdomE 0.001 \
+			--cpu ${task.cpus} \
 			-o ${fasta.baseName}.hmmsearch ${hmms} ${fasta}
 	"""
 }
