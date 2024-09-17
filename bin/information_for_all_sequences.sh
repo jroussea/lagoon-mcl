@@ -22,7 +22,6 @@ columns_info_files=`head -n 1 $information_files | cut -f 2-`
 # ajout de la colonne peptide
 columns_name=`echo -e "$peptide\t$columns_info_files"`
 
-# ajout des noms des colonnes dans le nouveau fichier infos
 sed -i "1s/^/$columns_name\\n/" $basename.info
 
-sed -i 1d $basename.info
+#sed -i 1d $basename.info
