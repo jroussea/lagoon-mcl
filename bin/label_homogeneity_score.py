@@ -21,7 +21,7 @@ def load_dataframe(path_attributes, list_columns):
 
 def save_dataframe(df_label, label):
 
-    df_label.to_csv(f"label_{label}.tsv", sep='\t', index=False)    
+    df_label.to_csv(f"{label}.tsv", sep='\t', index=False)    
 
 
 def main(path_attributes, labels, column_peptides):
@@ -75,10 +75,3 @@ if __name__ == '__main__':
     column_peptides = sys.argv[3]
     
     main(path_attributes, labels, column_peptides)
-    
-
-
-#path_network = "network_I2.tsv"
-#path_attributes = "attributes.tsv"
-#labels = "database-identifiant,interproscan"
-#column_peptides = "peptides"

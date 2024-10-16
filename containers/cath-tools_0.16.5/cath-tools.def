@@ -1,0 +1,17 @@
+Bootstrap : docker
+From: ubuntu:20.04 
+
+%post
+	apt-get -y update
+	apt-get -y install wget
+	apt-get -y install python2.7
+
+	#Installation of diamond
+	cd /opt
+	wget https://github.com/UCLOrengoGroup/cath-tools/releases/download/v0.16.10/cath-resolve-hits.ubuntu-20.04
+	mv cath-resolve-hits.ubuntu-20.04 cath-resolve-hits
+	chmod +x cath-resolve-hits
+
+%environment
+	export PATH="/opt/:$PATH"
+

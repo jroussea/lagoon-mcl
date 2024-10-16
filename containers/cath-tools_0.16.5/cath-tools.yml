@@ -1,0 +1,8 @@
+name: cath
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - cath-tools=0.16.5=h78a066a_0
+  - python=2.7.15=h5a48372_1011_cpython

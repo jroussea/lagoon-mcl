@@ -12,15 +12,16 @@ awk 'sub(/^>/, "")' < $proteome > fasta_header
 awk '{print $1}' fasta_header > $basename.info
 
 # récupéer le nom des colonnes dans le fichier d'information
-information=`grep $basename $information_files`
+information=`grep $basename $information_files | cut -f 2-`
 
 # ajoute une nouvelle colonne 
 sed -i "s|$|\t$information|g" $basename.info
 
 # récupération des noms es colonnes présent deans le fichier d'informaiton
-columns_info_files=`head -n 1 $information_files`
+columns_info_files=`head -n 1 $information_files | cut -f 2-`
 # ajout de la colonne peptide
 columns_name=`echo -e "$peptide\t$columns_info_files"`
 
-# ajout des noms des colonnes dans le nouveau fichier infos
 sed -i "1s/^/$columns_name\\n/" $basename.info
+
+#sed -i 1d $basename.info

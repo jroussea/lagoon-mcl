@@ -15,12 +15,14 @@ do
 
 echo $cluster > cluster.tmp
 
+#xargs -n1 < cluster.tmp > row_to_column.tmp
+
 awk '{for (i=1;i<=NF;i++) print $i}' cluster.tmp > row_to_column.tmp
 
 awk -v count="$count" 'BEGIN{FS=OFS="\t"}{print count OFS $0}' row_to_column.tmp >> $file_name
 
 let count++
 
-rm -f cluster.tmp row_to_column.tmp
+#rm -f cluster.tmp row_to_column.tmp
 
 done < $mcl_dump

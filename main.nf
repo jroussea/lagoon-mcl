@@ -12,12 +12,10 @@ def helpMessage() {
 	For more information, see the documentation: https://lagoon-mcl-docs.readthedocs.io/en/latest
 	=============================================================================================
 
-	Profiles:
-		-profile conda
-		-profile mamba
-		-profile singularity
+	/* Profiles */
+		-profile conda or mamba or singularity
 
-	General parameters
+	/* General parameters */
 		
 		--help                    <bool>  true or false. Affiche cette aide
 
@@ -28,26 +26,36 @@ def helpMessage() {
    		--projectName             <str>   Name of the project 
 
 		--fasta                   <path>  Path to fasta files
-		--annotation              <path>  Path to sequence annotation files
-		--pep_colname             <str>   Name of the column containing the sequence names in the annotation file(s)
-		--columns_attributes      <list>  Name of the columns that will be used to annotate the networks
-
    		--outdir                  <path>  Path to the folder containing the results
 
-		--concat_fasta            <str>   Name of the file that will contain all the fasta sequences
 
-		--information             <str>
-		--information_files       <paht>
-		--information_attributes  <list>
+
+	/* CATH / Gene3D */
+
+		--scan_gene3d	<bool>
+		--gene3d_aln	<path>
+
+
+
+	/* ESM Metagenomic Atlas */
+
+		--scan_esm_atlas	<bool>
+		--esm_aln	<path>
+
+
+
+	/* AlphaFolde Protein Structure Database */
+
+		--scan_alphafold_db	<bool>
+		--alphafold_aln	<path>
+
+
+
+	/* Sequence Similarity Sequence */
 
 		--run_diamond             <bool>  Allows you to specify whether you want to execute diamond (true or false)
-		--alignment_file          <path>  Path to a file containing pairwise alignments (if --run_diamond false)
 		--diamond_db              <str>   Name of the database created with the diamond makedb command
-
-		--query                   <int>   Position of the column in the alignment file containing the query sequences
-		--subject                 <int>   Position of the column in the alignment file containing the subject sequences
-		--evalue                  <int>   Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences 
-
+		--alignment_file          <path>  Path to a file containing pairwise alignments (if --run_diamond false)
 		--diamond                 <str>   Name of the file containing the pairwise alignment from Diamond blastp
 		--sensitivity             <str>   Diamond sensitivity setting
 		--matrix                  <str>   Matrix used for alignment
@@ -57,13 +65,27 @@ def helpMessage() {
 		--max_weight              <int>   Maximum weight for edges
 
 
+
+	/* Other attributes */
+
+		--pep_colname             <str>   Name of the column containing the sequence names in the annotation file(s)
+
+		--annotation_files		<path>
+		--annotation_attrib      <list>  Name of the columns that will be used to annotate the networks
+
+		--information_files       <paht>
+		--information_attrib  <list>
+
+
+
+
 	Examples:
 
 	Test parameters:
-		nextflow run main.nf -profile test_full,singularity [params]
+		nextflow run main.nf -profile singularity [params]
 	
 	Custom parameters:
-		nextflow run main.nf -profile custom,singularity [params]
+		nextflow run main.nf -profile singularity [params]
 	"""
 }
 
@@ -88,40 +110,27 @@ summary['Execution profile'] = workflow.profile
 log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[91m--------------------------------------------------\033[0m-"
 
+// Import subworkflow
+
+include { SCAN_GENE3D        } from './subworkflow/scan_gene3d.nf'
+include { SCAN_ESM_ATLAS     } from './subworkflow/scan_esm_atlas.nf'
+include { SCAN_ALPHAFOLD_DB  } from './subworkflow/scan_alphafold_db.nf'
+include { SSN                } from './subworkflow/sequence_similarity_network.nf'
+include { OTHER_INFORMATIONS } from './subworkflow/additional_informations.nf'
+
+
+
 // Import modules
-include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
-include { SelectLabels as SelectLabelInfo      } from './modules/attributes.nf'
-include { InformationFiles                     } from './modules/attributes.nf'
-include { LabelHomogeneityScore as LabHomScAt  } from './modules/attributes.nf'
-include { LabelHomogeneityScore as LabHomScIn  } from './modules/attributes.nf'
-include { DiamondDB                            } from './modules/diamond.nf'
-include { DiamondBLASTp                        } from './modules/diamond.nf'
-include { FiltrationAlignments                 } from './modules/filtration.nf'
-include { NetworkMcxload                       } from './modules/network.nf'
-include { NetworkMcl                           } from './modules/network.nf'
-include { NetworkMcxdump                       } from './modules/network.nf'
-include { NetworkMclToTsv                      } from './modules/network.nf'
-include { HomogeneityScore                     } from './modules/statistics.nf'
-include { PlotHomogeneityScore                 } from './modules/statistics.nf'
-//include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
-//include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
-include { PlotClusterSize                      } from './modules/statistics.nf'
+
+include { HomogeneityScore                 } from './modules/statistics.nf'
+include { PlotHomogeneityScore             } from './modules/statistics.nf'
 
 // préparation des paramètres
 List<Number> list_inflation = Arrays.asList(params.I.split(","))
 
 // Channel
 proteome = Channel.fromPath(params.fasta, checkIfExists: true)
-annotation = Channel.fromPath(params.annotation, checkIfExists: true)
 inflation = Channel.fromList(list_inflation)
-
-if (params.information == true) {
-	information_files = Channel.fromPath(params.information_files, checkIfExists: true)
-}
-
-if (params.run_diamond == false) {
-	diamond_alignment = Channel.fromPath(params.alignment_file, checkIfExists: true)
-}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,72 +138,72 @@ if (params.run_diamond == false) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow{
+workflow {
 
-	// concaténation de tous les fichiers fasta 
-	// concaténer tous les fichiers fasta en un seul et renommer les séquences de la mannière suivante seq1, seq2, ..., seq100, ... 
-	// créer une table de correspondance
-	all_sequences = proteome.collectFile(name: "${params.concat_fasta}.fasta")
+	// concaténation de tous les fichiers FASTA
+	
+	allSequences = proteome.collectFile(name: "${params.outdir}/all_sequences.fasta")
 
-	SelectLabelAttrib(annotation, params.columns_attributes)
-	select_annotation = SelectLabelAttrib.out.select_annotation
-	select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/labels/attributes.tsv")
+	/* CATH / Gene3D */
 
-	LabHomScAt(select_annotation, params.columns_attributes, "attributes")
-	label_network = LabHomScAt.out.label_network
+	SCAN_GENE3D(params.scan_gene3d, params.gene3d_aln, proteome)
+	cathNetwork = SCAN_GENE3D.out.label_cath
 
-	if (params.information == true) {
-		InformationFiles(proteome, information_files)
-		proteome_info = InformationFiles.out.proteome_info
+	/* ESM Metagenomic Atlas */
 
-		SelectLabelInfo(proteome_info, params.information_attributes)
-		select_info = SelectLabelInfo.out.select_annotation
-		select_info = select_info.collectFile(name: "${params.outdir}/network/labels/informations.tsv")
+	SCAN_ESM_ATLAS(params.scan_esm_atlas, params.esm_aln, proteome)
+	esmNetwork = SCAN_ESM_ATLAS.out.esm_label
 
-		LabHomScIn(select_info, params.information_attributes, "information")
-		info_network = LabHomScIn.out.label_network
+	//structure = cath_network.concat(structure_esm_network).collect()
 
-		label_network = label_network.concat(info_network).collect()
+	/* AlphaFolde Protein Structure Database */
+
+	if (params.scan_alphafold_db == true || params.alphafold_aln != null) {
+		SCAN_ALPHAFOLD_DB(params.scan_alphafold_db, params.alphafold_aln, proteome)
+		alphafoldNetwork = SCAN_ALPHAFOLD_DB.out.af_label
+
+		labelNetwork = cathNetwork.concat(esmNetwork).collect()
+		labelNetwork = labelNetwork.concat(alphafoldNetwork).collect()
 	}
-	else if (params.information == false) {
-		label_network = label_network.collect()
-	}
-
-	if (params.run_diamond == true) {
-		// diamond database
-		DiamondDB(all_sequences)
-		diamond_db = DiamondDB.out.diamond_db
-
-		// diamond blastp
-		DiamondBLASTp(all_sequences, diamond_db)
-		diamond_alignment = DiamondBLASTp.out.diamond_alignment	
+	else {
+		labelNetwork = cathNetwork.concat(esmNetwork).collect()
 	}
 
-	FiltrationAlignments(diamond_alignment)
-	diamond_ssn = FiltrationAlignments.out.diamond_ssn
+	/* Other attributes */
 
-	NetworkMcxload(diamond_ssn)        
-	tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
+	if (params.annotation_files != null) {
+		annotationNetwork = Channel.fromPath(params.annotation_files, checkIfExists: true)
+		labelNetwork = labelNetwork.concat(annotationNetwork).collect()
+	}
 
-	NetworkMcl(inflation, tuple_seq_dict_mci)
-	tuple_mcl = NetworkMcl.out.tuple_mcl
+	if (params.information_files != null) {
+		OTHER_INFORMATIONS(params.information_files, proteome)
+		informationNetwork = OTHER_INFORMATIONS.out.infos_label
+		labelNetwork = labelNetwork.concat(informationNetwork).collect()
+	}
 
-	NetworkMcxdump(tuple_mcl)
-	tuple_dump = NetworkMcxdump.out.tuple_dump
 
-	NetworkMclToTsv(tuple_dump)
-	tuple_network = NetworkMclToTsv.out.tuple_network
+	/* Sequence Similarity Sequence */
 
-	HomogeneityScore(label_network, tuple_network)
-	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
+	SSN(params.run_diamond, allSequences, params.alignment_file, inflation)
+	tupleNetwork = SSN.out.tuple_network
 
-	PlotHomogeneityScore(tuple_hom_score)
+	
+
+	HomogeneityScore(labelNetwork, tupleNetwork)
+	tupleHomScore = HomogeneityScore.out.tuple_hom_score
+
+	/* Statistics and homogeneity score */
+
+	//TestChannel(tuple_hom_score)
+
+	//tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
+
 	//PlotHomScAll(tuple_hom_score_all)
 	//PlotHomScAn(tuple_hom_score_annotated)
 
 	//PlotClusterSize(tuple_network)
 	//cluster_size = PlotClusterSize.out.cluster_size
-
 }
 
 /*
@@ -231,4 +240,3 @@ def ABIHeader() {
 	"""
 	.stripIndent()
 }
-

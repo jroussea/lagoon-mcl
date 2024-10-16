@@ -93,6 +93,8 @@ def homogeneity_score(cluster, columns_name, cluster_size, column_peptides,
     
     list_label = cluster[columns_name].unique().tolist()
     cc = cluster["CC"].unique().tolist()[0]
+
+
     
     if len(list_label) == 1:
         
@@ -119,11 +121,15 @@ def homogeneity_score(cluster, columns_name, cluster_size, column_peptides,
             hom_score = 1-(len(list_label)/cc_size)
 
 
-    for label in list_label:
+    if selection == "all":
+    
+        plouf = cluster[column_peptides].unique().tolist()[0]
 
-        with open(f"{basename}_{selection}.txt", 'a', encoding = "utf8") as f:
-        
-            f.write(f"{cc}\t{label}\n")
+        for label in list_label:
+
+            with open(f"{basename}.txt", 'a', encoding = "utf8") as f:
+            
+                f.write(f"{cc}\t{plouf}\t{label}\n")
 
     return(hom_score)
 
@@ -189,17 +195,23 @@ def main(path_network, path_label, column_peptides, inflation, basename):
     df_homogeneity_score_all = df_homogeneity_score_all \
         .merge(cluster_size, on = "CC", how = "right") \
             .replace(np.nan, "unannotated") \
-                .rename(columns = {None : "homogeneity_score_all", 
-                                   "CC_size" : "CC_size_all"})
+                .rename(columns = {
+                    "CC" : "cluster_id",
+                    None : f"{basename}_homogeneity_score_all", 
+                    "CC_size" : "cluster_size"
+                    })
     
     df_homogeneity_score_annotated = df_homogeneity_score_annotated \
         .merge(cluster_size_annotated, on = "CC", how = "right") \
             .replace(np.nan, "unannotated") \
-                .rename(columns = {None : "homogeneity_score_annotated", 
-                                   "CC_size" : "CC_size_annotated"})
+                .rename(columns = {
+                    "CC" : "cluster_id",
+                    None : f"{basename}_homogeneity_score_annotated", 
+                    "CC_size" : f"{basename}_annotated"
+                    })
     
     
-    df_homogeneity_score = pd.merge(df_homogeneity_score_all, df_homogeneity_score_annotated, on = "CC")
+    df_homogeneity_score = pd.merge(df_homogeneity_score_all, df_homogeneity_score_annotated, on = "cluster_id")
     
     df_homogeneity_score.to_csv(f"homogeneity_score_{basename}_I{inflation}.tsv", 
                      sep = "\t", index = None, header = True)
@@ -217,11 +229,10 @@ if __name__ == '__main__':
     main(path_network, path_label, column_peptides, inflation, basename)
 
 
-#path_network = "network_I4.tsv"
+#path_network = "network_I1.4.tsv"
 #path_label = "label_Gene3D.tsv"
 #column_peptides = "peptides"
-#inflation = 4
+#inflation = 1.4
 #basename = "label_Gene3D"
-
 
 #main(path_network, path_label, column_peptides, inflation, basename)
