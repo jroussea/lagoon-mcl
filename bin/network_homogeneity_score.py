@@ -194,25 +194,29 @@ def main(path_network, path_label, column_peptides, inflation, basename):
     
     df_homogeneity_score_all = df_homogeneity_score_all \
         .merge(cluster_size, on = "CC", how = "right") \
-            .replace(np.nan, "unannotated") \
+            .replace(np.nan, "NA") \
                 .rename(columns = {
                     "CC" : "cluster_id",
-                    None : f"{basename}_homogeneity_score_all", 
+                    None : "homogeneity_score_all", 
                     "CC_size" : "cluster_size"
                     })
     
     df_homogeneity_score_annotated = df_homogeneity_score_annotated \
         .merge(cluster_size_annotated, on = "CC", how = "right") \
-            .replace(np.nan, "unannotated") \
+            .replace(np.nan, "NA") \
                 .rename(columns = {
                     "CC" : "cluster_id",
-                    None : f"{basename}_homogeneity_score_annotated", 
-                    "CC_size" : f"{basename}_annotated"
+                    None : "homogeneity_score_annotated", 
+                    "CC_size" : "sequence_annotated"
                     })
     
     
     df_homogeneity_score = pd.merge(df_homogeneity_score_all, df_homogeneity_score_annotated, on = "cluster_id")
     
+    df_homogeneity_score["database"] = basename
+    
+    df_homogeneity_score["sequence_annotated"] = pd.to_numeric(df_homogeneity_score["sequence_annotated"], downcast='integer')
+
     df_homogeneity_score.to_csv(f"homogeneity_score_{basename}_I{inflation}.tsv", 
                      sep = "\t", index = None, header = True)
 
@@ -228,11 +232,8 @@ if __name__ == '__main__':
 
     main(path_network, path_label, column_peptides, inflation, basename)
 
-
-#path_network = "network_I1.4.tsv"
-#path_label = "label_Gene3D.tsv"
-#column_peptides = "peptides"
+#path_network = "/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/results/network/mcl/tsv/network_I1.4.tsv"
+#path_label = "/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/01/9eff0e9aa3564b2b6ba76ba3bf5dce/intermediate"
+#column_peptides = "protein_accession"
 #inflation = 1.4
-#basename = "label_Gene3D"
-
-#main(path_network, path_label, column_peptides, inflation, basename)
+#basename = "class"

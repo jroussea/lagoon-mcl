@@ -93,6 +93,7 @@ process FiltrationAlnNetwork {
 		filtration_diamond_blastp_network.sh ${diamond_alignment}
 		"""
 }
+//		filtration_diamond_blastp_network.sh ${diamond_alignment}
 
 process FiltrationAlnStructure {
     

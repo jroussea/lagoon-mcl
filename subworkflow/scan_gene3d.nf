@@ -6,8 +6,8 @@ include { CathResolveHits     } from '../modules/gene3d.nf'
 include { AssignSuperfamilies } from '../modules/gene3d.nf'
 include { SelectSuperfamilies } from '../modules/gene3d.nf'
 include { CathAnalysis        } from '../modules/gene3d.nf'
-include { LabHomScore         } from '../modules/attributes.nf'
-
+//include { LabHomScore         } from '../modules/attributes.nf'
+include { PreparationCath     } from '../modules/data_preparation.nf'
 
 workflow SCAN_GENE3D {
     take:
@@ -17,7 +17,7 @@ workflow SCAN_GENE3D {
 
     main:
         /* CATH / Gene3D */
-
+        
         //if (params.run_gene3d == true) {
         if (scan_gene3d == true && gene3d_aln == null) {
 
@@ -44,21 +44,25 @@ workflow SCAN_GENE3D {
 
             AssignSuperfamilies(cath_resolve_hits, cath_domain_list, discontinuous_regs)
             superfamilies = AssignSuperfamilies.out.superfamilies
+
+            SelectSuperfamilies(superfamilies)
+            select_cath = SelectSuperfamilies.out.select_cath
+
+            select_cath.view()
+        
+            cath_annotation = select_cath.collectFile(name: "${params.outdir}/cath/cath_superfamilies.csv")
+
         }
         else if (gene3d_aln != null) {
             superfamilies = Channel.fromPath(gene3d_aln, checkIfExists: true)
         }
 
-        SelectSuperfamilies(superfamilies)
-        select_cath = SelectSuperfamilies.out.select_cath
-
-        cath_annotation = select_cath.collectFile(name: "${params.outdir}/cath/cath_superfamilies.csv")
-
         CathAnalysis(cath_annotation)
         classification = CathAnalysis.out.classification
 
-        LabHomScore(classification, "class,architecture,topology,superfamily", "sequence_id")
+        //PrepaAnnotation(cath_annotation)
+        PreparationCath(classification, "class,architecture,topology,superfamily", "sequence_id")
 
     emit:
-        label_cath = LabHomScore.out.label_network
+        label_cath = PreparationCath.out.label_cath.collect()
 }

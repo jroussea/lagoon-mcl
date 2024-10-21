@@ -1,10 +1,11 @@
-include { DiamondDB                        } from '../modules/diamond.nf'
-include { DiamondBLASTp                    } from '../modules/diamond.nf'
-include { FiltrationAlnNetwork             } from '../modules/diamond.nf'
-include { NetworkMcxload                   } from '../modules/network.nf'
-include { NetworkMcl                       } from '../modules/network.nf'
-include { NetworkMcxdump                   } from '../modules/network.nf'
-include { NetworkMclToTsv                  } from '../modules/network.nf'
+include { DiamondDB            } from '../modules/diamond.nf'
+include { DiamondBLASTp        } from '../modules/diamond.nf'
+include { FiltrationAlnNetwork } from '../modules/diamond.nf'
+include { NetworkMcxload       } from '../modules/network.nf'
+include { NetworkMcl           } from '../modules/network.nf'
+include { NetworkMcxdump       } from '../modules/network.nf'
+include { NetworkMclToTsv      } from '../modules/network.nf'
+include { FiltrationCluster    } from '../modules/network.nf'
 
 workflow SSN {
     take:
@@ -42,9 +43,13 @@ workflow SSN {
         NetworkMcxdump(tuple_mcl)
         tuple_dump = NetworkMcxdump.out.tuple_dump
 
-        NetworkMclToTsv(tuple_dump)
+        FiltrationCluster(tuple_dump)
+        tuple_filtration = FiltrationCluster.out.tuple_filtration
+
+        NetworkMclToTsv(tuple_filtration)
 
     emit:
         tuple_network = NetworkMclToTsv.out.tuple_network
+        diamond_ssn = diamond_ssn.collect()
 
 }

@@ -1,0 +1,15 @@
+Bootstrap : docker
+From: ubuntu:20.04 
+
+%post
+	apt-get -y update
+	apt-get -y install wget
+
+	#Installation of diamond
+	cd /opt
+	wget https://github.com/shenwei356/seqkit/releases/download/v2.8.2/seqkit_linux_amd64.tar.gz
+	tar -zxvf *.tar.gz
+	rm -f *.tar.gz
+	
+%environment
+	export PATH="/opt/:$PATH"

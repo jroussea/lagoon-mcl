@@ -98,6 +98,22 @@ process NetworkMcxdump {
         """
 }
 
+process FiltrationCluster {
+
+    label 'lagoon'
+
+    input:
+        tuple path(network_dict), path(network_mci), path(network_mcl), path(network_dump), val(inflation)
+    output:
+        tuple path("conserved_cluster_*.txt"), val("${inflation}"), emit: tuple_filtration
+        
+    script:
+        """
+        cluster_filtration.py ${network_dump} ${inflation} ${params.cluster_size}
+        """
+
+}
+
 process NetworkMclToTsv {
 
     /*
@@ -116,13 +132,13 @@ process NetworkMclToTsv {
 	publishDir "${params.outdir}/network/mcl/tsv", mode: 'copy', pattern: "network_I*.tsv"
 
 	input:
-        tuple path(network_dict), path(network_mci), path(network_mcl), path(network_dump), val(inflation)
+        tuple path(network), val(inflation)
 
 	output:
         tuple path("network_I*.tsv"), val("${inflation}"), emit: tuple_network
 
 	script:
 		"""
-        network_dump_to_tsv.sh ${network_dump} ${inflation} ${params.peptides_column}
+        network_dump_to_tsv.sh ${network} ${inflation} ${params.peptides_column}
 		"""
 }

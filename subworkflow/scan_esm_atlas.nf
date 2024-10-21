@@ -4,7 +4,7 @@ include { DownloadESMatlas       } from '../modules/structure_database.nf'
 include { DiamondDB              } from '../modules/diamond.nf'
 include { DiamondBLASTp          } from '../modules/diamond.nf'
 include { FiltrationAlnStructure } from '../modules/diamond.nf'
-include { LabHomScore            } from '../modules/attributes.nf'
+//include { LabHomScore            } from '../modules/attributes.nf'
 
 
 workflow SCAN_ESM_ATLAS {
@@ -44,8 +44,8 @@ workflow SCAN_ESM_ATLAS {
         structure_esm = FiltrationAlnStructure.out.structure
         
         
-        LabHomScore(structure_esm, "esmAtlas_structure", "structure")
+        //LabHomScore(structure_esm, "esmAtlas_structure", "structure")
 
-    emit:
-        esm_label = LabHomScore.out.label_network
+    //emit:
+        //esm_label = LabHomScore.out.label_network
 }

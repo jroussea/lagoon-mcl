@@ -97,7 +97,8 @@ process LabHomScore {
 	script:
 
 		"""
-		label_homogeneity_score.py ${select_annotation} ${columns_attributes} ${params.peptides_column}
+		cut -f 1,2 ${select_annotation} > intermediate
+		label_homogeneity_score.py intermediate ${columns_attributes} ${params.peptides_column}
 		"""
 }
 

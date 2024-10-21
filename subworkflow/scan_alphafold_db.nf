@@ -42,8 +42,8 @@ workflow SCAN_ALPHAFOLD_DB {
 		FiltrationAlnStructure(structure_af_aln)
 		structure_af = FiltrationAlnStructure.out.structure
 		
-		LabHomScore(structure_af, "alpholdDb_structure", "structure")
+		//LabHomScore(structure_af, "alpholdDb_structure", "structure")
 
-    emit:
-        af_label = LabHomScore.out.label_network
+    //emit:
+        //af_label = LabHomScore.out.label_network
 }

@@ -51,7 +51,7 @@ process HMMsearch {
 	label 'hmmer'
 
 	input:
-        path fasta
+        each path(fasta)
 		path hmms
         //path gene3d
 
@@ -93,7 +93,7 @@ process CathResolveHits {
 	label 'cath'
 
 	input:
-        path hmmsearch
+        each path(hmmsearch)
 
 	output:
         path "${hmmsearch.baseName}.crh", emit: cath_resolve_hits
@@ -127,7 +127,7 @@ process AssignSuperfamilies {
 	publishDir "${params.outdir}/cath", mode: 'copy', pattern: "${cath_resolve_hits}.csv"
 
 	input:
-        path cath_resolve_hits
+        each path(cath_resolve_hits)
 		path cath_domain_list
 		path discontinuous_regs
 
@@ -151,7 +151,7 @@ process SelectSuperfamilies {
 	label 'cath'
 
 	input:
-		path superfamilies
+		each path(superfamilies)
 
 	output:
         path "${superfamilies.baseName}", emit: select_cath
@@ -161,7 +161,9 @@ process SelectSuperfamilies {
 	"""
 		sed -i '1d' ${superfamilies} 
 
-		cut -d "," -f 2,3 ${superfamilies} > ${superfamilies.baseName}
+		cut -d "," -f 2,3 ${superfamilies} > intermediate
+
+		cat intermediate | tr ',' '\t' > ${superfamilies.baseName}
 	"""
 
 }
@@ -176,26 +178,34 @@ process CathAnalysis {
 		path superfamilies
 
 	output:
-		path "classification.tsv", emit: classification
+		path("classification.tsv"), emit: classification
 
 	script:
 	"""
-		cut -d "," -f 1 ${superfamilies} > col4
+		cut -f 1 ${superfamilies} > col5
+		cut -f 2 ${superfamilies} > col1
+		cut -d "." -f 1,2,3 col5 > col4
+		cut -d "." -f 1,2 col5 > col3
+		cut -d "." -f 1 col5 > col2
 
-		cut -d "." -f 1,2,3 col4 > col3
-
-		cut -d "." -f 1,2 col4 > col2
-
-		cut -d "." -f 1 col4 > col1
-
-		paste -d "," col1 col2 col3 ${superfamilies} > classification.csv
-
-		sed 's/,/\t/g' classification.csv > classification.tsv
+		paste -d "," col1 col2 col3 col4 col5 > classification
+		echo "${params.peptides_column},class,architecture,topology,superfamily" > header
+		cat header classification > classification.csv
+		
+		cat classification.csv | tr ',' '\t' > classification.tsv
 	"""
 
 }
+//		sed -i '1s/^/class,architecture,topology,superfamily,${params.peptides_column}\n/' classification.csv
 
 
 //cath_analysis.R classification.csv
 
 //sed -i 's/"//g' classification.tsv
+//		sed 's/,/\t/g' classification.csv > classification.tsv
+/*
+		cut -f 1,5 classification.tsv > class.tsv
+		cut -f 2,5 classification.tsv > architecture.tsv
+		cut -f 3,5 classification.tsv > topology.tsv
+		cut -f 4,5 classification.tsv > superfamily.tsv
+*/
