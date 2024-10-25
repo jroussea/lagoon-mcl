@@ -112,19 +112,16 @@ log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import subworkflow
 
-include { SCAN_GENE3D          } from './subworkflow/scan_gene3d.nf'
-include { SCAN_PFAM            } from './subworkflow/scan_pfam.nf'
-include { SCAN_ESM_ATLAS       } from './subworkflow/scan_esm_atlas.nf'
-include { SCAN_ALPHAFOLD_DB    } from './subworkflow/scan_alphafold_db.nf'
-include { SSN                  } from './subworkflow/sequence_similarity_network.nf'
-include { SEQUENCE_INFORMATION } from './subworkflow/sequence_information.nf'
-//include { OTHER_INFORMATIONS } from './subworkflow/additional_informations.nf'
+include { GENE3D      } from './subworkflow/workflow_gene3d.nf'
+include { PFAM        } from './subworkflow/workflow_pfam.nf'
+include { ESMATLAS    } from './subworkflow/workflow_esmatlas.nf'
+include { ALPHAFOLDDB } from './subworkflow/workflow_alphafolddb.nf'
+include { SSN         } from './subworkflow/workflow_ssn.nf'
+include { REPORT      } from './subworkflow/workflow_report.nf'
 
 // Import modules
-include { HomogeneityScore                 } from './modules/statistics.nf'
-//include { PlotHomogeneityScore             } from './modules/statistics.nf'
-//include { TestProcess                      } from './modules/test.nf'
-include { PreparationAnnot   } from './modules/data_preparation.nf'
+include { HomogeneityScore } from './modules/statistics.nf'
+include { PreparationAnnot } from './modules/preparation.nf'
 
 // préparation des paramètres
 List<Number> list_inflation = Arrays.asList(params.I.split(","))
@@ -132,7 +129,8 @@ List<Number> list_inflation = Arrays.asList(params.I.split(","))
 // Channel
 proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 inflation = Channel.fromList(list_inflation)
-quarto = Channel.fromPath("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/bin/sequences_stats.qmd")
+quarto = Channel.fromPath("${projectDir}/bin/sequences_stats.qmd")
+quarto_2 = Channel.fromPath("${projectDir}/bin/cluster_stats.qmd")
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,34 +142,34 @@ workflow {
 
 	// concaténation de tous les fichiers FASTA
 	all_sequences = proteome.collectFile(name: "${params.outdir}/all_sequences.fasta")
+	split_fasta = all_sequences.splitFasta(by: 1000, file: true)
 
 	/* CATH / Gene3D */
 
-	SCAN_GENE3D(params.scan_gene3d, params.gene3d_aln, proteome)
-	label_cath = SCAN_GENE3D.out.label_cath
+	GENE3D(params.gene3d_aln, split_fasta)
+	label_cath = GENE3D.out.label_cath
 
-	SCAN_PFAM(params.scan_pfam, params.pfam_aln, proteome)
-	label_pfam = SCAN_PFAM.out.label_pfam
+	/* Pfam */
+
+	PFAM(params.pfam_aln, proteome)
+	label_pfam = PFAM.out.label_pfam
 
 	label_network = label_cath.concat(label_pfam).collect()
 
 	/* ESM Metagenomic Atlas */
 
-	SCAN_ESM_ATLAS(params.scan_esm_atlas, params.esm_aln, proteome)
-	//esm_network = SCAN_ESM_ATLAS.out.esm_label
-
-	//structure = cath_network.concat(structure_esm_network).collect()
-
-	/* AlphaFolde Protein Structure Database */
-
-	if (params.scan_alphafold_db == true || params.alphafold_aln != null) {
-		SCAN_ALPHAFOLD_DB(params.scan_alphafold_db, params.alphafold_aln, proteome)
-		alphafold_network = SCAN_ALPHAFOLD_DB.out.af_label
-
-		//label_network = cath_network.concat(esm_network).collect()
-		//label_network = label_network.concat(alphafold_network).collect()
+	if (params.esm_atlas == true) {
+		ESMATLAS(params.esm_aln, proteome)
+		esm_network = ESMATLAS.out.esm_label
 	}
 
+	/* AlphaFolde Protein Structure Database */
+	
+	if (params.alphafold == true) {
+		ALPHAFOLDDB(params.alphafold_aln, proteome)
+		alphafold_network = ALPHAFOLDDB.out.af_label
+	}
+	
 	/* Other attributes */
 
 	if (params.annotation_files != null) {
@@ -181,45 +179,18 @@ workflow {
 
 		label_network = label_network.concat(label_annotation).collect()
 	}
-	//else {
-	//	label_network = cath_network.collect()
-	//}
-
-	/*
-	if (params.information_files != null) {
-		OTHER_INFORMATIONS(params.information_files, proteome)
-		information_network = OTHER_INFORMATIONS.out.infos_label
-		label_network = label_network.concat(information_network).collect()
-	}
-	*/
 
 	/* Sequence Similarity Sequence */
 
-	SSN(params.run_diamond, all_sequences, params.alignment_file, inflation)
+	SSN(all_sequences, params.alignment_file, inflation)
 	tuple_network = SSN.out.tuple_network
 	diamond_ssn = SSN.out.diamond_ssn
 
 	HomogeneityScore(label_network, tuple_network)
-
-	SEQUENCE_INFORMATION(quarto, all_sequences, diamond_ssn, label_network)
-
-
-	//tuple_hom_score = HomogeneityScore.out.tuple_hom_score
-
-	//tuple_hom_score.groupTuple(by: 2)
-	//TestProcess(tuple_hom_score.groupTuple(by: 2))
-
-	/* Statistics and homogeneity score */
-
-	//TestChannel(tuple_hom_score)
-
-	//tuple_hom_score_annotated = HomogeneityScore.out.tuple_hom_score_annotated
-
-	//PlotHomScAll(tuple_hom_score_all)
-	//PlotHomScAn(tuple_hom_score_annotated)
-
-	//PlotClusterSize(tuple_network)
-	//cluster_size = PlotClusterSize.out.cluster_size
+	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
+	tuple_hom_score = tuple_hom_score.groupTuple(by: 2)
+	
+	REPORT(quarto, quarto_2, all_sequences, diamond_ssn, label_network, SSN.out.network, tuple_hom_score)
 }
 
 /*

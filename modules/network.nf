@@ -1,11 +1,14 @@
 process NetworkMcxload {
 
     /*
-	* Processus : 
+	* DESCRIPTION
+    * -----------
     *
-    * Input:
+    * INPUT
+    * -----
     * 	- 
-    * Output:
+    * OUPUT
+    * -----
     *	- 
     */
 
@@ -19,7 +22,7 @@ process NetworkMcxload {
     publishDir "${params.outdir}/network/mcl/matrice", mode: 'copy', pattern: "network.matrice"
 
 	input:
-		path diamond_ssn
+		path(diamond_ssn)
 
 	output:
         
@@ -40,11 +43,14 @@ process NetworkMcxload {
 process NetworkMcl {
 
     /*
-	* Processus : 
+	* DESCRIPTION
+    * -----------
     *
-    * Input:
+    * INPUT
+    * -----
     * 	- 
-    * Output:
+    * OUPUT
+    * -----
     *	- 
     */
 
@@ -72,11 +78,14 @@ process NetworkMcl {
 process NetworkMcxdump {
 
     /*
-	* Processus : 
+	* DESCRIPTION
+    * -----------
     *
-    * Input:
+    * INPUT
+    * -----
     * 	- 
-    * Output:
+    * OUPUT
+    * -----
     *	- 
     */
 
@@ -100,6 +109,18 @@ process NetworkMcxdump {
 
 process FiltrationCluster {
 
+    /*
+	* DESCRIPTION
+    * -----------
+    *
+    * INPUT
+    * -----
+    * 	- 
+    * OUPUT
+    * -----
+    *	- 
+    */
+
     label 'lagoon'
 
     input:
@@ -109,7 +130,7 @@ process FiltrationCluster {
         
     script:
         """
-        cluster_filtration.py ${network_dump} ${inflation} ${params.cluster_size}
+        cluster_filtration.py --network ${network_dump} --inflation ${inflation} --min ${params.cluster_size}
         """
 
 }
@@ -117,11 +138,14 @@ process FiltrationCluster {
 process NetworkMclToTsv {
 
     /*
-	* Processus : 
+	* DESCRIPTION
+    * -----------
     *
-    * Input:
+    * INPUT
+    * -----
     * 	- 
-    * Output:
+    * OUPUT
+    * -----
     *	- 
     */
 
@@ -136,9 +160,10 @@ process NetworkMclToTsv {
 
 	output:
         tuple path("network_I*.tsv"), val("${inflation}"), emit: tuple_network
+        path("network_I*.tsv"), emit: network
 
 	script:
 		"""
-        network_dump_to_tsv.sh ${network} ${inflation} ${params.peptides_column}
+        network_dump_to_tsv.sh -m ${network} -i ${inflation} -c protein_accession
 		"""
 }
