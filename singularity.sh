@@ -8,23 +8,28 @@ start=`date`
 
 singularity build \
     --fakeroot \
-    $PWD/containers/cath-tools_0.16.5/cath-tools.sif \
-    $PWD/containers/cath-tools_0.16.5/cath-tools.def
+    $PWD/containers/cath-tools/0.16.5/cath-tools.sif \
+    $PWD/containers/cath-tools/0.16.5/cath-tools.def
 
 singularity build \
     --fakeroot \
-    $PWD/containers/diamond_2.1.8/diamond.sif \
-    $PWD/containers/diamond_2.1.8/diamond.def
+    $PWD/containers/diamond/2.1.8/diamond.sif \
+    $PWD/containers/diamond/2.1.8/diamond.def
 
 singularity build \
     --fakeroot \
-    $PWD/containers/hmmer_3.4/hmmer.sif \
-    $PWD/containers/hmmer_3.4/hmmer.def
+    $PWD/containers/hmmer/3.4/hmmer.sif \
+    $PWD/containers/hmmer/3.4/hmmer.def
 
 singularity build \
     --fakeroot \
-    $PWD/containers/mcl_22.282/mcl.sif \
-    $PWD/containers/mcl_22.282/mcl.def
+    $PWD/containers/mcl/22.282/mcl.sif \
+    $PWD/containers/mcl/22.282/mcl.def
+
+singularity build \
+    --fakeroot \
+    $PWD/containers/seqkit/2.8.2/seqkit.sif \
+    $PWD/containers/seqkit/2.8.2/seqkit.def
 
 singularity build \
     --fakeroot \
