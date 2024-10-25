@@ -12,20 +12,11 @@ import csv
 import gzip
 
 
-
 infile = sys.argv[1]
-
 evalue_coff = sys.argv[2]
-# 0.001
-
 mode = sys.argv[3]
-# "with_family"
-
 disc_regs = sys.argv[4]
-# "./discontinuous/discontinuous_regs.pkl"
-
 cath_dom = sys.argv[5]
-# "./cath_release/cath-domain-list.txt"
 
 discontinuous_regs =pkl.load(open(os.path.join(disc_regs)))
 

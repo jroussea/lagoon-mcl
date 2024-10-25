@@ -3,40 +3,76 @@
 """
 Created on Fri Oct 18 19:15:54 2024
 
-@author: jrousseau
+@author: Jérémy Rousseau
 """
 
-import sys
+
+from argparse import ArgumentParser
 
 
-def main(path, inflation, min_size):
-    with open(path,"r") as file :
+def get_args():
+    """
+    Parse arguments
+    """
+    
+    parser = ArgumentParser(description="")
+    
+    parser.add_argument("-n", "--network", type = str,
+                        help = "Network obtained after clustering with MCL", 
+                        required = True)
+    parser.add_argument("-i", "--inflation",  type = float,
+                        help="Clustering inflation level (MCL parameter)", 
+                        required = True)
+    parser.add_argument("-m", "--min", type = int,
+                        help="Minimum cluster size", 
+                        required = True)
+
+    return parser.parse_args()
+
+
+def main(args):
+    """
+    DESCRIPTION
+    -----------
+        Cluster selection with user-defined minimum size
+        Default minimum size is 5 
+        
+    INPUT
+    -----
+        Clustering obtained with MCL (dump file)
+        1 line = 1 cluster (sequences in a cluster are separated by a tab)
+        
+    OUTPUT
+    ------
+        2 files (same format as input file) :
+            - Files containing clusters with the minimum required size
+            - Files containing clusters not retained by filtration
+    """
+        
+    with open(args.network ,"r") as file :
         
         for line in file:
-            
             list_line = len(line.split("\t"))
     
-            if int(list_line) >= int(min_size):
-                with open(f"conserved_cluster_{inflation}.txt", 'a', encoding = 'utf8') as f:
+            #################################################################
+            ############### Clusters retained after filtration ##############
+            #################################################################
+            
+            if int(list_line) >= int(args.min):
+                with open(f"conserved_cluster_{args.inflation}.txt", 'a', 
+                          encoding = 'utf8') as f:
                     f.write(line)
+
+            #################################################################
+            ############### Clusters deleted after filtration ###############
+            #################################################################
             
             else:
-                with open("unconserved_clusters.txt", 'a', encoding = 'utf8') as f:                
+                with open("deleted_clusters_{args.inflation}.txt", 'a', 
+                          encoding = 'utf8') as f:                
                     f.write(line)
 
 
 if __name__ == '__main__':
-    
-    path = sys.argv[1]
-    inflation = sys.argv[2]
-    min_size = sys.argv[3]
-
-    main(path, inflation, min_size)
-    
-
-#path = "dump.out.network.mci.I14"
-#inflation = "1.4"
-#min_size = 10
-
-#main(path, inflation, min_size)
-
+    args = get_args()
+    main(args)

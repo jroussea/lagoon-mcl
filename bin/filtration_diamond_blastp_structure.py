@@ -6,16 +6,41 @@ Created on Wed Aug 21 10:33:49 2024
 @author: jrousseau
 """
 
+
 import pandas as pd
-import sys
+from argparse import ArgumentParser
+
+
+def get_args():
+    
+    """
+    parser les argument
+    """
+    
+    parser = ArgumentParser(description="")
+    
+    parser.add_argument("-a", "--alignment", help="Network with specific inflation", required=True)
+    
+    return parser.parse_args()
+
 
 def main(path_dataframe):
 
-    #dataframe = pd.read_csv("esmAtlasDBaln.tsv",
-    #                        sep = "\t",
-    #                        names=["qseqid", "sseqid", "pident", "ppos", "length", 
-    #                               "mismatch", "gapopen", "qstart", "qend", 
-    #                               "sstart", "send", "evalue", "bitscore"])
+    """
+    Description:
+        Filtration des alignements des séquences entre les séquences fournit par 
+        l'utilisateur et celle des banques de données ESM Metagenomics Atlas
+        et AlphaFold Protéin Structure Database selon le pourcentage d'identité
+        
+    
+    input:
+        clustering obtnue avec MCL (fichier dump)
+    output:
+        fichier contenant les cluster (même format que le fichier d'entré)
+        contient uniquement les clusters avec une taille minimal 
+    """    
+
+    path_dataframe = args.alignment
     
     dataframe = pd.read_csv(path_dataframe, sep = "\t",
                             names=["qseqid", "sseqid", "pident", "evalue"])
@@ -33,6 +58,6 @@ def main(path_dataframe):
 
 if __name__ == '__main__':
     
-    path_dataframe = sys.argv[1]
+    args = get_args()
     
-    main(path_dataframe)
+    main(args)

@@ -13,10 +13,12 @@ MainFunction <- function() {
    df.length <- df.merge[,c(1,2,4)]
    df.length <- df.length[!duplicated(df.merge), ]
    name.length <- paste(basename, "length_network.tsv", sep = "_")
+   # longeur des séquences annoté avec la panque de donnée (dans le réseau)
    write.table(df.length, name.length, col.names = FALSE, row.names = FALSE, 
                quote = FALSE, sep = "\t")
    
    df.annotation <- df.merge[,c(1,3,4)]
+   # annotation des séquences (dans le réseau)
    name.annotation <- paste(basename, "annotation_network.tsv", sep = "_")
    write.table(df.annotation, name.annotation, col.names = FALSE, row.names = FALSE, 
                quote = FALSE, sep = "\t")

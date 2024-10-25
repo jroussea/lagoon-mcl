@@ -6,8 +6,8 @@ editor: visual
 params:
   before: "null"
   after: "null"
-  annotation: "null"
   annotation_network: "null"
+  length_annotation: "null"
 ---
 
 Ce rapport présente la distribution de la taille des séquences avant et après la constrution du réseau.
@@ -32,6 +32,8 @@ Figure 1 : Distributiond de la taille des séquences avant la construction l'ali
 ```{r}
 #| echo: false
 #| output: false
+
+#df.length <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/94/bf201da92b2252b3fbc61f52c1e06a/sequence_length.tsv", col.names = c("protein_accession", "length"), header = FALSE, sep = "\t")
 
 df.length <- read.table(params$before, col.names = c("protein_accession", "length"), header = FALSE, sep = "\t")
 
@@ -63,6 +65,8 @@ Figure 2 : Distribution de la taille des séquences présente dans le réseau.
 ```{r}
 #| echo: false
 #| output: false
+
+#df.length.network <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/94/bf201da92b2252b3fbc61f52c1e06a/sequence_length_network.tsv", col.names = c("protein_accession", "length"), header = FALSE, sep = "\t")
 
 df.length.network <- read.table(params$after, col.names = c("protein_accession", "length"), header = FALSE, sep = "\t")
 
@@ -97,11 +101,9 @@ before_nework <- c(nrow(df.length))
 after_network <- c(nrow(df.length.network))
 
 sequence <- data.frame(before_nework, after_network)
-colnames(sequence) <- c("Sequence before network", "Sequence after network")
+#colnames(sequence) <- c("Sequence before network", "Sequence after network")
 
-kable(sequence,
-      "html",
-      caption = "Nombre de séquence avant et après la constrution du réseau")
+sequence
 ```
 
 ## Étude des séquences annotées dans le réseaux en fonction des informations
@@ -109,22 +111,22 @@ kable(sequence,
 ### initialement
 
 ```{r}
-#df.annotation.init <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/4a/2f63945a84687f103bc00657d433ce/annotation", header = FALSE, col.names = c("protein_accession", "database"), sep = "\t")
+#df.annotation.init <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/94/bf201da92b2252b3fbc61f52c1e06a/annotation.tsv", header = FALSE, col.names = c("protein_accession","database_accession", "database"), sep = "\t")
 
-df.annotation.init <- read.table(params$annotation, header = FALSE, col.names = c("protein_accession", "database"), sep = "\t")
+#df.annotation.init <- read.table(params$annotation, header = FALSE, col.names = c("protein_accession", "database"), sep = "\t")
 
-df.annotation.init.filter <- df.annotation.init |> 
-   filter(database != "gene3d_architecture") |> 
-   filter(database != "gene3d_class") |> 
-   filter(database != "gene3d_topology")
+#df.annotation.init.filter <- df.annotation.init |> 
+#   filter(database != "gene3d_architecture") |> 
+#   filter(database != "gene3d_class") |> 
+#   filter(database != "gene3d_topology")
 
-df.annotation.init.filter$database[df.annotation.init.filter$database == "gene3d_superfamily"] <- "gene3d"
+#df.annotation.init.filter$database[df.annotation.init.filter$database == "gene3d_superfamily"] <- "gene3d"
 
-df.annotation.init.filter |> 
-   group_by(database) |> 
-   summarise(count = n(),
-             prop_annote = count * 100 / before_nework,
-             n_seq_net = before_nework)
+#df.annotation.init.filter |> 
+#   group_by(database) |> 
+#   summarise(count = n(),
+#             prop_annote = count * 100 / before_nework,
+#             n_seq_net = before_nework)
 
 
 ```
@@ -133,7 +135,7 @@ df.annotation.init.filter |>
 
 ```{r}
 
-#df.annotation <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/df/7b5fa2a88f94146db18d2be8b37ad3/annotation", header = FALSE, col.names = c("protein_accession", "length", "database"), sep = "\t")
+#df.annotation <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/94/bf201da92b2252b3fbc61f52c1e06a/annotation.tsv", header = FALSE, col.names = c("protein_accession", "database_accession", "database"), sep = "\t")
 
 df.annotation <- read.table(params$annotation_network, header = FALSE, col.names = c("protein_accession", "length", "database"), sep = "\t")
 
@@ -145,37 +147,38 @@ df.annotation.filter <- df.annotation |>
 df.annotation.filter$database[df.annotation.filter$database == "gene3d_superfamily"] <- "gene3d"
 
 df.sequence.network <- df.annotation.filter |> 
+   distinct(protein_accession, database, .keep_all = TRUE) |> 
    group_by(database) |> 
    summarise(count = n(),
              prop_annote = count * 100 / after_network,
              n_seq_net = after_network)
-colnames(df.sequence.network) <- c("Banque de données", "Nombre de séquence annoté dans le réseau", "proportion de séquence annoté dans le réseau")
+#colnames(df.sequence.network) <- c("Banque de données", "Nombre de séquence annoté dans le réseau", "proportion de séquence annoté dans le réseau")
 
 df.sequence.network
 ```
 
-### Class
-
-### Architecture
-
-You can add options to executable code like this
+## longeur des séquences en focntion des banques de données
 
 ```{r}
-#| echo: false
-2 * 2
+#df.length.annotation <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/94/bf201da92b2252b3fbc61f52c1e06a/length_annotation", header = FALSE, col.names = c("protein_accession", "length", "database"))
+
+df.length.annotation <- read.table(params$length_annotation, header = FALSE, col.names = c("protein_accession", "length", "database"))
+
+df.length.annotation.filter <- df.length.annotation |> 
+   distinct(protein_accession, database, .keep_all = TRUE) |> 
+   filter(database != "gene3d_architecture") |> 
+   filter(database != "gene3d_class") |> 
+   filter(database != "gene3d_topology")
+
+df.length.annotation.filter$database[df.length.annotation.filter$database == "gene3d_superfamily"] <- "gene3d"
+
+df.length.annotation.filter |> 
+   ggplot(aes(x = length, fill = database)) +
+   geom_histogram(bins = 200) +
+   facet_wrap(~ database, ncol=4, labeller = labeller(database = ~ paste("Annot", .x))) +
+   theme(legend.position = "none")
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+### Avant la  construction
 
-Génération du PDF
-
-```{r}
-#| echo: false
-#| output: false
-
-pdf(file = "sequence_length_after_network.pdf")
-  
-print(plot.length)
-  
-dev.off()
-```
+### Après la constructio
