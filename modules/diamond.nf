@@ -18,9 +18,6 @@ process DiamondDB {
 
 	label 'diamond'
 
-
-	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond_db}.dmnd"
-
 	input:
 		path(fasta_rename)
 
