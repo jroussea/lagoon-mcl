@@ -1,14 +1,17 @@
 # LAGOON-MCL
 
 [![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.1.0-red?labelColor=000000)](https://jroussea.github.io/LAGOON-MCL/)
-[![Documentation Status](https://img.shields.io/badge/docs-passing-green?labelColor=000000)](https://lagoon-mcl-docs.readthedocs.io/en/latest/)
 [![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_2.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
-[![Conda](https://img.shields.io/badge/run_with-conda-3eb049?logo=anaconda&labelColor=000000)](https://docs.conda.io/projects/conda/en/stable/)
-[![Mamba](https://img.shields.io/badge/run_with-mamba-3eb049?labelColor=000000)](https://docs.conda.io/projects/conda/en/stable/)
 [![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
-[![Docker](https://img.shields.io/badge/run_with-docker-32b4f1?logo=docker&labelColor=000000)](https://www.docker.com/)
 
 ## Introduction
+
+LAGOON-MCL est un pipeline FAIR qui utiklise Nextflow comme workflow manager. L'objectif du pipeline esrt de construire des familles protéiques putative en utilisant les approche reposant sur les graphe (ou réseaux de similarité de séquence). À partir es réseaux, et des annotations (fonctionnelle, structurale, taxonomique, ...) fournit par l'utilsiateur ou calculé par le workflow, il est possible de connaitre la composition, l'orgine, la fonction des séquences qui compose les séquences.
+
+- La première étape du pipeline est de construire un réseau de similarité de séquence, pour cela il aligne toutes les séquences de l'utilisateur contre elle même (alignement par pair all vs all) avec diamond. Un clustering du réseau est ensuite réalisé avec le MArkov CLustering algorithm avec d'obtenir des clusters à partir du réseau.
+- La deuxième étape [optionnelle] est d'obtenir des informations concernant la fonction et la structure des protéines. Pour cela il est possible d'utiliser HMMER (hmmsearch) pour aligner les séquences contre les banques de données de profil HMM CATH/Gene3D et Pfam.
+- Troisième étape consite à calculer un score d'homogénétié pour chacune des informations fournis par l'utilisateur ou les banque de données scanné par LAGOON-MCL. Ce score d'homogénéité permet de déterminer si les séquences qui compose un même cluster on la même fonction, taxonomie, ...
+
 
 LArGe cOmparative Omics Networks (LAGOON) Markov CLustering algorithm (MCL) is developed by the [Atelier de BioInformatique](https://bioinfo.mnhn.fr/abi/presentation.FR.html) team of the [Institut de Systématique, Évolution, Biodiversité - UMR 7205](https://isyeb.mnhn.fr/fr) ([National Museum of Natural History](https://www.mnhn.fr/fr), Paris, France).\
 LAGOON-MCL is a new version of [LAGOON](https://github.com/Dylkln/LAGOON.git) developed by Dylan Klein.
@@ -16,15 +19,14 @@ LAGOON-MCL is a new version of [LAGOON](https://github.com/Dylkln/LAGOON.git) de
 LAGOON-MCL is a FAIR pipeline that uses [Nextflow](https://www.nextflow.io/) as a workflow manager.\
 The objective of this pipeline is to be able to construct Putative Protein Family (clusters) using [Markov CLustering algorithm](https://github.com/micans/mcl) and pairwise alignments obtained with [Diamond](https://github.com/bbuchfink/diamond).
 
-![pipeline](assets/pipeline.svg)
-
 ## Documentation
 
-The online documentation is located [here](https://lagoon-mcl-docs.readthedocs.io/en/latest/).
+[IN PROGRESS]
 
-## Additional information
+## Remerciement
 
-In order to interactively explore the results obtained with LAGOON-MCL, I am currently developing a Jupyter Notebook. It is available in the folder : `lagoon-mcl-jupyter`. For more information, see the [documentation](https://lagoon-mcl-docs.readthedocs.io/en/latest/jupyter.html).
+LArGe cOmparative Omics Networks (LAGOON) Markov CLustering algorithm (MCL) is developed by the [Atelier de BioInformatique](https://bioinfo.mnhn.fr/abi/presentation.FR.html) team of the [Institut de Systématique, Évolution, Biodiversité - UMR 7205](https://isyeb.mnhn.fr/fr) ([National Museum of Natural History](https://www.mnhn.fr/fr), Paris, France).\
+LAGOON-MCL is a new version of [LAGOON](https://github.com/Dylkln/LAGOON.git) developed by Dylan Klein.
 
 ## Contributions and Support
 
