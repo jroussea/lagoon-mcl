@@ -5,10 +5,8 @@ nextflow.enable.dsl = 2
 
 /* ESM Metagenomic Atlas */
 
-include { DownloadESMatlas       } from '../modules/download.nf'
-include { DiamondDB              } from '../modules/diamond.nf'
-include { DiamondBLASTp          } from '../modules/diamond.nf'
-include { FiltrationAlnStructure } from '../modules/preparation.nf'
+include { DownloadEsm  } from '../modules/mmseqs2.nf'
+include { MMseqsSearch } from '../modules/mmseqs2.nf'
 
 workflow ESMATLAS {
     
@@ -26,30 +24,28 @@ workflow ESMATLAS {
 
     take:
         esm_aln
-        proteome
+        sequences
 
     main:
         if (esm_aln == null) {
 
             if (params.esm_db == null) {
                 DownloadESMatlas()
-                esmSeq = DownloadESMatlas.out.esmSequence
+                esmDB = DownloadESMatlas.out.esmSequence
+
+                MMseqsSearch(sequences, esmDB, "esmAtlas30")
+                search_m8 = MMseqsSearch.out.search_m8
             }
             else {
-                esmSeq = Channel.fromPath(params.esm_db, checkIfExists: true)
-            }
+                esmDB = Channel.fromPath(params.esm_db, checkIfExists: true)
 
-            esmDb = DiamondDB(esmSeq)
-            
-            DiamondBLASTp(proteome, esmDb, params.sensitivity, params.diamond_evalue, params.matrix)
-            esm_alignment = DiamondBLASTp.out.diamond_alignment
+                MMseqsSearch(sequences, esmDB, params.esm_name)
+                search_m8 = MMseqsSearch.out.search_m8
+            }
         }
         else if (esm_aln != null) {
             esm_alignment = Channel.fromPath(esm_aln, checkIfExists: true)
         }
 
-        structure_esm_aln = esm_alignment.collectFile(name: "${params.outdir}/esm.tsv")
-
-        FiltrationAlnStructure(structure_esm_aln)	
-        structure_esm = FiltrationAlnStructure.out.structure
+        structure_esm_aln = search_m8.collectFile(name: "${params.outdir}/esm.tsv")
 }
