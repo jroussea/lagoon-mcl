@@ -1,0 +1,177 @@
+[
+  {
+    "objectID": "input.html",
+    "href": "input.html",
+    "title": "Input files format",
+    "section": "",
+    "text": "During pipeline execution, only the first part of the sequence headers is retained. It is therefore important that the sequence identifier is unique. Sequences in the fasta file can be single or multi-line.\n&gt;sequenceID_1\nIQKQITERKKASKGQDKCEDLVAEEDLV\n&gt;sequenceID_2\nQDKCEDLVAEKDAFAAKIEEQKKLADEL\nKGGEAAGHRGYYLTGPGEDSVAQHDAMI\n&gt;sequenceID_3\nCCLVENYQTDAGVRVPKALQPYMMGIEF\n&gt;sequenceID_4\nEEQKKLADELLVTRDNKLHYIGNIVHPQ\nDSVPVSNDEDKAPPQANPFQAEGKGQWR\n&gt;sequenceID_5\nTTPEDSVAQHDAMIETAQEFYESLELPYQTVCIVSAELNDAASKKF\n&gt;sequenceID_6\nTTPEDSVAQHDAMIETAQEFYESLELPYQTVCIVSAELNDAASKKF"
+  },
+  {
+    "objectID": "input.html#fasta-files",
+    "href": "input.html#fasta-files",
+    "title": "Input files format",
+    "section": "",
+    "text": "During pipeline execution, only the first part of the sequence headers is retained. It is therefore important that the sequence identifier is unique. Sequences in the fasta file can be single or multi-line.\n&gt;sequenceID_1\nIQKQITERKKASKGQDKCEDLVAEEDLV\n&gt;sequenceID_2\nQDKCEDLVAEKDAFAAKIEEQKKLADEL\nKGGEAAGHRGYYLTGPGEDSVAQHDAMI\n&gt;sequenceID_3\nCCLVENYQTDAGVRVPKALQPYMMGIEF\n&gt;sequenceID_4\nEEQKKLADELLVTRDNKLHYIGNIVHPQ\nDSVPVSNDEDKAPPQANPFQAEGKGQWR\n&gt;sequenceID_5\nTTPEDSVAQHDAMIETAQEFYESLELPYQTVCIVSAELNDAASKKF\n&gt;sequenceID_6\nTTPEDSVAQHDAMIETAQEFYESLELPYQTVCIVSAELNDAASKKF"
+  },
+  {
+    "objectID": "input.html#annotation-files",
+    "href": "input.html#annotation-files",
+    "title": "Input files format",
+    "section": "Annotation files",
+    "text": "Annotation files\nYou must provide one file for each type of annotation/information. If you have Pfam and CATH/Gene3D annotations, you will need to provide two separate files. If you have taxonomic information about sequences, you should provide one file for each taxonomic level. (e.g. a file for class, a file for phylum, a file for family, a file for genus and a file for species)\nFiles must be in TSV (tabulation-separated values) format, with two columns. The first column contains the sequence identifier, the second column must contain the annotation (if a sequence has several annotations, they must be present on several lines). Files must not have headers.\nExample for a CATH/Gene3D annotation file (gene3d.tsv):\n\n\n+--------------+--------------+\n| sequenceID_1 | 1.25.10.10   |\n+--------------+--------------+\n| sequenceID_2 | 1.25.10.10   |\n+--------------+--------------+\n| sequenceID_3 | 3.40.50.300  |\n+--------------+--------------+\n| sequenceID_3 | 1.20.1560.10 |\n+--------------+--------------+\n| sequenceID_3 | 3.40.50.300  |\n+--------------+--------------+\n| sequenceID_4 | 3.40.50.460  |\n+--------------+--------------+\n| sequenceID_4 | 1.10.10.480  |\n+--------------+--------------+\n| sequenceID_4 | 3.40.50.450  |\n+--------------+--------------+\n| sequenceID_5 | 1.20.990.10  |\n+--------------+--------------+\n| sequenceID_6 | 2.40.30.10   |\n+--------------+--------------+\n\n\nExample for a taxonomic file (species.tsv):\n\n\n+--------------+-----------------------+\n| sequenceID_1 | Gymnodinium_catenatum |\n+--------------+-----------------------+\n| sequenceID_2 | Gymnodinium_catenatum |\n+--------------+-----------------------+\n| sequenceID_3 | Gymnodinium_catenatum |\n+--------------+-----------------------+\n| sequenceID_1 | Alexandrium_pacificum |\n+--------------+-----------------------+\n| sequenceID_2 | Alexandrium_pacificum |\n+--------------+-----------------------+\n| sequenceID_3 | Alexandrium_pacificum |\n+--------------+-----------------------+\n\n\n\n\n\n\n\n\nNote\n\n\n\nIt’s important that file names are self-explanatory (e.g. pfam.tsv, gene3d.tsv, species.tsv)."
+  },
+  {
+    "objectID": "input.html#diamond-alignment-for-ssn",
+    "href": "input.html#diamond-alignment-for-ssn",
+    "title": "Input files format",
+    "section": "Diamond alignment for ssn",
+    "text": "Diamond alignment for ssn\nSi vous posséder déjà un fichier d’alignement obtenue par exemple avec BLASTp, vous pouvez le fournir au pipeline, se qui évite de calculer à nouveau l’alignement. Le fichier doit être composé de 3 colonnes séparé par une tabulation - colonne 1 quey - colonne 2 subjhect - colonne 3 evalue\nCe dataframe va directement être donné à MCL\n\n\n+--------+----------+-----------+\n| query1 | subject1 | 1.98e-77  |\n+--------+----------+-----------+\n| query1 | subject2 | 2.24e-168 |\n+--------+----------+-----------+\n| query2 | subject3 | 6.86e-18  |\n+--------+----------+-----------+\n| query3 | subject1 | 1.78e-40  |\n+--------+----------+-----------+\n| query4 | subject4 | 6.05e-37  |\n+--------+----------+-----------+\n| query5 | subject5 | 2.64e-07  |\n+--------+----------+-----------+"
+  },
+  {
+    "objectID": "command.html",
+    "href": "command.html",
+    "title": "Command line options",
+    "section": "",
+    "text": "--help\n\nShow help.\n\n--max_cpus &lt;int&gt;, default: 200\n\nMaximum number of CPUs that can be used by a process.   If the maximum CPU is exceeded, pipeline execution is killed.\n\n--max_memory &lt;flaot.GB&gt;, default: 750.GB\n\nNombre de RAM maximum pouvant être utilisé par un process\nIf the maximum RAM is exceeded, pipeline execution is killed.\n\n--max_time &lt;int.h&gt;, default: 350.h\n\nMaximum execution time for a process.\nIf the maximum time is exceeded, pipeline execution is killed.\n\n-w / --workdir &lt;path&gt;, default: /path/to/lagoon-mcl/wordir\n\nPath to pipeline working directory.\n\n--projectName &lt;str&gt;, default: lagoon-mcl\n\nProject name. Used to name the working directory.\n\n-resume\n\nTo be specified when restarting the pipeline if there was a problem during execution. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it stopped."
+  },
+  {
+    "objectID": "command.html#paramètres-génétraux",
+    "href": "command.html#paramètres-génétraux",
+    "title": "Command line options",
+    "section": "",
+    "text": "--help\n\nShow help.\n\n--max_cpus &lt;int&gt;, default: 200\n\nMaximum number of CPUs that can be used by a process.   If the maximum CPU is exceeded, pipeline execution is killed.\n\n--max_memory &lt;flaot.GB&gt;, default: 750.GB\n\nNombre de RAM maximum pouvant être utilisé par un process\nIf the maximum RAM is exceeded, pipeline execution is killed.\n\n--max_time &lt;int.h&gt;, default: 350.h\n\nMaximum execution time for a process.\nIf the maximum time is exceeded, pipeline execution is killed.\n\n-w / --workdir &lt;path&gt;, default: /path/to/lagoon-mcl/wordir\n\nPath to pipeline working directory.\n\n--projectName &lt;str&gt;, default: lagoon-mcl\n\nProject name. Used to name the working directory.\n\n-resume\n\nTo be specified when restarting the pipeline if there was a problem during execution. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it stopped."
+  },
+  {
+    "objectID": "command.html#input-parameter",
+    "href": "command.html#input-parameter",
+    "title": "Command line options",
+    "section": "Input parameter",
+    "text": "Input parameter\n\n--fasta &lt;file&gt;, default: null\n\nPath to fasta files.   If several fasta files are used, the quotes \" are mandatory.\n--fasta \"path/to/your/fasta/*.fasta\""
+  },
+  {
+    "objectID": "command.html#ouput-parameter",
+    "href": "command.html#ouput-parameter",
+    "title": "Command line options",
+    "section": "Ouput parameter",
+    "text": "Ouput parameter\n\noutdir &lt;path&gt;, default: results\n\nDirectory containing LAGOON-MCL results."
+  },
+  {
+    "objectID": "command.html#sequence-similarity-network-and-clustering",
+    "href": "command.html#sequence-similarity-network-and-clustering",
+    "title": "Command line options",
+    "section": "Sequence Similarity Network and clustering",
+    "text": "Sequence Similarity Network and clustering\n\nSequence Similarity Network (Diamond BLASTp)\nSequences are aligned using Diamond BLASTp.\n\n--alignment_file &lt;file&gt;, default: null\n\nIf you already have an alignment file for your sequences, you can specify it with this command. If this option is not null, then BLASTp alignment will not be performed.\nFor the file format, please refer to the input section.\n--alignment_file path/to/your/alignment/alignment.tsv\n\n--sensitivity, default: very-sensitive\n\nAlignment sensitivity mode. You can choose between: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive, ultra-sensitive.\n\n--matrix, default: BLOSUM62\n\nScore matrix. You can use: BLOSUM45, BLOSUM50, BLOSUM80, BLOSUM90, PAM250, PAM70, PAM30.\n\n--diamond_evalue, default: 0.001\n\nMaximum expected value to report an alignment\n\n\n\n\n\n\nNote\n\n\n\nFor more information on how to use Diamond BLASTp’s specific parameters, please consult the documentation.\n\n\n\n\nClustering (with MCL algorithm)\nThe network is clustered using the Markov CLustering algorithm.\n\n--I &lt;list&gt;, default: 1.4,2\n\nThe inflation parameter is MCL’s main means of influencing clustering granularity. It is generally chosen in a range between 1.2 and 5.0. 1.2 will produce coarse clustering. 5.0 will produce fine clustering. * --max_weight, default: 200\nThe evalue is used as a weight for the edges. It is transformed into logarithm base 1 to negative. This parameter can be used to set a maximum weight.\n\n--cluster_size, default: 3\n\nKeeps only clusters with a minimum size.\n\n\n\n\n\n\nNote\n\n\n\nFor more information on how to use MCL, please consult the documentation."
+  },
+  {
+    "objectID": "command.html#sequence-information",
+    "href": "command.html#sequence-information",
+    "title": "Command line options",
+    "section": "Sequence information",
+    "text": "Sequence information\n\nAnnotation files\n\n--annotation_files, default: null\n\nIf you provide annotation files (functions, taxonomies, …), they can be given to workflows with this parameter. A file must be supplied for each annotation type, and each file must contain two columns, the first column containing the sequence identifier and the second column the annotation (e.g. Pfam).\n--annotation_files \"/path/to/your/annotation_files/*tsv\"\n\n\n\n\n\n\nNote\n\n\n\nSee Input files for more information on the format of the file.\n\n\n\n\nPfam annotation\nIf you don’t have a functional annotation, LAGOON-MCL can scan the Pfam database with MMseqs2.\n\n--scan_pfam, default: false\n\nTrue: LAGOON-MCL uses MMseqs2 to scan Pfam. False: LAGOON-MCL does not scan Pfam.\n\n--pfam_db, default: null\n\nPath to Pfam database. It must have been created and indexed with MMseqs2.\n\npfam_name, default: null\n\nDatabase name.\n\n\noption d’alignement (ESM atals)\nYou can scan the ESM Metagenomic Atlas database for initial information on the three-dimensional structure of proteins.\n\nscan_esm, default: false\n\nTrue: LAGOON-MCL uses MMseqs2 to scan ESM Metagenomic Atlas. False: LAGOON-MCL does not scan ESM Metagenomic Atlas.\n\nesm_db, default: null\n\nPath to ESM Metagenomic Atlas database. It must have been created and indexed with MMseqs2.\n\nesm_name, default: null\n\nDatabase name."
+  },
+  {
+    "objectID": "installation.html",
+    "href": "installation.html",
+    "title": "Installation",
+    "section": "",
+    "text": "LAGOON-MCL uses Nextflow as workflow manager, and Singlularity as container manager. If you’re using it on a cluster, Nextflow handles job submission (SLURM, PBS, …). To use LAGOON-MCL on Windows, you need WSL."
+  },
+  {
+    "objectID": "installation.html#introduction",
+    "href": "installation.html#introduction",
+    "title": "Installation",
+    "section": "",
+    "text": "LAGOON-MCL uses Nextflow as workflow manager, and Singlularity as container manager. If you’re using it on a cluster, Nextflow handles job submission (SLURM, PBS, …). To use LAGOON-MCL on Windows, you need WSL."
+  },
+  {
+    "objectID": "installation.html#how-to-install-the-pipeline",
+    "href": "installation.html#how-to-install-the-pipeline",
+    "title": "Installation",
+    "section": "How to install the pipeline",
+    "text": "How to install the pipeline\n\nLocal installation\nCheck that Singularity and Nextflow are installed on your system.\ngit clone https://github.com/jroussea/lagoon-mcl.git\n\n\nBuilding containers\nbash script/containers/singularity.sh\nContainers can be found in: containers/\n\n\n[optional] Download databases\nIt is possible to download, build and index the databases before running the pipeline for the first time.\nDatabase used by LAGOON-MCL :\n\nPfam\nESM Metagenomic Atlas\n\nYou’ll need MMseqs2, and two scripts are available in script/databse: pfam.sh and esm_atlas.sh.\nbash pfam.sh -o /path/to/your/database\n\nbash esm_atlas -o /path/to/your/database\n\n\n\n\n\n\nTip\n\n\n\n\n\nYou can use the Singularity MMseqs2 container you created earlier.\nsingularity run mmseqs2.sif bash pfam.sh -o /path/to/your/database\n\nsingularity run mmseqs2.sif bash esm_atlas.sh -o /path/to/your/database\n\n\n\n\n\nCluster configuration\nIf you are using LAGOON-MCL on a computing cluster, you will need to provide Nextflow with a configuration file specific to your system. Information on executors (SLURM, PBS, AWS, …) can be found in the executor section of the Nextflow documentation. For some institutes, this file is already referenced in nf-core/configs. If this is the case, you can download the file and use it with -c path/to/your/institute/config/file/institute_file.config when executing the pipeline."
+  },
+  {
+    "objectID": "installation.html#test-the-pipeline",
+    "href": "installation.html#test-the-pipeline",
+    "title": "Installation",
+    "section": "Test the pipeline",
+    "text": "Test the pipeline\nnextflow run main.nf -profile test,singularity\nThis command line will use the FASTA files in test/fasta and the Pfam and ESM Metagenomic Atlas databases.\nFor more information on running the pipeline, please see the tutorial."
+  },
+  {
+    "objectID": "benchmark.html",
+    "href": "benchmark.html",
+    "title": "Bench",
+    "section": "",
+    "text": "Les benchmarks ont été réalisé sur la banques de données METdb (463 transcriptomes) et éxécuté sur le cluster de calcul ABiMS de la Station Biologique de Roscoff.\nLe téléchargements des banques de données a été fait séparément de l’éxécution du pipeline.\nLes benchmarks on été réalisé sur 7 jeux de données issus de METdb de différentes tailles : - 10 transcritome\n- 50 transcriptomes\n- 100 trancriptomes   - 200 trancriptomes   - 300 trancriptomes   - 400 trancriptomes   - 463 trancriptomes\nConcernant les paramètres, se sont les paramètres par défaut de LAGOON-MCL avec le scan de PFAM et ESM Atlas et AlpfaFold DB. Vous pouvez retrouver le fichier de configuration ici :\nA benchmarks du temps de téléchargement des banques de données\n6 / 7 benchmarks sur metdb avec plus ou de transcriptomes\neffectuer l’annotation fonctionnelle pfam et structurale (esm + alphafold)\n10 transcriptome\n50 transcriptomes\n100 transcriptomes\n200 transcriptomes\n300 transcriptomes\n400 transcriptomes\n463 transcriptomes\nfaie un tableau avec - nombre de séquences initiale - nombre d’alignement avant filtration - nombre de séquences dans le reéseau d’entré - nombre d’alignement dans le réseau d’entré (après filtration) - taille du jeu de données initiale (fasta) - taille du jeu de données initiale (annotation) - espace disque utilisé par le workfow (banque de données + résulats + work)"
+  },
+  {
+    "objectID": "output.html#reports",
+    "href": "output.html#reports",
+    "title": "Output format",
+    "section": "Reports",
+    "text": "Reports"
+  },
+  {
+    "objectID": "output.html#homogénéity-score",
+    "href": "output.html#homogénéity-score",
+    "title": "Output format",
+    "section": "Homogénéity score",
+    "text": "Homogénéity score\nUn score d’homogénéityé est calculé pour chaque annotation (fonction, taxono) passer au workflow (exépté les structure obtenue avec les scan de ESM et afdb)\n\\[\nN_{annot} &gt; 1 =&gt; hom_{score} = \\frac{N_{annot}}{N_{proteine}}\n\\] \\[\nN_{annot} = 1 =&gt; hom_{score} = 1\n\\]\nSi \\(hom_{scop} &gt; 1\\) :\nCe cas peut arriver lorsque que le nombre d’annotation est supérieur au nombre de protéine. Dans ce cas, une sélection des annotations expliquant au mieux le cluster est faite.\ndescription étape par étape\ninsérer un schéma"
+  },
+  {
+    "objectID": "output.html#nextflow-reports",
+    "href": "output.html#nextflow-reports",
+    "title": "Output format",
+    "section": "Nextflow reports",
+    "text": "Nextflow reports"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "LAGOON-MCL Documentation",
+    "section": "",
+    "text": "LAGOON-MCL à été disgner pour traiter de large ensemble de séquences protéique et leur annotations en utilisant les réseaux similarité de séquences et le clustering tout en nécessitant le moins de possible de ressources (CPUs et RAM) pour chacun des process.\nLes réseaux de similairité de séquence (ssn) permette de visualiser les relations entre les protéines. Les SSN sont des graphes et donc grace à ça il est possible de leur appliquer des algorithme de clustering avec de construire des clusters de séquences. La génration d’un SSN et le clustering se font en 3 étapes majeurs. La premi_re consiste en alignement pairqais de toutes les séquences contre elle (all vs all) avec BLASTp. La deuxième étapes consite à appliquer des filtres sur les alignement (identité, overlap, …) afin de ne conserver que les relation entre qui intéresse l’utilisateur. EN enfin la dernière consite appliquer à un clustering sur le réseau avec algorithm tel que le MCL algorithm.\nLAGOON-MCL permet ensuite de mettre en relation les annotations (par exemple fonctionnelle) des séquences présente au sein d’un cluster en calculant un score d’homogénéité (expliqué à …). Les annotations peuvent être fournit par l’utilisateur ou obtenue LAGOON-MCL en scannant Pfam (annotation fonctioner) et / ou EMS Metagenomics Atlas et / oU alphafol db (annotation structurale).\n\n\n\npipeline"
+  },
+  {
+    "objectID": "output.html#homogeneity-score",
+    "href": "output.html#homogeneity-score",
+    "title": "Output format",
+    "section": "Homogeneity score",
+    "text": "Homogeneity score\nThe homogeneity score is calculated for each annotation (e.g. functional, taxonomic, …).\nThis homogeneity score is calculated according to the following equations:\n\\[\nN_{annot} &gt; 1 =&gt; hom_{score} = \\frac{N_{annot}}{N_{protein}}\n\\] \\[\nN_{annot} = 1 =&gt; hom_{score} = 1\n\\]\nSi \\(hom_{scop} &gt; 1\\) :\nCe cas peut arriver lorsque que le nombre d’annotation différentes est supérieur au nombre de protéine. Dans ce cas, une sélection des annotations expliquant au mieux le cluster est faite.\n\\(hom_{score} &gt; 1\\) : homogeneity score. \\(hom_{annot} &gt; 1\\) : number of different annotations in a cluster. \\(hom_{protein} &gt; 1\\) : number of proteins in a cluster."
+  },
+  {
+    "objectID": "output.html#lagoon-mcl-reports",
+    "href": "output.html#lagoon-mcl-reports",
+    "title": "Output format",
+    "section": "LAGOON-MCL reports",
+    "text": "LAGOON-MCL reports"
+  },
+  {
+    "objectID": "benchmark.html#lagoon-mcl",
+    "href": "benchmark.html#lagoon-mcl",
+    "title": "Benchmarks",
+    "section": "LAGOON-MCL",
+    "text": "LAGOON-MCL\nLAGOON-MCL benchmarks will be run on METdb. Seven tests will be carried out with different dataset sizes.\n* 10 transcriptomes\n* 50 transcriptomes\n* 100 transcriptomes\n* 200 transcriptomes\n* 300 transcriptomes\n* 400 transcriptomes\n* 463 transcriptomes"
+  },
+  {
+    "objectID": "command.html#general-parameters",
+    "href": "command.html#general-parameters",
+    "title": "Command line options",
+    "section": "",
+    "text": "--help\n\nShow help.\n\n--max_cpus &lt;int&gt;, default: 200\n\nMaximum number of CPUs that can be used by a process.   If the maximum CPU is exceeded, pipeline execution is killed.\n\n--max_memory &lt;flaot.GB&gt;, default: 750.GB\n\nNombre de RAM maximum pouvant être utilisé par un process\nIf the maximum RAM is exceeded, pipeline execution is killed.\n\n--max_time &lt;int.h&gt;, default: 350.h\n\nMaximum execution time for a process.\nIf the maximum time is exceeded, pipeline execution is killed.\n\n-w / --workdir &lt;path&gt;, default: /path/to/lagoon-mcl/wordir\n\nPath to pipeline working directory.\n\n--projectName &lt;str&gt;, default: lagoon-mcl\n\nProject name. Used to name the working directory.\n\n-resume\n\nTo be specified when restarting the pipeline if there was a problem during execution. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it stopped."
+  },
+  {
+    "objectID": "benchmarks.html#lagoon-mcl",
+    "href": "benchmarks.html#lagoon-mcl",
+    "title": "Benchmarks",
+    "section": "LAGOON-MCL",
+    "text": "LAGOON-MCL\nLAGOON-MCL benchmarks will be run on METdb. Seven tests will be carried out with different dataset sizes.\n* 10 transcriptomes\n* 50 transcriptomes\n* 100 transcriptomes\n* 200 transcriptomes\n* 300 transcriptomes\n* 400 transcriptomes\n* 463 transcriptomes"
+  },
+  {
+    "objectID": "input.html#blastp-alignment",
+    "href": "input.html#blastp-alignment",
+    "title": "Input files format",
+    "section": "BLASTp alignment",
+    "text": "BLASTp alignment\nIf you already have an even alignment file (e.g. obtained with BLASTp), you can supply it to the pipeline, thus avoiding the need to recalculate the alignment. The file must consist of 3 columns separated by a tab:\n- column 1 query\n- column 2 subject\n- column 3 evalue\nThis table will be given to MCL.\n\n\n+--------+----------+-----------+\n| query1 | subject1 | 1.98e-77  |\n+--------+----------+-----------+\n| query1 | subject2 | 2.24e-168 |\n+--------+----------+-----------+\n| query2 | subject3 | 6.86e-18  |\n+--------+----------+-----------+\n| query3 | subject1 | 1.78e-40  |\n+--------+----------+-----------+\n| query4 | subject4 | 6.05e-37  |\n+--------+----------+-----------+\n| query5 | subject5 | 2.64e-07  |\n+--------+----------+-----------+"
+  }
+]
