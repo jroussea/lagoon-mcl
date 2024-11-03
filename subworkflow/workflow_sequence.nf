@@ -3,11 +3,11 @@
 // Enable modules
 nextflow.enable.dsl = 2
 
-include { SequenceLength } from '../modules/preparation.nf'
-include { SequenceHtml } from '../modules/report.nf'
+include { SequenceLength     } from '../modules/preparation.nf'
+include { SequenceHtml       } from '../modules/report.nf'
 include { SequenceAnnotation } from '../modules/preparation.nf'
-include { ClusterHtml  } from '../modules/report.nf'
-include { HomScoreHtml } from '../modules/report.nf'
+include { ClusterHtml        } from '../modules/report.nf'
+include { HomScoreHtml       } from '../modules/report.nf'
 
 workflow REPORT {
 

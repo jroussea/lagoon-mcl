@@ -44,8 +44,8 @@ workflow REPORT {
 
         SequenceHtml(quarto, sequence_length, sequence_length_network, annotation_network, length_annotation)
 
-        network_plouf = network.collect()
-        ClusterHtml(quarto_2, network_plouf)
-        
-        HomScoreHtml(tuple_hom_score)
+        all_network = network.collectFile()
+        ClusterHtml(quarto_2, all_network)
+
+        //HomScoreHtml(tuple_hom_score)
 }
