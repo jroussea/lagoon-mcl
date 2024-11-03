@@ -16,25 +16,22 @@ process PreparationPfam {
     *       - colonne 2 : identifiant Pfam
     */
 
-	tag ''
-
 	label 'lagoon'
 
 	input:
-		path(all_pfam)
+		path(search_m8)
 
 	output:
-		path("pfam.tsv"), emit: label_pfam
+		path("${search_m8.baseName}.pfam"), emit: select_pfam
 
 	script:
 
 		"""
-		label_pfam.R ${all_pfam}
+		cut -d "." -f 1 ${search_m8} > ${search_m8.baseName}.pfam
+		"""
 
-		cut -f 1 pfam > col1
-		cut -f 2 pfam | cut -d "." -f 1 > col2
-		cut -f 3 pfam > col3
-
-		paste col1 col2 col3 > pfam.tsv
+    stub:
+		"""
+        touch pfam.tsv
 		"""
 }

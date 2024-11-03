@@ -12,13 +12,10 @@ process SequenceHtml {
     *	- 
     */
 
-	tag ''
-
-   	publishDir "$baseDir/results/html", mode: 'copy', pattern: "sequences_stats.html"
-    publishDir "$baseDir/results/html", mode: 'copy', pattern: "sequences_stats_files/*"
-
-
 	label 'lagoon'
+
+    publishDir "${params.outdir}/${params.projectName}_reports", mode: 'copy', pattern: "sequences_stats.html"
+    publishDir "${params.outdir}/${params.projectName}_reports", mode: 'copy', pattern: "sequences_stats_files/*"
 
     input:
         path(quarto)
@@ -28,15 +25,16 @@ process SequenceHtml {
         path(length_annotation)
 
 	output:
-        stdout
+        path("sequences_stats.html")
+        path("sequences_stats_files/*")
 
 	script:
-	"""
-    cat ${annotation_network} > annotation_network
-    cat ${length_annotation} > length_annotation
+        """
+        cat ${annotation_network} > annotation_network
+        cat ${length_annotation} > length_annotation
 
-    quarto render ${quarto} -P before:${before} -P after:${after} -P annotation_network:annotation_network -P length_annotation:length_annotation
-    """
+        quarto render ${quarto} -P before:${before} -P after:${after} -P annotation_network:annotation_network -P length_annotation:length_annotation
+        """
 }
 
 process ClusterHtml {
@@ -52,7 +50,6 @@ process ClusterHtml {
     * -----
     *	- 
     */
-	tag ''
 
 	label 'lagoon'
 
@@ -64,15 +61,14 @@ process ClusterHtml {
         stdout
 
 	script:
-	"""
-        echo ${network}
+	    """
+		quarto render ${quarto} -P network:${network}
+        """
 
-        sed -s -i '1d' ${network}
-
-        cat ${network} > network.tsv
-
-		quarto render ${quarto} -P network:network.tsv
-    """
+    stub:
+		"""
+        touch report.html
+		"""
 }
 
 process HomScoreHtml {
@@ -89,8 +85,6 @@ process HomScoreHtml {
     *	- 
     */
 
-	tag ''
-
 	label 'lagoon'
 
     input:
@@ -100,7 +94,12 @@ process HomScoreHtml {
         stdout
 
 	script:
-	"""
-    echo ${homogeneity_score}
-    """
+        """
+        echo ${homogeneity_score}
+        """
+
+    stub:
+		"""
+        touch report.html
+		"""
 }

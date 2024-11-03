@@ -14,8 +14,6 @@ process DiamondDB {
     *	- banque de donnée construite avec toutes les séquences fasta
     */
 
-	tag 'Diamond makedb'
-
 	label 'diamond'
 
 	input:
@@ -23,10 +21,17 @@ process DiamondDB {
 
 	output:
 		path("reference.dmnd"), emit: diamond_db
+	
 	script:
 		"""
-    	diamond makedb --in ${fasta_rename} -d reference -p ${task.cpus}
+		diamond makedb --in ${fasta_rename} -d reference -p ${task.cpus}
 		"""
+
+	stub:
+		"""
+		touch reference.dmnd
+		"""
+
 }
 
 process DiamondBLASTp {
@@ -46,13 +51,10 @@ process DiamondBLASTp {
 	*	- alignement par pair (fichier tsv)
     */
 
-	tag 'Diamond BLASTp'
 	label 'diamond'
 
-	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond}"
-
 	input:
-		path(fasta_rename)
+		each path(fasta_rename)
         path(diamond_db)
 		val(sensitivity)
 		val(diamond_evalue)
@@ -71,5 +73,10 @@ process DiamondBLASTp {
     	-e ${diamond_evalue} \
     	--matrix ${matrix} \
 		--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
+		"""
+	
+	stub:
+		"""
+		touch diamond_alignment.tsv
 		"""
 }

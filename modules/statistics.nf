@@ -9,20 +9,18 @@ process HomogeneityScore {
     *	- 
     */
 
-    tag ''
-
     label 'lagoon'
 
-	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv", mode: 'copy', pattern: "*.tsv"
-    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*.txt"
+	publishDir "${params.outdir}/homogeneity_score", mode: 'copy', pattern: "homogeneity_score_${label_network.baseName}_I${inflation}.tsv"
+    publishDir "${params.outdir}/homogeneity_score/labels", mode: 'copy', pattern: "*.txt"
 
     input:
         each path(label_network)
         tuple path(network_tsv), val(inflation)
     
     output:
-        tuple path("*.tsv"), val("${inflation}"), val("${label_network.baseName}"), emit: tuple_hom_score
-        path "*.txt"
+        tuple val("${label_network.baseName}"), path("homogeneity_score_${label_network.baseName}_I${inflation}.tsv"), emit: tuple_hom_score
+        path("${label_network.baseName}.txt")
 
     script:
         """
@@ -32,4 +30,10 @@ process HomogeneityScore {
 
         network_homogeneity_score.py --network network --label label --inflation ${inflation} --basename ${label_network.baseName}
         """
+
+    stub:
+		"""
+        touch ${label_network.baseName}.tsv
+        touch ${label_network.baseName}.txt
+		"""
 }

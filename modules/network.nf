@@ -12,14 +12,7 @@ process NetworkMcxload {
     *	- 
     */
 
-	tag 'MCL'
-
 	label 'mcl'
-
-    publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "network.dict"
-    publishDir "${params.outdir}/network/mcl/mcx_load", mode: 'copy', pattern: "network.mci"
-
-    publishDir "${params.outdir}/network/mcl/matrice", mode: 'copy', pattern: "network.matrice"
 
 	input:
 		path(diamond_ssn)
@@ -30,14 +23,18 @@ process NetworkMcxload {
         path("network.matrice"), emit: network_matrice
 
 	script:
-	    """
-	    sed 1d ${diamond_ssn} > diamond_ssn.tmp
-
+        """
+        sed 1d ${diamond_ssn} > diamond_ssn.tmp
         mcxload -abc diamond_ssn.tmp -write-tab network.dict -o network.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
-
         mcxdump -imx network.mci -tab network.dict -o network.matrice
+        """
 
-	    """
+	stub:
+		"""
+        touch network.dict
+		touch network.matrice
+        touch network.mci
+		"""
 }
 
 process NetworkMcl {
@@ -54,12 +51,7 @@ process NetworkMcl {
     *	- 
     */
 
-	tag 'MCL'
-
 	label 'mcl'
-
-    publishDir "${params.outdir}/network/mcl/mcl", mode: 'copy', pattern: "out.network.mci.I*"
-    publishDir "${params.outdir}/network/mcl/mcl", mode: 'copy', pattern: "network_mcl_I${inflation}.graph"
 
 	input:
 		each inflation
@@ -71,8 +63,15 @@ process NetworkMcl {
 	script:
         
         """
-        mcl $network_mci -I $inflation -te ${task.cpus} -write-graph network_mcl_I${inflation}.graph --analyze=y
+        mcl $network_mci -I $inflation -te ${task.cpus} 
         """
+        //-write-graph network_mcl_I${inflation}.graph --analyze=y
+	stub:
+		"""
+        touch ${network_dict}
+		touch ${network_mci}
+        touch out.network.mci.I2
+		"""
 }
 
 process NetworkMcxdump {
@@ -89,11 +88,7 @@ process NetworkMcxdump {
     *	- 
     */
 
-	tag 'MCL'
-
 	label 'mcl'
-
-    publishDir "${params.outdir}/network/mcl/mcx_dump", mode: 'copy', pattern: "dump.${network_mcl}"
 
 	input:
         tuple path(network_dict), path(network_mci), path(network_mcl), val(inflation)
@@ -105,6 +100,14 @@ process NetworkMcxdump {
         """
         mcxdump -icl ${network_mcl} -tabr ${network_dict} -o dump.${network_mcl}
         """
+
+	stub:
+		"""
+        touch ${network_dict}
+        touch ${network_mci}
+        touch ${network_mcl}
+        touch dump.${network_mcl}
+		"""
 }
 
 process FiltrationCluster {
@@ -125,6 +128,7 @@ process FiltrationCluster {
 
     input:
         tuple path(network_dict), path(network_mci), path(network_mcl), path(network_dump), val(inflation)
+    
     output:
         tuple path("conserved_cluster_*.txt"), val("${inflation}"), emit: tuple_filtration
         
@@ -133,6 +137,10 @@ process FiltrationCluster {
         cluster_filtration.py --network ${network_dump} --inflation ${inflation} --min ${params.cluster_size}
         """
 
+	stub:
+		"""
+        touch conserved_cluster_2.txt
+		"""
 }
 
 process NetworkMclToTsv {
@@ -149,11 +157,9 @@ process NetworkMclToTsv {
     *	- 
     */
 
-    tag ''
-
 	label 'lagoon'
 
-	publishDir "${params.outdir}/network/mcl/tsv", mode: 'copy', pattern: "network_I*.tsv"
+	publishDir "${params.outdir}/network/", mode: 'copy', pattern: "network_I*.tsv"
 
 	input:
         tuple path(network), val(inflation)
@@ -164,6 +170,11 @@ process NetworkMclToTsv {
 
 	script:
 		"""
-        network_dump_to_tsv.sh -m ${network} -i ${inflation} -c protein_accession
+        network_dump_to_tsv.py --network ${network} --inflation ${inflation}
+		"""
+
+    stub:
+		"""
+        touch network_I2.tsv
 		"""
 }
