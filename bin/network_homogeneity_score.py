@@ -51,7 +51,7 @@ def load_dataframe(path_network, path_label):
 
     """
     
-    network = pd.read_csv(path_network, sep = "\t")
+    network = pd.read_csv(path_network, sep = "\t", names=["cluster_id", "protein_accession"], header=None)
     label = pd.read_csv(path_label, sep = "\t")
     
     return(network, label)

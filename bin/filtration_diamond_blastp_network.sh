@@ -21,12 +21,7 @@ done
 
 # Supprimer les lignes ou l'identifiant dans la colonne query est égal à l'identifiant dans la colonne subjectif
 # permet de supprimer les lignes ou la séquence c'est aligné contre elle même
-awk '$1!=$5' $diamond_aln > intermediate_file
-
-# filtration des alignements
-# ne conserve que les alignement aves une identifé de 80% (par défaut)
-# et une couverure de 80 % par défaut
-awk -F "\t" '(($10 >= 80) && (($9 >= ($6 * .8)) || (($9 >= ($2 * .8))))) { print $0 }' intermediate_file > ssn
+awk '$1!=$5' $diamond_aln > ssn
 
 # sélection des colonne query,subject et evalue => utilié pour le clustering avec MCL
 cut -f 1,5,13 ssn > diamond_ssn.tsv
