@@ -1,3 +1,35 @@
+process PreparationFasta {
+
+    /*
+	* DESCRIPTION
+    * -----------
+    *
+    * INPUT
+    * -----
+    * 	- 
+    * OUPUT
+    * -----
+    *	- 
+    */
+	
+    label 'seqkit'
+
+    publishDir "${params.outdir}/diamond/", mode: 'copy', pattern: "sequence_rename.fasta"
+
+    input:
+        path(sequence)
+    
+    output:
+		path("sequence_rename.fasta"), emit: sequence_rename
+    
+    script:
+        """
+		multi_line_to_single_line.sh ${sequence}
+
+        seqkit seq -i one_line.fasta > sequence_rename.fasta
+        """
+}
+
 process PreparationAnnot {
 
     /*
@@ -14,6 +46,8 @@ process PreparationAnnot {
 	
     label 'lagoon'
 
+    publishDir "${params.outdir}/annotation/", mode: 'copy', pattern: "${annotation.baseName}.tsv"
+    
     input:
         path(annotation)
     
@@ -27,11 +61,15 @@ process PreparationAnnot {
 
         label_annotation.R intermediate ${annotation.baseName}
         """
+
+    stub:
+		"""
+        touch ${annotation.baseName}.tsv
+		"""
 }
 
 process FiltrationAlnNetwork {
     
-	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: 'diamond_ssn.tsv'
 	/*
 	* DESCRIPTION
 	* -----------
@@ -53,7 +91,6 @@ process FiltrationAlnNetwork {
 
 	input:
         path(diamond_alignment)
-        //val(output_name)
 
 	output:
         path("diamond_ssn.tsv"), emit: diamond_ssn
@@ -62,43 +99,11 @@ process FiltrationAlnNetwork {
 		"""
 		filtration_diamond_blastp_network.sh -a ${diamond_alignment}
 		"""
-}
 
-process FiltrationAlnStructure {
-    
-	/*
-	* DESCRIPTION
-    * -----------
-    *
-    * INPUT
-    * -----
-    * 	- 
-    * OUPUT
-    * -----
-    *	- 
-    */
-	
-    tag ''
-
-	label 'lagoon'
-
-    input:
-        path(structure_aln)
-
-    output:
-        path("${structure_aln.baseName}_alignment.tsv"), emit: structure
-
-    script:
-        """
-        cut -f 1,5,10,13 ${structure_aln} > structure.aln
-
-        filtration_diamond_blastp_structure.py structure.aln
-
-        cut -f 1 filter_*.aln > col1 
-        cut -f 2 filter_*.aln > col2
-
-        paste col2 col1 > ${structure_aln.baseName}_alignment.tsv
-        """
+    stub:
+		"""
+        touch diamond_ssn.tsv
+		"""
 }
 
 process SequenceLength {
@@ -114,8 +119,6 @@ process SequenceLength {
     * -----
     *	- 
     */
-
-	tag ''
 
 	label 'seqkit'
 
@@ -140,6 +143,13 @@ process SequenceLength {
 
 		seqkit fx2tab sequence_network.fasta -l -n -i > sequence_length_network.tsv
 		"""
+
+
+    stub:
+		"""
+        touch sequence_length.tsv
+        touch sequence_length_network.tsv
+		"""
 }
 
 process SequenceAnnotation {
@@ -155,8 +165,6 @@ process SequenceAnnotation {
     * -----
     *	- 
     */
-
-	tag ''
 
 	label 'lagoon'
 
@@ -178,5 +186,11 @@ process SequenceAnnotation {
 		sed '1d' ${label_network} | cut -f 1,3 | sort | uniq > ${label_network.baseName}_length_initial.tsv
 
 		sed '1d' ${label_network} > ${label_network.baseName}_annotation_initial.tsv
+		"""
+
+    stub:
+		"""
+        touch ${label_network.baseName}_annotation_network.tsv
+        touch ${label_network.baseName}_length_network.tsv
 		"""
 }
