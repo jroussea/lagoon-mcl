@@ -68,7 +68,7 @@ def main(args):
             #################################################################
             
             else:
-                with open("deleted_clusters_{args.inflation}.txt", 'a', 
+                with open(f"deleted_clusters_{args.inflation}.txt", 'a', 
                           encoding = 'utf8') as f:                
                     f.write(line)
 
