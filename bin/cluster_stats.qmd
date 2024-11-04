@@ -1,0 +1,92 @@
+---
+title: "cluster_description"
+format: html
+editor: visual
+
+params:
+  network: "null"
+---
+
+## Description des clustering au différents paramètre d'inflation
+
+-   nombre de séquence par clustering
+
+-   nombre de cluster par clustering
+
+-   nombre séquence par cluster (taille des cluster)
+
+-   distribution de la taille des cluster
+
+-   table (taille max min med mean)
+
+```{r}
+
+library(dplyr)
+library(ggplot2)
+
+df.network <- read.table(params$network, header = TRUE, sep = "\t", col.names = c("cluster_id", "protein_accession", "inflation"))
+
+#df.network <- read.table("/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl-recup/workdir/lagoon-mcl/ca/38a98d73a272f3f2cb03e37655bd38/network.tsv", header = TRUE, sep = "\t", col.names = c("cluster_id", "protein_accession", "inflation"))
+```
+
+### nombre de séquence par clustering
+
+```{r}
+df.network |> 
+   group_by(inflation) |> 
+   summarise(count = n())
+```
+
+### Nombre de cluster par clustetring
+
+```{r}
+df.network |> 
+   group_by(inflation, cluster_id) |> 
+   summarise(count = n()) |> 
+   group_by(inflation) |> 
+   summarise(count = n())
+```
+
+### Taille des clusters
+
+```{r}
+df.network |> 
+   group_by(inflation, cluster_id) |> 
+   summarise(count = n()) |> 
+   ggplot(aes(x = cluster_id, y = count, fill = as.character(inflation))) +
+   geom_col() +
+   labs(y = "nombre de séquence") +
+   facet_wrap(~ inflation, ncol=3, labeller = labeller(inflation = ~ paste("Inflation", .x))) +
+   theme(legend.position = "none")
+
+```
+
+```{r}
+df.network |> 
+   group_by(inflation, cluster_id) |> 
+   summarise(count = n()) |> 
+   ggplot(aes(x = count)) +
+   geom_histogram(bins = 200) +
+   labs(x = "nb sequence")
+```
+
+```{r}
+df.network |>
+   group_by(inflation, cluster_id) |>
+   summarise(count = n()) |> 
+   ggplot(aes(x = as.character(inflation), y = count)) +
+   geom_boxplot() +
+   labs(y = "taille cluster == nb séquence")
+```
+
+```{r}
+
+df.network |>
+   group_by(inflation, cluster_id) |>
+   summarise(count = n()) |> 
+   group_by(inflation) |> 
+   summarise(max = max(count),
+             min = min(count),
+             mean = mean(count),
+             median = median(count))
+```

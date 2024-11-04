@@ -9,61 +9,31 @@ process HomogeneityScore {
     *	- 
     */
 
-    tag ''
+    label 'lagoon'
 
-	publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/tsv", mode: 'copy', pattern: "*.tsv"
-    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*all*.txt"
-    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/labels", mode: 'copy', pattern: "*annotated*.txt"
+	publishDir "${params.outdir}/homogeneity_score", mode: 'copy', pattern: "homogeneity_score_${label_network.baseName}_I${inflation}.tsv"
+    publishDir "${params.outdir}/homogeneity_score/labels", mode: 'copy', pattern: "*.txt"
 
     input:
-        each label_network
+        each path(label_network)
         tuple path(network_tsv), val(inflation)
     
     output:
-        tuple path("*.tsv"), val("${inflation}"), val("${label_network.baseName}"), emit: tuple_hom_score
+        tuple val("${label_network.baseName}"), path("homogeneity_score_${label_network.baseName}_I${inflation}.tsv"), emit: tuple_hom_score
+        path("${label_network.baseName}.txt")
 
     script:
         """
-        network_homogeneity_score.py ${network_tsv} ${label_network} ${params.pep_colname} ${inflation} ${label_network.baseName}
-        """
-}
+        echo ${label_network}
+        cut -f 1,2 ${network_tsv}  > network
+        cut -f 1,2 ${label_network} > label
 
-process PlotHomogeneityScore {
-
-    tag ''
-
-    publishDir "${params.outdir}/homogeneity_score/inflation_${inflation}/pdf", mode: 'copy', pattern: "*.pdf"
-
-    input:
-        tuple path(homogeneity_score), val(inflation), val(label_network)
-
-    output:
-        path "*.pdf"
-
-    script:
-        """
-        distribution_homogeneity_score.R ${homogeneity_score} ${inflation} ${label_network}
+        network_homogeneity_score.py --network network --label label --inflation ${inflation} --basename ${label_network.baseName}
         """
 
-}
-
-process PlotClusterSize {
-
-    tag ''
-
-    publishDir "${params.outdir}/network_statistics/cluster_size/tsv", mode: 'copy', pattern: "*.tsv"
-    publishDir "${params.outdir}/network_statistics/cluster_size/", mode: 'copy', pattern: "*.pdf"
-    //publishDir "$baseDir/lagoon-mcl-shiny/data/cluster_size/tsv", mode: 'copy', pattern: "*.tsv"
-
-    input:
-        tuple path(network_tsv), val(inflation)
-
-    output:
-        path("*.tsv"), emit: cluster_size
-        path("*.pdf")
-
-    script:
-        """
-        cluster_size.R ${network_tsv} ${inflation}
-        """
+    stub:
+		"""
+        touch ${label_network.baseName}.tsv
+        touch ${label_network.baseName}.txt
+		"""
 }

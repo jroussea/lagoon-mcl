@@ -1,3 +1,9 @@
+database/
+test_full.config
+resources-small.config
+resources-2.config
+archive/
+docs-dev/
 backup/
 data/
 .nextflow.log*
@@ -17,3 +23,4 @@ tr/
 .idea
 test/benchmark/
 save/
+*.sif

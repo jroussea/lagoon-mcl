@@ -12,58 +12,16 @@ def helpMessage() {
 	For more information, see the documentation: https://lagoon-mcl-docs.readthedocs.io/en/latest
 	=============================================================================================
 
-	Profiles:
-		-profile conda
-		-profile mamba
-		-profile singularity
 
-	General parameters
-		
-		--help                    <bool>  true or false. Affiche cette aide
-
-		--max_cpus                <int>   cpus max qui peut être alloué au workflow (defaul: 15)
-		--max_memory              <int>   mem max qui peut être alloué au workflow (defaul: 60.GB)
-		--max_time                <int    max time qui peut être alloué au workflow (default: 336.h)
-
-   		--projectName             <str>   Name of the project 
-
-		--fasta                   <path>  Path to fasta files
-		--annotation              <path>  Path to sequence annotation files
-		--pep_colname             <str>   Name of the column containing the sequence names in the annotation file(s)
-		--columns_attributes      <list>  Name of the columns that will be used to annotate the networks
-
-   		--outdir                  <path>  Path to the folder containing the results
-
-		--concat_fasta            <str>   Name of the file that will contain all the fasta sequences
-
-		--information             <str>
-		--information_files       <paht>
-		--information_attributes  <list>
-
-		--run_diamond             <bool>  Allows you to specify whether you want to execute diamond (true or false)
-		--alignment_file          <path>  Path to a file containing pairwise alignments (if --run_diamond false)
-		--diamond_db              <str>   Name of the database created with the diamond makedb command
-
-		--query                   <int>   Position of the column in the alignment file containing the query sequences
-		--subject                 <int>   Position of the column in the alignment file containing the subject sequences
-		--evalue                  <int>   Position of the column in the alignment file containing the evalue of the alignment between the query and subject sequences 
-
-		--diamond                 <str>   Name of the file containing the pairwise alignment from Diamond blastp
-		--sensitivity             <str>   Diamond sensitivity setting
-		--matrix                  <str>   Matrix used for alignment
-		--diamond_evalue          <float> Evalue used by diamond blastp
-
-		--I                       <list>  Inflation parameter for MCL
-		--max_weight              <int>   Maximum weight for edges
 
 
 	Examples:
 
 	Test parameters:
-		nextflow run main.nf -profile test_full,singularity [params]
+		nextflow run main.nf -profile singularity [params]
 	
 	Custom parameters:
-		nextflow run main.nf -profile custom,singularity [params]
+		nextflow run main.nf -profile singularity [params]
 	"""
 }
 
@@ -88,40 +46,22 @@ summary['Execution profile'] = workflow.profile
 log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[91m--------------------------------------------------\033[0m-"
 
-// Import modules
-include { SelectLabels as SelectLabelAttrib    } from './modules/attributes.nf'
-include { SelectLabels as SelectLabelInfo      } from './modules/attributes.nf'
-include { InformationFiles                     } from './modules/attributes.nf'
-include { LabelHomogeneityScore as LabHomScAt  } from './modules/attributes.nf'
-include { LabelHomogeneityScore as LabHomScIn  } from './modules/attributes.nf'
-include { DiamondDB                            } from './modules/diamond.nf'
-include { DiamondBLASTp                        } from './modules/diamond.nf'
-include { FiltrationAlignments                 } from './modules/filtration.nf'
-include { NetworkMcxload                       } from './modules/network.nf'
-include { NetworkMcl                           } from './modules/network.nf'
-include { NetworkMcxdump                       } from './modules/network.nf'
-include { NetworkMclToTsv                      } from './modules/network.nf'
-include { HomogeneityScore                     } from './modules/statistics.nf'
-include { PlotHomogeneityScore                 } from './modules/statistics.nf'
-//include { PlotHomogeneityScore as PlotHomScAll } from './modules/statistics.nf'
-//include { PlotHomogeneityScore as PlotHomScAn  } from './modules/statistics.nf'
-include { PlotClusterSize                      } from './modules/statistics.nf'
+// Import subworkflow
+include { PFAM        } from './subworkflow/workflow_pfam.nf'
+include { ESMATLAS    } from './subworkflow/workflow_esmatlas.nf'
+include { SSN         } from './subworkflow/workflow_ssn.nf'
+include { REPORT      } from './subworkflow/workflow_report.nf'
 
-// préparation des paramètres
-List<Number> list_inflation = Arrays.asList(params.I.split(","))
+// Import modules
+include { PreparationFasta } from './modules/preparation.nf'
+include { PreparationAnnot } from './modules/preparation.nf'
+include { HomogeneityScore } from './modules/statistics.nf'
 
 // Channel
 proteome = Channel.fromPath(params.fasta, checkIfExists: true)
-annotation = Channel.fromPath(params.annotation, checkIfExists: true)
-inflation = Channel.fromList(list_inflation)
-
-if (params.information == true) {
-	information_files = Channel.fromPath(params.information_files, checkIfExists: true)
-}
-
-if (params.run_diamond == false) {
-	diamond_alignment = Channel.fromPath(params.alignment_file, checkIfExists: true)
-}
+inflation = Channel.of(params.I.split(",")).distinct()
+quarto = Channel.fromPath("${projectDir}/bin/sequences_stats.qmd")
+quarto_2 = Channel.fromPath("${projectDir}/bin/cluster_stats.qmd")
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,71 +69,61 @@ if (params.run_diamond == false) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow{
+workflow {
 
-	// concaténation de tous les fichiers fasta 
-	// concaténer tous les fichiers fasta en un seul et renommer les séquences de la mannière suivante seq1, seq2, ..., seq100, ... 
-	// créer une table de correspondance
-	all_sequences = proteome.collectFile(name: "${params.concat_fasta}.fasta")
+	// concaténation de tous les fichiers FASTA
+	all_sequences = proteome.collectFile(name: "${params.outdir}/diamond/all_sequences.fasta")
 
-	SelectLabelAttrib(annotation, params.columns_attributes)
-	select_annotation = SelectLabelAttrib.out.select_annotation
-	select_annotation = select_annotation.collectFile(name: "${params.outdir}/network/labels/attributes.tsv")
+	PreparationFasta(all_sequences)
+	all_sequences_rename = PreparationFasta.out.sequence_rename
 
-	LabHomScAt(select_annotation, params.columns_attributes, "attributes")
-	label_network = LabHomScAt.out.label_network
+	split_fasta = all_sequences_rename.splitFasta(by: 1000000, file: true)
 
-	if (params.information == true) {
-		InformationFiles(proteome, information_files)
-		proteome_info = InformationFiles.out.proteome_info
+	/* ESM Metagenomic Atlas */
 
-		SelectLabelInfo(proteome_info, params.information_attributes)
-		select_info = SelectLabelInfo.out.select_annotation
-		select_info = select_info.collectFile(name: "${params.outdir}/network/labels/informations.tsv")
-
-		LabHomScIn(select_info, params.information_attributes, "information")
-		info_network = LabHomScIn.out.label_network
-
-		label_network = label_network.concat(info_network).collect()
-	}
-	else if (params.information == false) {
-		label_network = label_network.collect()
+	if (params.scan_esm == true) {
+		ESMATLAS(params.esm_aln, split_fasta)
+		//esm_network = ESMATLAS.out.esm_label
 	}
 
-	if (params.run_diamond == true) {
-		// diamond database
-		DiamondDB(all_sequences)
-		diamond_db = DiamondDB.out.diamond_db
+	/* Pfam */
 
-		// diamond blastp
-		DiamondBLASTp(all_sequences, diamond_db)
-		diamond_alignment = DiamondBLASTp.out.diamond_alignment	
+    if (params.scan_pfam == true) {
+		PFAM(split_fasta)
+		label_pfam = PFAM.out.label_pfam
 	}
 
-	FiltrationAlignments(diamond_alignment)
-	diamond_ssn = FiltrationAlignments.out.diamond_ssn
+	/* Annotation */
 
-	NetworkMcxload(diamond_ssn)        
-	tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
+	if (params.annotation_files != null) {
+		annotation = Channel.fromPath(params.annotation_files, checkIfExists: true)
+        PreparationAnnot(annotation)
+		label_annotation = PreparationAnnot.out.label_annotation
+	}
 
-	NetworkMcl(inflation, tuple_seq_dict_mci)
-	tuple_mcl = NetworkMcl.out.tuple_mcl
+	/* Create channel */
 
-	NetworkMcxdump(tuple_mcl)
-	tuple_dump = NetworkMcxdump.out.tuple_dump
+	if (params.scan_pfam == true && params.annotation_files != null) {
+		label_network = label_pfam.concat(label_annotation).collect()
+	}
+	else if (params.scan_pfam == false && params.annotation_files != null) {
+		label_network = label_annotation.collect()
+	}
+	else if (params.scan_pfam == true && params.annotation_files == null) {
+		label_network = label_pfam.collect()
+	}
 
-	NetworkMclToTsv(tuple_dump)
-	tuple_network = NetworkMclToTsv.out.tuple_network
+	/* Sequence Similarity Sequence */
+
+	SSN(all_sequences_rename, split_fasta, params.alignment_file, inflation)
+	tuple_network = SSN.out.tuple_network
+	diamond_ssn = SSN.out.diamond_ssn
 
 	HomogeneityScore(label_network, tuple_network)
 	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
+	tuple_hom_score = tuple_hom_score.groupTuple(by: 0)
 
-	PlotHomogeneityScore(tuple_hom_score)
-	//PlotHomScAll(tuple_hom_score_all)
-	//PlotHomScAn(tuple_hom_score_annotated)
-
-	//PlotClusterSize(tuple_network)
-	//cluster_size = PlotClusterSize.out.cluster_size
+	REPORT(quarto, quarto_2, all_sequences_rename, diamond_ssn, label_network, SSN.out.network, tuple_hom_score)
 
 }
 
@@ -231,4 +161,3 @@ def ABIHeader() {
 	"""
 	.stripIndent()
 }
-

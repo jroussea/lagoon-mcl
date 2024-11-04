@@ -1,62 +1,82 @@
 process DiamondDB {
 
     /*
-	* Processus : Création de la banque de donnée utilisé par diamond blastp
+	* DESCRIPTION 
+	* -----------
+	* Création de la banque de donnée utilisé par diamond blastp
     *
-    * Input:
+    * INUT
+	* ----
     * 	- séquences fasta issus de tos les fichiers fasta
-    * Output:
+    *
+	* OUPUT
+	* -----
     *	- banque de donnée construite avec toutes les séquences fasta
     */
 
-	tag 'Diamond makedb'
-
-	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond_db}.dmnd"
+	label 'diamond'
 
 	input:
-		path fasta_rename
+		path(fasta_rename)
 
 	output:
-        path "${params.diamond_db}.dmnd", emit: diamond_db
-
+		path("reference.dmnd"), emit: diamond_db
+	
 	script:
 		"""
-    	diamond makedb --in ${fasta_rename} -d ${params.diamond_db} -p ${task.cpus}
+		diamond makedb --in ${fasta_rename} -d reference -p ${task.cpus}
 		"""
+
+	stub:
+		"""
+		touch reference.dmnd
+		"""
+
 }
 
 process DiamondBLASTp {
 
     /*
-	* Processus :BLASTp toutes les séquences contre toutes les séquences
+	* DESCRIPTION
+	* -----------
+	* BLASTp toutes les séquences contre toutes les séquences
     *
-    * Input:
+    * INPUT
+	* -----
     * 	- séquences fasta issus de tous les fichiers fasta
 	*	- banque de donnée issus de diamond makedb
-    * Output:
-    *	- alignement par pair (fichier tsv)
+    * 
+	* OUTPUT
+    * ------
+	*	- alignement par pair (fichier tsv)
     */
 
-	tag 'Diamond BLASTp'
-
-	publishDir "${params.outdir}/diamond", mode: 'copy', pattern: "${params.diamond}"
+	label 'diamond'
 
 	input:
-		path fasta_rename
-        path diamond_db
+		each path(fasta_rename)
+        path(diamond_db)
+		val(sensitivity)
+		val(diamond_evalue)
+		val(matrix)
 
 	output:
-        path "${params.diamond}", emit: diamond_alignment
+		path("diamond_alignment.tsv"), emit: diamond_alignment
 
 	script:
 		"""
     	diamond blastp -d ${diamond_db} \
     	-q ${fasta_rename} \
-    	-o ${params.diamond} \
-    	--${params.sensitivity} \
+    	-o diamond_alignment.tsv \
+    	--${sensitivity} \
     	-p ${task.cpus} \
-    	-e ${params.diamond_evalue} \
-    	--matrix ${params.matrix} \
-		--outfmt 6 qseqid sseqid pident ppos length mismatch gapopen qstart qend sstart send evalue bitscore
+    	-e ${diamond_evalue} \
+    	--matrix ${matrix} \
+		--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
+		"""
+	
+	stub:
+		"""
+		touch diamond_alignment.tsv
 		"""
 }
