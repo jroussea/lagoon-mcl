@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>LAGOON-MCL Documentation – LAGOON-MCL</title>
+<title>LAGOON-MCL</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -113,8 +113,8 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Tutorial</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./benchmark.html"> 
-<span class="menu-text">Benchmark</span></a>
+    <a class="nav-link" href="./benchmarks.html"> 
+<span class="menu-text">Benchmarks</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./about.html"> 
@@ -147,42 +147,35 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#presentation" id="toc-presentation" class="nav-link active" data-scroll-target="#presentation">Presentation</a></li>
+  <li><a href="#pipeline" id="toc-pipeline" class="nav-link" data-scroll-target="#pipeline">Pipeline</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">LAGOON-MCL Documentation</h1>
-</div>
 
 
 
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<p>LAGOON-MCL à été disgner pour traiter de large ensemble de séquences protéique et leur annotations en utilisant les réseaux similarité de séquences et le clustering tout en nécessitant le moins de possible de ressources (CPUs et RAM) pour chacun des process.</p>
-<p>Les réseaux de similairité de séquence (ssn) permette de visualiser les relations entre les protéines. Les SSN sont des graphes et donc grace à ça il est possible de leur appliquer des algorithme de clustering avec de construire des clusters de séquences. La génration d’un SSN et le clustering se font en 3 étapes majeurs. La premi_re consiste en alignement pairqais de toutes les séquences contre elle (all vs all) avec BLASTp. La deuxième étapes consite à appliquer des filtres sur les alignement (identité, overlap, …) afin de ne conserver que les relation entre qui intéresse l’utilisateur. EN enfin la dernière consite appliquer à un clustering sur le réseau avec algorithm tel que le MCL algorithm.</p>
-<p>LAGOON-MCL permet ensuite de mettre en relation les annotations (par exemple fonctionnelle) des séquences présente au sein d’un cluster en calculant un score d’homogénéité (expliqué à …). Les annotations peuvent être fournit par l’utilisateur ou obtenue LAGOON-MCL en scannant Pfam (annotation fonctioner) et / ou EMS Metagenomics Atlas et / oU alphafol db (annotation structurale).</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="./assets/pipeline.svg" class="img-fluid figure-img"></p>
-<figcaption>pipeline</figcaption>
-</figure>
-</div>
+<section id="presentation" class="level2">
+<h2 class="anchored" data-anchor-id="presentation">Presentation</h2>
+<p>LAGOON-MCL has been designed to process large sets of protein sequences and their annotations using sequence similarity networks and clustering, while requiring as few resources as possible (CPUs and RAM) for each process.</p>
+<p>Sequence similarity networks (or graphs) can be used to visualize the relationships between proteins. We can then apply graph clustering algorithms to build protein clusters. Because of the relationship that exists between proteins (similarity), the resulting clusters can be putative protein families, i.e.&nbsp;clusters made up of sequences with a similar function. LAGOON-MCL builds clusters in two steps (1) pairwise alignment of all sequences with <a href="https://github.com/bbuchfink/diamond/wiki">Dimond BLASTp</a>, construction of the SSN, (2) clustering of the network with <a href="https://micans.org/mcl/">Markov CLustering algorithm</a>.</p>
+<p>LAGOON-MCL then links the annotations (e.g.&nbsp;functional, taxonomic, etc.) of the sequences to the clusters. A homogeneity score is calculated (more information <a href="./output.html#homogeneity-score">here</a>). This is an indication of the consistency of annotations within a cluster. For this, annotations can either be supplied by the user or determined by the pipeline using the <a href="https://www.ebi.ac.uk/interpro/download/Pfam/">Pfam</a> database.</p>
+<p>Finally, LAGOON-MCL can use <a href="https://esmatlas.com/">ESM Metagenomic Atlas</a> to obtain initial information on the three-dimensional structure of proteins.</p>
+</section>
+<section id="pipeline" class="level2">
+<h2 class="anchored" data-anchor-id="pipeline">Pipeline</h2>
+<p><img src="./assets/pipeline.svg" class="img-fluid"></p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

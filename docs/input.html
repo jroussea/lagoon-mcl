@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Input files format – LAGOON-MCL</title>
+<title>input – LAGOON-MCL</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -152,8 +152,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#fasta-files" id="toc-fasta-files" class="nav-link active" data-scroll-target="#fasta-files">Fasta files</a></li>
-  <li><a href="#annotation-files" id="toc-annotation-files" class="nav-link" data-scroll-target="#annotation-files">Annotation files</a></li>
+  <li><a href="#annotation-files" id="toc-annotation-files" class="nav-link active" data-scroll-target="#annotation-files">Annotation files</a></li>
   <li><a href="#blastp-alignment" id="toc-blastp-alignment" class="nav-link" data-scroll-target="#blastp-alignment">BLASTp alignment</a></li>
   </ul>
 </nav>
@@ -163,7 +162,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Input files format</h1>
+<h1 class="title">Fasta files</h1>
 </div>
 
 
@@ -180,8 +179,6 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="fasta-files" class="level2">
-<h2 class="anchored" data-anchor-id="fasta-files">Fasta files</h2>
 <p>During pipeline execution, only the first part of the sequence headers is retained. It is therefore important that the sequence identifier is unique. Sequences in the fasta file can be single or multi-line.</p>
 <pre class="text"><code>&gt;sequenceID_1
 IQKQITERKKASKGQDKCEDLVAEEDLV
@@ -197,13 +194,12 @@ DSVPVSNDEDKAPPQANPFQAEGKGQWR
 TTPEDSVAQHDAMIETAQEFYESLELPYQTVCIVSAELNDAASKKF
 &gt;sequenceID_6
 TTPEDSVAQHDAMIETAQEFYESLELPYQTVCIVSAELNDAASKKF</code></pre>
-</section>
 <section id="annotation-files" class="level2">
 <h2 class="anchored" data-anchor-id="annotation-files">Annotation files</h2>
 <p>You must provide one file for each type of annotation/information. If you have Pfam and CATH/Gene3D annotations, you will need to provide two separate files. If you have taxonomic information about sequences, you should provide one file for each taxonomic level. (e.g.&nbsp;a file for class, a file for phylum, a file for family, a file for genus and a file for species)</p>
 <p>Files must be in TSV (tabulation-separated values) format, with two columns. The first column contains the sequence identifier, the second column must contain the annotation (if a sequence has several annotations, they must be present on several lines). <strong>Files must not have headers</strong>.</p>
 <p>Example for a CATH/Gene3D annotation file (gene3d.tsv):</p>
-<div id="90044f35" class="cell" data-execution_count="1">
+<div id="78dcff71" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
 <pre><code>+--------------+--------------+
 | sequenceID_1 | 1.25.10.10   |
@@ -229,7 +225,7 @@ TTPEDSVAQHDAMIETAQEFYESLELPYQTVCIVSAELNDAASKKF</code></pre>
 </div>
 </div>
 <p>Example for a taxonomic file (species.tsv):</p>
-<div id="b3150e5e" class="cell" data-execution_count="2">
+<div id="c6b58a4d" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
 <pre><code>+--------------+-----------------------+
 | sequenceID_1 | Gymnodinium_catenatum |
@@ -267,7 +263,7 @@ Note
 - column 2 subject<br>
 - column 3 evalue</p>
 <p>This table will be given to MCL.</p>
-<div id="1387f284" class="cell" data-execution_count="3">
+<div id="ae7eae23" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-stdout">
 <pre><code>+--------+----------+-----------+
 | query1 | subject1 | 1.98e-77  |

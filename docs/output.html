@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Output format – LAGOON-MCL</title>
+<title>output – LAGOON-MCL</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -181,7 +181,8 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#sequence-similarity-network-and-clustering" id="toc-sequence-similarity-network-and-clustering" class="nav-link active" data-scroll-target="#sequence-similarity-network-and-clustering">Sequence Similarity Network and Clustering</a></li>
+  <li><a href="#sequence-similarity-network" id="toc-sequence-similarity-network" class="nav-link active" data-scroll-target="#sequence-similarity-network">Sequence Similarity Network</a></li>
+  <li><a href="#clustering" id="toc-clustering" class="nav-link" data-scroll-target="#clustering">Clustering</a></li>
   <li><a href="#homogeneity-score" id="toc-homogeneity-score" class="nav-link" data-scroll-target="#homogeneity-score">Homogeneity score</a></li>
   <li><a href="#lagoon-mcl-reports" id="toc-lagoon-mcl-reports" class="nav-link" data-scroll-target="#lagoon-mcl-reports">LAGOON-MCL reports</a></li>
   <li><a href="#nextflow-reports" id="toc-nextflow-reports" class="nav-link" data-scroll-target="#nextflow-reports">Nextflow reports</a></li>
@@ -191,27 +192,14 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Output format</h1>
-</div>
 
 
 
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<section id="sequence-similarity-network-and-clustering" class="level2">
-<h2 class="anchored" data-anchor-id="sequence-similarity-network-and-clustering">Sequence Similarity Network and Clustering</h2>
+<section id="sequence-similarity-network" class="level2">
+<h2 class="anchored" data-anchor-id="sequence-similarity-network">Sequence Similarity Network</h2>
+</section>
+<section id="clustering" class="level2">
+<h2 class="anchored" data-anchor-id="clustering">Clustering</h2>
 </section>
 <section id="homogeneity-score" class="level2">
 <h2 class="anchored" data-anchor-id="homogeneity-score">Homogeneity score</h2>
@@ -222,9 +210,9 @@ N_{annot} &gt; 1 =&gt; hom_{score} = \frac{N_{annot}}{N_{protein}}
 \]</span> <span class="math display">\[
 N_{annot} = 1 =&gt; hom_{score} = 1
 \]</span></p>
-<p>Si <span class="math inline">\(hom_{scop} &gt; 1\)</span> :<br>
-Ce cas peut arriver lorsque que le nombre d’annotation différentes est supérieur au nombre de protéine. Dans ce cas, une sélection des annotations expliquant au mieux le cluster est faite.</p>
-<p><span class="math inline">\(hom_{score} &gt; 1\)</span> : homogeneity score. <span class="math inline">\(hom_{annot} &gt; 1\)</span> : number of different annotations in a cluster. <span class="math inline">\(hom_{protein} &gt; 1\)</span> : number of proteins in a cluster.</p>
+<p>Si <em>hom<sub>score</sub> &gt; 1</em>:<br>
+This can happen when the number of different annotations exceeds the number of proteins in a cluster. In this case, the annotations that best explain the cluster are selected.</p>
+<p><em>hom<sub>score</sub></em> : homogeneity score. <em>hom<sub>annot</sub></em> : number of different annotations in a cluster. <em>hom<sub>protein</sub></em> : number of proteins in a cluster.</p>
 </section>
 <section id="lagoon-mcl-reports" class="level2">
 <h2 class="anchored" data-anchor-id="lagoon-mcl-reports">LAGOON-MCL reports</h2>
