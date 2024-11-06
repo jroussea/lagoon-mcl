@@ -1,2 +1,0 @@
-Bootstrap : docker
-From: quay.io/biocontainers/diamond:2.1.10--h43eeafb_0
