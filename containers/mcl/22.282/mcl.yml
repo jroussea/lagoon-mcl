@@ -1,6 +1,0 @@
-name: mcl
-channels:
-  - bioconda
-  - conda-forge
-dependencies:
-  - mcl=22.282=pl5321h031d066_1
