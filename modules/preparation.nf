@@ -14,7 +14,7 @@ process PreparationFasta {
 	
     label 'seqkit'
 
-    publishDir "${params.outdir}/diamond/", mode: 'copy', pattern: "sequence_rename.fasta"
+    publishDir "${params.outdir}/lagoon-mcl_output/diamond/", mode: 'copy', pattern: "sequence_rename.fasta"
 
     input:
         path(sequence)
@@ -46,7 +46,7 @@ process PreparationAnnot {
 	
     label 'lagoon'
 
-    publishDir "${params.outdir}/annotation/", mode: 'copy', pattern: "${annotation.baseName}.tsv"
+    publishDir "${params.outdir}/lagoon-mcl_output/annotation/", mode: 'copy', pattern: "${annotation.baseName}.tsv"
     
     input:
         path(annotation)
@@ -59,13 +59,8 @@ process PreparationAnnot {
         """
 		mv ${annotation} intermediate
 
-        label_annotation.R intermediate ${annotation.baseName}
+        add_column.sh -i intermediate -o ${annotation.baseName}.tsv -c ${annotation.baseName}
         """
-
-    stub:
-		"""
-        touch ${annotation.baseName}.tsv
-		"""
 }
 
 process FiltrationAlnNetwork {
@@ -99,14 +94,39 @@ process FiltrationAlnNetwork {
 		"""
 		filtration_diamond_blastp_network.sh -a ${diamond_alignment}
 		"""
+}
 
-    stub:
+process SeqLength {
+
+    /*
+	* DESCRIPTION
+    * -----------
+    *
+    * INPUT
+    * -----
+    * 	- 
+    * OUPUT
+    * -----
+    *	- 
+    */
+
+	label 'seqkit'
+
+	publishDir "${params.outdir}/lagoon-mcl_reports/data/sequences_and_clusters/", mode: 'copy', pattern: "sequence_length.tsv"
+
+	input:
+		path fasta
+
+	output:
+		path("sequence_length.tsv"), emit: sequence_length
+
+	script:
 		"""
-        touch diamond_ssn.tsv
+		seqkit fx2tab ${fasta} -l -n -i > sequence_length.tsv
 		"""
 }
 
-process SequenceLength {
+process SeqLengthCluster {
 
     /*
 	* DESCRIPTION
@@ -123,32 +143,20 @@ process SequenceLength {
 	label 'seqkit'
 
 	input:
-		path fasta
-		path diamond_ssn
+		tuple path(network), val(inflation), path(fasta)
 
 	output:
-		path("sequence_length.tsv"), emit: sequence_length
-		path("sequence_length_network.tsv"), emit: sequence_length_network
+		path("${network.baseName}_length.tsv"), emit: network_length
 
 	script:
-		"""
-		seqkit fx2tab ${fasta} -l -n -i > sequence_length.tsv
-		
-		cut -f 1 ${diamond_ssn} > query
-		cut -f 2 ${diamond_ssn} > subject
+		"""		
+		cut -f 2 ${network} > sequence.lst
 
-		cat query subject | sort | uniq > sequence_network.lst
+		seqkit grep -f sequence.lst ${fasta} -o sequence.faa
 
-		seqkit grep -f sequence_network.lst ${fasta} -o sequence_network.fasta
+		seqkit fx2tab sequence.faa -l -n -i > length.tsv
 
-		seqkit fx2tab sequence_network.fasta -l -n -i > sequence_length_network.tsv
-		"""
-
-
-    stub:
-		"""
-        touch sequence_length.tsv
-        touch sequence_length_network.tsv
+        add_column.sh -i length.tsv -o ${network.baseName}_length.tsv -c inflation_${inflation}
 		"""
 }
 
@@ -186,11 +194,5 @@ process SequenceAnnotation {
 		sed '1d' ${label_network} | cut -f 1,3 | sort | uniq > ${label_network.baseName}_length_initial.tsv
 
 		sed '1d' ${label_network} > ${label_network.baseName}_annotation_initial.tsv
-		"""
-
-    stub:
-		"""
-        touch ${label_network.baseName}_annotation_network.tsv
-        touch ${label_network.baseName}_length_network.tsv
 		"""
 }

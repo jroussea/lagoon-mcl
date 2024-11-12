@@ -50,7 +50,7 @@ workflow SSN {
         FiltrationAlnNetwork(diamond_alignment)
         diamond_alignment_flt = FiltrationAlnNetwork.out.diamond_ssn
 
-        diamond_ssn = diamond_alignment_flt.collectFile(name: "${params.outdir}/diamond/diamond_ssn.tsv")
+        diamond_ssn = diamond_alignment_flt.collectFile(name: "${params.outdir}/lagoon-mcl_output/diamond/diamond_ssn.tsv")
 
 
         NetworkMcxload(diamond_ssn)        

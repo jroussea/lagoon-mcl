@@ -66,20 +66,17 @@ log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import subworkflow
-include { PFAM        } from './subworkflow/workflow_pfam.nf'
-include { SSN         } from './subworkflow/workflow_ssn.nf'
-include { REPORT      } from './subworkflow/workflow_report.nf'
+include { PFAM   } from './subworkflow/workflow_pfam.nf'
+include { SSN    } from './subworkflow/workflow_ssn.nf'
+include { REPORT } from './subworkflow/workflow_report.nf'
 
 // Import modules
 include { PreparationFasta } from './modules/preparation.nf'
 include { PreparationAnnot } from './modules/preparation.nf'
-include { HomogeneityScore } from './modules/statistics.nf'
 
 // Channel
 proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 inflation = Channel.of(params.I.split(",")).distinct()
-quarto = Channel.fromPath("${projectDir}/bin/sequences_stats.qmd")
-quarto_2 = Channel.fromPath("${projectDir}/bin/cluster_stats.qmd")
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -90,7 +87,7 @@ quarto_2 = Channel.fromPath("${projectDir}/bin/cluster_stats.qmd")
 workflow {
 
 	// concaténation de tous les fichiers FASTA
-	all_sequences = proteome.collectFile(name: "${params.outdir}/diamond/all_sequences.fasta")
+	all_sequences = proteome.collectFile(name: "${params.outdir}/lagoon-mcl_output/diamond/all_sequences.fasta")
 
 	PreparationFasta(all_sequences)
 	all_sequences_rename = PreparationFasta.out.sequence_rename
@@ -130,12 +127,7 @@ workflow {
 	tuple_network = SSN.out.tuple_network
 	diamond_ssn = SSN.out.diamond_ssn
 
-	HomogeneityScore(label_network, tuple_network)
-	tuple_hom_score = HomogeneityScore.out.tuple_hom_score
-	tuple_hom_score = tuple_hom_score.groupTuple(by: 0)
-
-	REPORT(quarto, quarto_2, all_sequences_rename, diamond_ssn, label_network, SSN.out.network, tuple_hom_score)
-
+	REPORT(all_sequences_rename, SSN.out.network, tuple_network, label_network)
 }
 
 /*

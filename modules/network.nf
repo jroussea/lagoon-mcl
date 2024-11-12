@@ -18,24 +18,16 @@ process NetworkMcxload {
 		path(diamond_ssn)
 
 	output:
-        
         tuple path("network.dict"), path("network.mci"), emit: tuple_seq_dict_mci
-        path("network.matrice"), emit: network_matrice
 
 	script:
         """
         sed 1d ${diamond_ssn} > diamond_ssn.tmp
         mcxload -abc diamond_ssn.tmp -write-tab network.dict -o network.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
-        mcxdump -imx network.mci -tab network.dict -o network.matrice
         """
-
-	stub:
-		"""
-        touch network.dict
-		touch network.matrice
-        touch network.mci
-		"""
 }
+
+// mcxdump -imx network.mci -tab network.dict -o network.matrice
 
 process NetworkMcl {
 
@@ -65,13 +57,6 @@ process NetworkMcl {
         """
         mcl $network_mci -I $inflation -te ${task.cpus} 
         """
-        //-write-graph network_mcl_I${inflation}.graph --analyze=y
-	stub:
-		"""
-        touch ${network_dict}
-		touch ${network_mci}
-        touch out.network.mci.I2
-		"""
 }
 
 process NetworkMcxdump {
@@ -100,14 +85,6 @@ process NetworkMcxdump {
         """
         mcxdump -icl ${network_mcl} -tabr ${network_dict} -o dump.${network_mcl}
         """
-
-	stub:
-		"""
-        touch ${network_dict}
-        touch ${network_mci}
-        touch ${network_mcl}
-        touch dump.${network_mcl}
-		"""
 }
 
 process FiltrationCluster {
@@ -136,11 +113,6 @@ process FiltrationCluster {
         """
         cluster_filtration.py --network ${network_dump} --inflation ${inflation} --min ${params.cluster_size}
         """
-
-	stub:
-		"""
-        touch conserved_cluster_2.txt
-		"""
 }
 
 process NetworkMclToTsv {
@@ -159,7 +131,7 @@ process NetworkMclToTsv {
 
 	label 'lagoon'
 
-	publishDir "${params.outdir}/network/", mode: 'copy', pattern: "network_I*.tsv"
+	publishDir "${params.outdir}/lagoon-mcl_output/network/", mode: 'copy', pattern: "network_I*.tsv"
 
 	input:
         tuple path(network), val(inflation)
@@ -170,11 +142,8 @@ process NetworkMclToTsv {
 
 	script:
 		"""
-        network_dump_to_tsv.py --network ${network} --inflation ${inflation}
-		"""
+        network_dump_to_tsv.py --network ${network}
 
-    stub:
-		"""
-        touch network_I2.tsv
+        add_column.sh -i intermediate -o network_I${inflation}.tsv -c inflation_${inflation}
 		"""
 }

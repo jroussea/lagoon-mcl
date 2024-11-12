@@ -1,4 +1,4 @@
-process SequenceHtml {
+process GeneralReport {
     
     /*
 	* DESCRIPTION
@@ -14,61 +14,21 @@ process SequenceHtml {
 
 	label 'lagoon'
 
-    publishDir "${params.outdir}/${params.projectName}_reports", mode: 'copy', pattern: "sequences_stats.html"
-    publishDir "${params.outdir}/${params.projectName}_reports", mode: 'copy', pattern: "sequences_stats_files/*"
+    publishDir "${params.outdir}/lagoon-mcl_reports/", mode: 'copy', pattern: "sequences_and_clusters/*"
 
     input:
-        path(quarto)
-        path(before)
-        path(after)
-        path(annotation_network)
-        path(length_annotation)
+        path(quarto_seqs_clst)
+        path(seq_length)
+        path(seq_length_network)
+        path(all_network)
 
 	output:
-        path("sequences_stats.html")
-        path("sequences_stats_files/*")
+        path("sequences_and_clusters/*")
 
 	script:
         """
-        cat ${annotation_network} > annotation_network
-        cat ${length_annotation} > length_annotation
-
-        quarto render ${quarto} -P before:${before} -P after:${after} -P annotation_network:annotation_network -P length_annotation:length_annotation
+        quarto render ${quarto_seqs_clst} -P length:${seq_length} -P length_network:${seq_length_network} -P network:${all_network} --output-dir sequences_and_clusters
         """
-}
-
-process ClusterHtml {
-    
-    /*
-	* DESCRIPTION
-    * -----------
-    *
-    * INPUT
-    * -----
-    * 	- 
-    * OUPUT
-    * -----
-    *	- 
-    */
-
-	label 'lagoon'
-
-    input:
-        path(quarto)
-        path(network)
-
-	output:
-        stdout
-
-	script:
-	    """
-		quarto render ${quarto} -P network:${network}
-        """
-
-    stub:
-		"""
-        touch report.html
-		"""
 }
 
 process HomScoreHtml {

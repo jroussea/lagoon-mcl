@@ -11,8 +11,8 @@ process HomogeneityScore {
 
     label 'lagoon'
 
-	publishDir "${params.outdir}/homogeneity_score", mode: 'copy', pattern: "homogeneity_score_${label_network.baseName}_I${inflation}.tsv"
-    publishDir "${params.outdir}/homogeneity_score/labels", mode: 'copy', pattern: "*.txt"
+	publishDir "${params.outdir}/lagoon-mcl_output/homogeneity_score", mode: 'copy', pattern: "homogeneity_score_${label_network.baseName}_I${inflation}.tsv"
+    publishDir "${params.outdir}/lagoon-mcl_output/homogeneity_score/labels", mode: 'copy', pattern: "*.txt"
 
     input:
         each path(label_network)
