@@ -32,7 +32,7 @@
 
 > Mistry, J., Chuguransky, S., Williams, L., Qureshi, M., Salazar, G.A., Sonnhammer, E.L.L., Tosatto, S.C.E., Paladin, L., Raj, S., Richardson, L.J., Finn, R.D., Bateman, A., 2021. Pfam: The protein families database in 2021. Nucleic Acids Research 49, D412–D419. https://doi.org/10.1093/nar/gkaa913
 
-## Software packaging / containerisation tools
+## Software packaging / containerisation tools
 
 * [**Singularity**](https://sylabs.io/singularity/)
 
