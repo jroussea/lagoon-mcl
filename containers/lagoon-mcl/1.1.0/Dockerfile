@@ -3,12 +3,11 @@ FROM condaforge/miniforge3
 RUN ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends pandoc pandoc-citeproc wget
+    apt-get install -y --no-install-recommends pandoc pandoc-citeproc
 
 COPY quarto-1.5.57-linux-amd64.deb /
 
-RUN chmod +x quarto-1.5.57-linux-amd64.deb && \
-    apt-get install -y ./quarto-1.5.57-linux-amd64.deb && \
+RUN apt-get install -y ./quarto-1.5.57-linux-amd64.deb && \
     rm -f quarto-1.5.57-linux-amd64.deb
 
 RUN mamba install -c conda-forge python=3.12.6=hc5c86c4_2_cpython && \
