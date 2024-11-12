@@ -1,7 +1,7 @@
-<h1 align="center">LArGe COmparative Omics Network - Markov CLustering</h1>
+<h1 align="center">LArGe cOmparative Omics Network - Markov CLustering</h1>
 
 [![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.1.0-red?labelColor=000000)](https://jroussea.github.io/LAGOON-MCL/)
-[![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_2.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_23.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
 [![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
 
 ## Introduction
