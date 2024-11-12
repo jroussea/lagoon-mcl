@@ -24,34 +24,6 @@ process DownloadPfam {
     """
 }
 
-process DownloadEsm {
-    
-    /*
-	* DESCRIPTION
-    * -----------
-    *
-    * INPUT
-    * -----
-    * 	- 
-    * OUPUT
-    * -----
-    *	- 
-    */
-
-	label 'mmseqs'
-
-	output:
-	    path("esmAtlas30/"), emit: esmDB
-
-	script:
-	"""
-        mkdir esmAtlas30 ; cd esmAtlas30
-        wget -c https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/highquality_clust30.fasta
-        mmseqs createdb highquality_clust30.fasta esmAtlas30
-        mmseqs createindex esmAtlas30 tmp
-    """
-}
-
 process MMseqsSearch {
     
     /*

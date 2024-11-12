@@ -9,11 +9,30 @@ def helpMessage() {
 	
 	LAGOON-MCL
 
-	For more information, see the documentation: https://lagoon-mcl-docs.readthedocs.io/en/latest
+	For more information, see the documentation: 
 	=============================================================================================
 
+	--max_cpus
+	--max_memory
+	--max_time
 
+	--projectName
+	--outdir
 
+	--fasta
+
+	--scan_pfam
+	--pfam_db
+	--pfam_name
+
+	--alignment_file
+	--sensitivity
+	--matrix
+	--diamond_evalue
+
+	--I
+	--max_weight
+	--cluster_size
 
 	Examples:
 
@@ -48,7 +67,6 @@ log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import subworkflow
 include { PFAM        } from './subworkflow/workflow_pfam.nf'
-include { ESMATLAS    } from './subworkflow/workflow_esmatlas.nf'
 include { SSN         } from './subworkflow/workflow_ssn.nf'
 include { REPORT      } from './subworkflow/workflow_report.nf'
 
@@ -78,13 +96,6 @@ workflow {
 	all_sequences_rename = PreparationFasta.out.sequence_rename
 
 	split_fasta = all_sequences_rename.splitFasta(by: 1000000, file: true)
-
-	/* ESM Metagenomic Atlas */
-
-	if (params.scan_esm == true) {
-		ESMATLAS(params.esm_aln, split_fasta)
-		//esm_network = ESMATLAS.out.esm_label
-	}
 
 	/* Pfam */
 
