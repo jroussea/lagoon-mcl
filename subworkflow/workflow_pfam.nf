@@ -30,23 +30,17 @@ workflow PFAM {
 
         if (params.pfam_db == null) {
             DownloadPfam()
-            pfamDB = DownloadPfam.out.pfamDB
 
-            MMseqsSearch(sequences, pfamDB, "pfam")
-            search_m8 = MMseqsSearch.out.search_m8
+            MMseqsSearch(sequences, DownloadPfam.out.pfamDB, "pfam")
         }
         else {
             pfamDB = Channel.fromPath(params.pfam_db, checkIfExists: true)
 
             MMseqsSearch(sequences, pfamDB, params.pfam_name)
-            search_m8 = MMseqsSearch.out.search_m8
         }
 
-        PreparationPfam(search_m8)
-        select_pfam = PreparationPfam.out.select_pfam
-
-        pfam_annotation = select_pfam.collectFile(name: "${params.outdir}/lagoon-mcl_output/annotation/pfam.tsv")
+        PreparationPfam(MMseqsSearch.out.search_m8)
 
     emit:
-        label_pfam = pfam_annotation.collect()
+        label_pfam = PreparationPfam.out.select_pfam.collectFile(name: "${params.outdir}/lagoon-mcl_output/annotation/pfam.tsv").collect()
 }

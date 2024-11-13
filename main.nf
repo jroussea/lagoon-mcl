@@ -74,10 +74,6 @@ include { REPORT } from './subworkflow/workflow_report.nf'
 include { PreparationFasta } from './modules/preparation.nf'
 include { PreparationAnnot } from './modules/preparation.nf'
 
-// Channel
-proteome = Channel.fromPath(params.fasta, checkIfExists: true)
-inflation = Channel.of(params.I.split(",")).distinct()
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	RUN ALL WORKFLOWS
@@ -85,6 +81,11 @@ inflation = Channel.of(params.I.split(",")).distinct()
 */
 
 workflow {
+
+	// Channel
+	proteome = Channel.fromPath(params.fasta, checkIfExists: true)
+	inflation = Channel.of(params.I.split(",")).distinct()
+    quarto_seqs_clst = Channel.fromPath("${projectDir}/bin/report_seqs_clst.qmd")
 
 	// concaténation de tous les fichiers FASTA
 	all_sequences = proteome.collectFile(name: "${params.outdir}/lagoon-mcl_output/diamond/all_sequences.fasta")
@@ -96,9 +97,8 @@ workflow {
 
 	/* Pfam */
 
-    if (params.scan_pfam == true) {
+    if (params.scan_pfam == true || params.annotation_files == null) {
 		PFAM(split_fasta)
-		label_pfam = PFAM.out.label_pfam
 	}
 
 	/* Annotation */
@@ -106,28 +106,26 @@ workflow {
 	if (params.annotation_files != null) {
 		annotation = Channel.fromPath(params.annotation_files, checkIfExists: true)
         PreparationAnnot(annotation)
-		label_annotation = PreparationAnnot.out.label_annotation
 	}
 
 	/* Create channel */
 
 	if (params.scan_pfam == true && params.annotation_files != null) {
-		label_network = label_pfam.concat(label_annotation).collect()
+		label_network = PFAM.out.label_pfam.concat(PreparationAnnot.out.label_annotation).collect()
 	}
 	else if (params.scan_pfam == false && params.annotation_files != null) {
-		label_network = label_annotation.collect()
+		label_network = PreparationAnnot.out.label_annotation.collect()
 	}
 	else if (params.scan_pfam == true && params.annotation_files == null) {
-		label_network = label_pfam.collect()
+		label_network = PFAM.out.label_pfam.collect()
 	}
 
 	/* Sequence Similarity Sequence */
 
 	SSN(all_sequences_rename, split_fasta, params.alignment_file, inflation)
-	tuple_network = SSN.out.tuple_network
 	diamond_ssn = SSN.out.diamond_ssn
 
-	REPORT(all_sequences_rename, SSN.out.network, tuple_network, label_network)
+	REPORT(quarto_seqs_clst, all_sequences_rename, SSN.out.network, SSN.out.tuple_network, label_network)
 }
 
 /*
