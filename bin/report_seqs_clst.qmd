@@ -43,7 +43,7 @@ plt.length <- length |>
    theme_linedraw() +
    labs(x = "Squence length",
         y = "Number of sequences",
-        caption = "results/sequences/sequence_length.tsv") +
+        caption = "data: data/sequences_and_clusters/sequence_length.tsv") +
    theme(plot.caption = element_text(face = "italic", size = 11))
 print(plt.length)
 ```
@@ -64,7 +64,7 @@ plt.length.network <- length.network |>
    theme_linedraw() +
    labs(x = "Squence length",
         y = "Number of sequences",
-        caption = "results/sequences/sequence_length_network.tsv") +
+        caption = "data: data/sequences_and_clusters/sequence_length_network.tsv") +
    theme(legend.position = "none",
          strip.background = element_rect(fill = "#6a9be3"),
          strip.text = element_text(colour = "white", size = 12, face = "bold"),
@@ -131,7 +131,7 @@ plt.network <- network |>
    theme_linedraw() +
    labs(x = "Cluster size",
         y = "Number of clusters",
-        caption = "results/") +
+        caption = "data: data/sequences_and_clusters/network.tsv") +
    theme(legend.position = "none",
          strip.background = element_rect(fill = "#6a9be3"),
          strip.text = element_text(colour = "white", size = 12, face = "bold"),
