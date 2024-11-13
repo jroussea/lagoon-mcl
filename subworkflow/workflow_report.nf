@@ -3,11 +3,10 @@
 // Enable modules
 nextflow.enable.dsl = 2
 
-include { SequenceLength } from '../modules/preparation.nf'
-include { SequenceHtml } from '../modules/report.nf'
-include { SequenceAnnotation } from '../modules/preparation.nf'
-include { ClusterHtml  } from '../modules/report.nf'
-include { HomScoreHtml } from '../modules/report.nf'
+include { SeqLength        } from '../modules/preparation.nf'
+include { SeqLengthCluster } from '../modules/preparation.nf'
+include { GeneralReport    } from '../modules/report.nf'
+include { HomogeneityScore } from '../modules/statistics.nf'
 
 workflow REPORT {
 
@@ -24,28 +23,23 @@ workflow REPORT {
     */
 
     take:
-        quarto
-        quarto_2
+        quarto_seqs_clst
         all_sequences
-        diamond_ssn
-        label_network
         network
-        tuple_hom_score
+        tuple_network
+        label_network
 
     main:
 
-        SequenceLength(all_sequences, diamond_ssn)
-        sequence_length = SequenceLength.out.sequence_length
-        sequence_length_network = SequenceLength.out.sequence_length_network
+        all_network = network.collectFile(name: "${params.outdir}/lagoon-mcl_reports/data/sequences_and_clusters/network.tsv")
 
-        SequenceAnnotation(label_network, sequence_length_network)
-        annotation_network = SequenceAnnotation.out.annotation_network.collect()
-        length_annotation = SequenceAnnotation.out.length_annotation.collect()
+        HomogeneityScore(label_network, tuple_network)
+        tuple_hom_score = HomogeneityScore.out.tuple_hom_score.groupTuple(by: 0)
 
-        SequenceHtml(quarto, sequence_length, sequence_length_network, annotation_network, length_annotation)
+        SeqLengthCluster(tuple_network.combine(all_sequences))
+        seq_length_network = SeqLengthCluster.out.network_length.collectFile(name: "${params.outdir}/lagoon-mcl_reports/data/sequences_and_clusters/sequence_length_network.tsv")
 
-        all_network = network.collectFile()
-        ClusterHtml(quarto_2, all_network)
+        SeqLength(all_sequences)
 
-        //HomScoreHtml(tuple_hom_score)
+        GeneralReport(quarto_seqs_clst, SeqLength.out.sequence_length, seq_length_network, all_network)
 }

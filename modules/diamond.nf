@@ -31,7 +31,6 @@ process DiamondDB {
 		"""
 		touch reference.dmnd
 		"""
-
 }
 
 process DiamondBLASTp {
@@ -74,7 +73,7 @@ process DiamondBLASTp {
     	--matrix ${matrix} \
 		--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
 		"""
-	
+
 	stub:
 		"""
 		touch diamond_alignment.tsv

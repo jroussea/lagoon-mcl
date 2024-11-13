@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Command line options – LAGOON-MCL</title>
+<title>command – LAGOON-MCL</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -189,40 +189,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#general-parameters" id="toc-general-parameters" class="nav-link active" data-scroll-target="#general-parameters">General parameters</a></li>
   <li><a href="#input-parameter" id="toc-input-parameter" class="nav-link" data-scroll-target="#input-parameter">Input parameter</a></li>
   <li><a href="#ouput-parameter" id="toc-ouput-parameter" class="nav-link" data-scroll-target="#ouput-parameter">Ouput parameter</a></li>
-  <li><a href="#sequence-similarity-network-and-clustering" id="toc-sequence-similarity-network-and-clustering" class="nav-link" data-scroll-target="#sequence-similarity-network-and-clustering">Sequence Similarity Network and clustering</a>
-  <ul class="collapse">
-  <li><a href="#sequence-similarity-network-diamond-blastp" id="toc-sequence-similarity-network-diamond-blastp" class="nav-link" data-scroll-target="#sequence-similarity-network-diamond-blastp">Sequence Similarity Network (Diamond BLASTp)</a></li>
-  <li><a href="#clustering-with-mcl-algorithm" id="toc-clustering-with-mcl-algorithm" class="nav-link" data-scroll-target="#clustering-with-mcl-algorithm">Clustering (with MCL algorithm)</a></li>
-  </ul></li>
-  <li><a href="#sequence-information" id="toc-sequence-information" class="nav-link" data-scroll-target="#sequence-information">Sequence information</a>
-  <ul class="collapse">
+  <li><a href="#sequence-similarity-network" id="toc-sequence-similarity-network" class="nav-link" data-scroll-target="#sequence-similarity-network">Sequence Similarity Network</a></li>
+  <li><a href="#clustering" id="toc-clustering" class="nav-link" data-scroll-target="#clustering">Clustering</a></li>
   <li><a href="#annotation-files" id="toc-annotation-files" class="nav-link" data-scroll-target="#annotation-files">Annotation files</a></li>
-  <li><a href="#pfam-annotation" id="toc-pfam-annotation" class="nav-link" data-scroll-target="#pfam-annotation">Pfam annotation</a></li>
-  <li><a href="#option-dalignement-esm-atals" id="toc-option-dalignement-esm-atals" class="nav-link" data-scroll-target="#option-dalignement-esm-atals">option d’alignement (ESM atals)</a></li>
-  </ul></li>
+  <li><a href="#pfam" id="toc-pfam" class="nav-link" data-scroll-target="#pfam">Pfam</a></li>
+  <li><a href="#esm-metagenomic-atlas" id="toc-esm-metagenomic-atlas" class="nav-link" data-scroll-target="#esm-metagenomic-atlas">ESM Metagenomic Atlas</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Command line options</h1>
-</div>
 
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
 
 
 <section id="general-parameters" class="level2">
@@ -273,10 +251,8 @@ If the maximum time is exceeded, pipeline execution is killed.</p>
 </ul>
 <p>Directory containing LAGOON-MCL results.</p>
 </section>
-<section id="sequence-similarity-network-and-clustering" class="level2">
-<h2 class="anchored" data-anchor-id="sequence-similarity-network-and-clustering">Sequence Similarity Network and clustering</h2>
-<section id="sequence-similarity-network-diamond-blastp" class="level3">
-<h3 class="anchored" data-anchor-id="sequence-similarity-network-diamond-blastp">Sequence Similarity Network (Diamond BLASTp)</h3>
+<section id="sequence-similarity-network" class="level2">
+<h2 class="anchored" data-anchor-id="sequence-similarity-network">Sequence Similarity Network</h2>
 <p>Sequences are aligned using Diamond BLASTp.</p>
 <ul>
 <li><code>--alignment_file &lt;file&gt;, default: null</code></li>
@@ -310,8 +286,8 @@ Note
 </div>
 </div>
 </section>
-<section id="clustering-with-mcl-algorithm" class="level3">
-<h3 class="anchored" data-anchor-id="clustering-with-mcl-algorithm">Clustering (with MCL algorithm)</h3>
+<section id="clustering" class="level2">
+<h2 class="anchored" data-anchor-id="clustering">Clustering</h2>
 <p>The network is clustered using the Markov CLustering algorithm.</p>
 <ul>
 <li><code>--I &lt;list&gt;, default: 1.4,2</code></li>
@@ -336,11 +312,8 @@ Note
 </div>
 </div>
 </section>
-</section>
-<section id="sequence-information" class="level2">
-<h2 class="anchored" data-anchor-id="sequence-information">Sequence information</h2>
-<section id="annotation-files" class="level3">
-<h3 class="anchored" data-anchor-id="annotation-files">Annotation files</h3>
+<section id="annotation-files" class="level2">
+<h2 class="anchored" data-anchor-id="annotation-files">Annotation files</h2>
 <ul>
 <li><code>--annotation_files, default: null</code></li>
 </ul>
@@ -360,8 +333,8 @@ Note
 </div>
 </div>
 </section>
-<section id="pfam-annotation" class="level3">
-<h3 class="anchored" data-anchor-id="pfam-annotation">Pfam annotation</h3>
+<section id="pfam" class="level2">
+<h2 class="anchored" data-anchor-id="pfam">Pfam</h2>
 <p>If you don’t have a functional annotation, LAGOON-MCL can scan the Pfam database with MMseqs2.</p>
 <ul>
 <li><code>--scan_pfam, default: false</code></li>
@@ -376,8 +349,8 @@ Note
 </ul>
 <p>Database name.</p>
 </section>
-<section id="option-dalignement-esm-atals" class="level3">
-<h3 class="anchored" data-anchor-id="option-dalignement-esm-atals">option d’alignement (ESM atals)</h3>
+<section id="esm-metagenomic-atlas" class="level2">
+<h2 class="anchored" data-anchor-id="esm-metagenomic-atlas">ESM Metagenomic Atlas</h2>
 <p>You can scan the ESM Metagenomic Atlas database for initial information on the three-dimensional structure of proteins.</p>
 <ul>
 <li><code>scan_esm, default: false</code></li>
@@ -393,7 +366,6 @@ Note
 <p>Database name.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

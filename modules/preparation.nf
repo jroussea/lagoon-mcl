@@ -14,7 +14,7 @@ process PreparationFasta {
 	
     label 'seqkit'
 
-    publishDir "${params.outdir}/diamond/", mode: 'copy', pattern: "sequence_rename.fasta"
+    publishDir "${params.outdir}/lagoon-mcl_output/diamond/", mode: 'copy', pattern: "sequence_rename.fasta"
 
     input:
         path(sequence)
@@ -28,6 +28,11 @@ process PreparationFasta {
 
         seqkit seq -i one_line.fasta > sequence_rename.fasta
         """
+
+    stub:
+		"""
+		touch sequence_rename.fasta
+		"""
 }
 
 process PreparationAnnot {
@@ -46,7 +51,7 @@ process PreparationAnnot {
 	
     label 'lagoon'
 
-    publishDir "${params.outdir}/annotation/", mode: 'copy', pattern: "${annotation.baseName}.tsv"
+    publishDir "${params.outdir}/lagoon-mcl_output/annotation/", mode: 'copy', pattern: "${annotation.baseName}.tsv"
     
     input:
         path(annotation)
@@ -59,12 +64,12 @@ process PreparationAnnot {
         """
 		mv ${annotation} intermediate
 
-        label_annotation.R intermediate ${annotation.baseName}
+        add_column.sh -i intermediate -o ${annotation.baseName}.tsv -c ${annotation.baseName}
         """
 
     stub:
 		"""
-        touch ${annotation.baseName}.tsv
+		touch ${annotation.baseName}.tsv
 		"""
 }
 
@@ -102,11 +107,46 @@ process FiltrationAlnNetwork {
 
     stub:
 		"""
-        touch diamond_ssn.tsv
+		touch diamond_ssn.tsv
 		"""
 }
 
-process SequenceLength {
+process SeqLength {
+
+    /*
+	* DESCRIPTION
+    * -----------
+    *
+    * INPUT
+    * -----
+    * 	- 
+    * OUPUT
+    * -----
+    *	- 
+    */
+
+	label 'seqkit'
+
+	publishDir "${params.outdir}/lagoon-mcl_reports/data/sequences_and_clusters/", mode: 'copy', pattern: "sequence_length.tsv"
+
+	input:
+		path fasta
+
+	output:
+		path("sequence_length.tsv"), emit: sequence_length
+
+	script:
+		"""
+		seqkit fx2tab ${fasta} -l -n -i > sequence_length.tsv
+		"""
+
+    stub:
+		"""
+		touch sequence_length.tsv
+		"""
+}
+
+process SeqLengthCluster {
 
     /*
 	* DESCRIPTION
@@ -123,74 +163,64 @@ process SequenceLength {
 	label 'seqkit'
 
 	input:
-		path fasta
-		path diamond_ssn
+		tuple path(network), val(inflation), path(fasta)
 
 	output:
-		path("sequence_length.tsv"), emit: sequence_length
-		path("sequence_length_network.tsv"), emit: sequence_length_network
+		path("${network.baseName}_length.tsv"), emit: network_length
 
 	script:
+		"""		
+		cut -f 2 ${network} > sequence.lst
+
+		seqkit grep -f sequence.lst ${fasta} -o sequence.faa
+
+		seqkit fx2tab sequence.faa -l -n -i > length.tsv
+
+        add_column.sh -i length.tsv -o ${network.baseName}_length.tsv -c inflation_${inflation}
 		"""
-		seqkit fx2tab ${fasta} -l -n -i > sequence_length.tsv
-		
-		cut -f 1 ${diamond_ssn} > query
-		cut -f 2 ${diamond_ssn} > subject
-
-		cat query subject | sort | uniq > sequence_network.lst
-
-		seqkit grep -f sequence_network.lst ${fasta} -o sequence_network.fasta
-
-		seqkit fx2tab sequence_network.fasta -l -n -i > sequence_length_network.tsv
-		"""
-
 
     stub:
 		"""
-        touch sequence_length.tsv
-        touch sequence_length_network.tsv
+		touch ${network.baseName}_length.tsv
 		"""
 }
 
-process SequenceAnnotation {
+process PreparationPfam {
 
     /*
 	* DESCRIPTION
     * -----------
+    *   Préparation d'un tableau à deux colonne à partir du tableau généré par hmmsearch
     *
     * INPUT
     * -----
-    * 	- 
+    * 	ficheir (séprateur de colonne : espace), généré par hmmsearch
+    *
     * OUPUT
     * -----
-    *	- 
+    *	Ficheier TSV à 2 colonnes
+    *       - colonne 1 : identifiant / nom de la séquence
+    *       - colonne 2 : identifiant Pfam
     */
 
 	label 'lagoon'
 
 	input:
-		each path(label_network)
-		path(sequence_length_network)
+		path(search_m8)
 
 	output:
-		path("${label_network.baseName}_annotation_network.tsv"), emit: annotation_network
-		path("${label_network.baseName}_length_network.tsv"), emit: length_annotation
+		path("${search_m8.baseName}.tsv"), emit: select_pfam
 
 	script:
+
 		"""
-		echo ${label_network}
-		echo ${sequence_length_network} 
+		cut -d "." -f 1 ${search_m8} > ${search_m8.baseName}.pfam
 
-		sequence_annotation_network.R ${sequence_length_network} ${label_network} ${label_network.baseName}
-
-		sed '1d' ${label_network} | cut -f 1,3 | sort | uniq > ${label_network.baseName}_length_initial.tsv
-
-		sed '1d' ${label_network} > ${label_network.baseName}_annotation_initial.tsv
+        add_column.sh -i ${search_m8.baseName}.pfam -o ${search_m8.baseName}.tsv -c Pfam
 		"""
 
     stub:
 		"""
-        touch ${label_network.baseName}_annotation_network.tsv
-        touch ${label_network.baseName}_length_network.tsv
+        touch ${search_m8.baseName}.tsv
 		"""
 }

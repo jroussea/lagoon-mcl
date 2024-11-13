@@ -36,36 +36,28 @@ workflow SSN {
         if (alignment_file == null) {
 
             DiamondDB(all_sequences)
-            diamond_db = DiamondDB.out.diamond_db
 
-            DiamondBLASTp(split_sequences, diamond_db, params.sensitivity, params.evalue, params.matrix)
+            DiamondBLASTp(split_sequences, DiamondDB.out.diamond_db, params.sensitivity, params.evalue, params.matrix)
             diamond_alignment = DiamondBLASTp.out.diamond_alignment	
-
-            //diamond_alignment = split_diamond_alignment.collectFile(name: "${params.outdir}/diamond_ssn.tsv")
         }
         if (alignment_file != null) {
             diamond_alignment = Channel.fromPath(alignment_file, checkIfExists: true)
         }
 
         FiltrationAlnNetwork(diamond_alignment)
-        diamond_alignment_flt = FiltrationAlnNetwork.out.diamond_ssn
 
-        diamond_ssn = diamond_alignment_flt.collectFile(name: "${params.outdir}/diamond/diamond_ssn.tsv")
+        diamond_ssn = FiltrationAlnNetwork.out.diamond_ssn.collectFile(name: "${params.outdir}/lagoon-mcl_output/diamond/diamond_ssn.tsv")
 
 
         NetworkMcxload(diamond_ssn)        
-        tuple_seq_dict_mci = NetworkMcxload.out.tuple_seq_dict_mci
 
-        NetworkMcl(inflation, tuple_seq_dict_mci)
-        tuple_mcl = NetworkMcl.out.tuple_mcl
+        NetworkMcl(inflation, NetworkMcxload.out.tuple_seq_dict_mci)
 
-        NetworkMcxdump(tuple_mcl)
-        tuple_dump = NetworkMcxdump.out.tuple_dump
+        NetworkMcxdump(NetworkMcl.out.tuple_mcl)
 
-        FiltrationCluster(tuple_dump)
-        tuple_filtration = FiltrationCluster.out.tuple_filtration
+        FiltrationCluster(NetworkMcxdump.out.tuple_dump)
 
-        NetworkMclToTsv(tuple_filtration)
+        NetworkMclToTsv(FiltrationCluster.out.tuple_filtration)
 
     emit:
         tuple_network = NetworkMclToTsv.out.tuple_network

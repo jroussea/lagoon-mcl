@@ -21,9 +21,6 @@ def get_args():
     parser.add_argument("-n", "--network", type = str,
                         help = "Network obtained after clustering with MCL", 
                         required = True)
-    parser.add_argument("-i", "--inflation",  type = float,
-                        help="Clustering inflation level (MCL parameter)", 
-                        required = True)
 
     return parser.parse_args()
 
@@ -39,14 +36,13 @@ def main(args):
             list_node = cluster.split('\t')
             for i in list_node:
                 dict_node = {'cluster_id': position, 
-                             'protein_accession': i,
-                             'inflation': args.inflation}
+                             'protein_accession': i}
                 list_dict.append(dict_node)
 
 
     df_network = pd.DataFrame.from_dict(list_dict)
     
-    df_network.to_csv(f"network_I{args.inflation}.tsv", 
+    df_network.to_csv("intermediate", 
                      sep = "\t", index = None, header = False)
 
 
