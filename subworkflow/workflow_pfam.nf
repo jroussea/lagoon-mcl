@@ -7,8 +7,7 @@ nextflow.enable.dsl = 2
 
 include { DownloadPfam     } from '../modules/mmseqs2.nf'
 include { MMseqsSearch     } from '../modules/mmseqs2.nf'
-include { PreparationPfam  } from '../modules/pfam.nf'
-include { PreparationAnnot } from '../modules/preparation.nf'
+include { PreparationPfam  } from '../modules/preparation.nf'
 
 workflow PFAM {
 
@@ -46,11 +45,8 @@ workflow PFAM {
         PreparationPfam(search_m8)
         select_pfam = PreparationPfam.out.select_pfam
 
-        pfam_annotation = select_pfam.collectFile(name: "${params.outdir}/pfam.tsv")
-
-        PreparationAnnot(pfam_annotation)
-        label_pfam = PreparationAnnot.out.label_annotation
+        pfam_annotation = select_pfam.collectFile(name: "${params.outdir}/lagoon-mcl_output/annotation/pfam.tsv")
 
     emit:
-        label_pfam = label_pfam.collect()
+        label_pfam = pfam_annotation.collect()
 }
