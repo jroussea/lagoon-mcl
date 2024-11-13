@@ -22,6 +22,12 @@ process DownloadPfam {
         mkdir pfam ; cd pfam
         mmseqs databases Pfam-A.full pfam tmp
     """
+
+	stub:
+		"""
+		mkdir pfam/
+        touch pfam/pfam
+		"""
 }
 
 process MMseqsSearch {
@@ -46,7 +52,6 @@ process MMseqsSearch {
         val(database)
 
 	output:
-		//stdout
         path("${query_fasta.baseName}.m8"), emit: search_m8
 
 	script:
@@ -58,4 +63,9 @@ process MMseqsSearch {
         mmseqs search queryDB/queryDB ${targetDB}/${database} resultDB/resultDB tmp --max-accept 10 -s 4.0 --threads ${task.cpus}
         mmseqs convertalis queryDB/queryDB ${targetDB}/${database} resultDB/resultDB ${query_fasta.baseName}.m8 --threads ${task.cpus} --format-output query,target,fident,alnlen,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,evalue,bits
 	"""
+
+	stub:
+		"""
+		touch ${query_fasta.baseName}.m8
+		"""
 }

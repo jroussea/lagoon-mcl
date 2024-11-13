@@ -25,6 +25,12 @@ process NetworkMcxload {
         sed 1d ${diamond_ssn} > diamond_ssn.tmp
         mcxload -abc diamond_ssn.tmp -write-tab network.dict -o network.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
         """
+
+	stub:
+		"""
+		touch network.dict
+        touch network.mci
+		"""
 }
 
 // mcxdump -imx network.mci -tab network.dict -o network.matrice
@@ -57,6 +63,11 @@ process NetworkMcl {
         """
         mcl $network_mci -I $inflation -te ${task.cpus} 
         """
+
+	stub:
+		"""
+		touch out.network.mci.I${inflation}
+		"""
 }
 
 process NetworkMcxdump {
@@ -85,6 +96,11 @@ process NetworkMcxdump {
         """
         mcxdump -icl ${network_mcl} -tabr ${network_dict} -o dump.${network_mcl}
         """
+
+    stub:
+		"""
+		touch dump.${network_mcl}
+		"""
 }
 
 process FiltrationCluster {
@@ -113,6 +129,11 @@ process FiltrationCluster {
         """
         cluster_filtration.py --network ${network_dump} --inflation ${inflation} --min ${params.cluster_size}
         """
+    
+    stub:
+		"""
+		touch conserved_cluster_${inflation}.txt
+		"""
 }
 
 process NetworkMclToTsv {
@@ -145,5 +166,10 @@ process NetworkMclToTsv {
         network_dump_to_tsv.py --network ${network}
 
         add_column.sh -i intermediate -o network_I${inflation}.tsv -c inflation_${inflation}
+		"""
+
+    stub:
+		"""
+		touch network_I${inflation}.tsv
 		"""
 }

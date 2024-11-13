@@ -28,6 +28,11 @@ process PreparationFasta {
 
         seqkit seq -i one_line.fasta > sequence_rename.fasta
         """
+
+    stub:
+		"""
+		touch sequence_rename.fasta
+		"""
 }
 
 process PreparationAnnot {
@@ -61,6 +66,11 @@ process PreparationAnnot {
 
         add_column.sh -i intermediate -o ${annotation.baseName}.tsv -c ${annotation.baseName}
         """
+
+    stub:
+		"""
+		touch ${annotation.baseName}.tsv
+		"""
 }
 
 process FiltrationAlnNetwork {
@@ -94,6 +104,11 @@ process FiltrationAlnNetwork {
 		"""
 		filtration_diamond_blastp_network.sh -a ${diamond_alignment}
 		"""
+
+    stub:
+		"""
+		touch diamond_ssn.tsv
+		"""
 }
 
 process SeqLength {
@@ -123,6 +138,11 @@ process SeqLength {
 	script:
 		"""
 		seqkit fx2tab ${fasta} -l -n -i > sequence_length.tsv
+		"""
+
+    stub:
+		"""
+		touch sequence_length.tsv
 		"""
 }
 
@@ -157,6 +177,11 @@ process SeqLengthCluster {
 		seqkit fx2tab sequence.faa -l -n -i > length.tsv
 
         add_column.sh -i length.tsv -o ${network.baseName}_length.tsv -c inflation_${inflation}
+		"""
+
+    stub:
+		"""
+		touch ${network.baseName}_length.tsv
 		"""
 }
 
@@ -196,6 +221,6 @@ process PreparationPfam {
 
     stub:
 		"""
-        touch pfam.tsv
+        touch ${search_m8.baseName}.tsv
 		"""
 }

@@ -33,7 +33,7 @@ process HomogeneityScore {
 
     stub:
 		"""
-        touch ${label_network.baseName}.tsv
+        touch homogeneity_score_${label_network.baseName}_I${inflation}.tsv
         touch ${label_network.baseName}.txt
 		"""
 }
