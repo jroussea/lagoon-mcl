@@ -35,3 +35,33 @@ process GeneralReport {
         mkdir sequences_and_clusters/report.html
 		"""
 }
+
+process HomScoreReport {
+
+    /*
+	* DESCRIPTION
+    * -----------
+    *
+    * INPUT
+    * -----
+    * 	- 
+    * OUPUT
+    * -----
+    *	- 
+    */
+
+    label 'lagoon'
+
+    publishDir "${params.outdir}/lagoon-mcl_output/homogeneity_score", mode: 'copy', pattern: "homogeneity_score_${annotation}.tsv"
+
+    input:
+        tuple val(annotation), path(homogeneity_score)
+
+    output:
+        path("homogeneity_score_${annotation}.tsv")
+
+    script:
+        """
+        cat ${homogeneity_score} > homogeneity_score_${annotation}.tsv
+        """
+}

@@ -11,7 +11,6 @@ process HomogeneityScore {
 
     label 'lagoon'
 
-	publishDir "${params.outdir}/lagoon-mcl_output/homogeneity_score", mode: 'copy', pattern: "homogeneity_score_${label_network.baseName}_I${inflation}.tsv"
     publishDir "${params.outdir}/lagoon-mcl_output/homogeneity_score/labels", mode: 'copy', pattern: "*.txt"
 
     input:
@@ -36,4 +35,24 @@ process HomogeneityScore {
         touch homogeneity_score_${label_network.baseName}_I${inflation}.tsv
         touch ${label_network.baseName}.txt
 		"""
+}
+
+process AbundanceMatrix {
+
+    label 'lagoon'
+
+    publishDir "${params.outdir}/lagoon-mcl_output/abundance_matrix", mode: 'copy', pattern: "abundance_matrix_${annotation.baseName}_${inflation}"
+
+    input:
+        tuple path(network), val(inflation), path(annotation)
+
+    output:
+        path("abundance_matrix_${annotation.baseName}_${inflation}")
+
+    script:
+        """
+        matrix.R --network ${network} --label ${annotation}
+
+        matrix.py --network matrix_preparation --annotation ${annotation.baseName} --inflation ${inflation}
+        """
 }
