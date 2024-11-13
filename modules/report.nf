@@ -30,36 +30,3 @@ process GeneralReport {
         quarto render ${quarto_seqs_clst} -P length:${seq_length} -P length_network:${seq_length_network} -P network:${all_network} --output-dir sequences_and_clusters
         """
 }
-
-process HomScoreHtml {
-    
-    /*
-	* DESCRIPTION
-    * -----------
-    *
-    * INPUT
-    * -----
-    * 	- 
-    * OUPUT
-    * -----
-    *	- 
-    */
-
-	label 'lagoon'
-
-    input:
-        tuple path(homogeneity_score), val(inflation), val(database)
-
-	output:
-        stdout
-
-	script:
-        """
-        echo ${homogeneity_score}
-        """
-
-    stub:
-		"""
-        touch report.html
-		"""
-}

@@ -160,39 +160,42 @@ process SeqLengthCluster {
 		"""
 }
 
-process SequenceAnnotation {
+process PreparationPfam {
 
     /*
 	* DESCRIPTION
     * -----------
+    *   Préparation d'un tableau à deux colonne à partir du tableau généré par hmmsearch
     *
     * INPUT
     * -----
-    * 	- 
+    * 	ficheir (séprateur de colonne : espace), généré par hmmsearch
+    *
     * OUPUT
     * -----
-    *	- 
+    *	Ficheier TSV à 2 colonnes
+    *       - colonne 1 : identifiant / nom de la séquence
+    *       - colonne 2 : identifiant Pfam
     */
 
 	label 'lagoon'
 
 	input:
-		each path(label_network)
-		path(sequence_length_network)
+		path(search_m8)
 
 	output:
-		path("${label_network.baseName}_annotation_network.tsv"), emit: annotation_network
-		path("${label_network.baseName}_length_network.tsv"), emit: length_annotation
+		path("${search_m8.baseName}.tsv"), emit: select_pfam
 
 	script:
+
 		"""
-		echo ${label_network}
-		echo ${sequence_length_network} 
+		cut -d "." -f 1 ${search_m8} > ${search_m8.baseName}.pfam
 
-		sequence_annotation_network.R ${sequence_length_network} ${label_network} ${label_network.baseName}
+        add_column.sh -i ${search_m8.baseName}.pfam -o ${search_m8.baseName}.tsv -c Pfam
+		"""
 
-		sed '1d' ${label_network} | cut -f 1,3 | sort | uniq > ${label_network.baseName}_length_initial.tsv
-
-		sed '1d' ${label_network} > ${label_network.baseName}_annotation_initial.tsv
+    stub:
+		"""
+        touch pfam.tsv
 		"""
 }
