@@ -64,14 +64,14 @@ process DiamondBLASTp {
 
 	script:
 		"""
-    	diamond blastp -d ${diamond_db} \
-    	-q ${fasta_rename} \
-    	-o diamond_alignment.tsv \
-    	--${sensitivity} \
-    	-p ${task.cpus} \
-    	-e ${diamond_evalue} \
-    	--matrix ${matrix} \
-		--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
+		diamond blastp -d ${diamond_db} \
+			-q ${fasta_rename} \
+			-o diamond_alignment.tsv \
+			--${sensitivity} \
+			-p ${task.cpus} \
+			-e ${diamond_evalue} \
+			--matrix ${matrix} \
+			--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
 		"""
 
 	stub:

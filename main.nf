@@ -66,14 +66,18 @@ log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import subworkflow
-include { PFAM   } from './subworkflow/workflow_pfam.nf'
-include { SSN    } from './subworkflow/workflow_ssn.nf'
-include { REPORT } from './subworkflow/workflow_report.nf'
+include { MMSEQS2 as PF } from './subworkflow/workflow_mmseqs2.nf'
+include { MMSEQS2 as AF } from './subworkflow/workflow_mmseqs2.nf'
+include { SSN           } from './subworkflow/workflow_ssn.nf'
+include { ANALYSIS      } from './subworkflow/workflow_analysis.nf'
+include { STRUCTURE     } from './subworkflow/workflow_structure.nf'
 
 // Import modules
-include { PreparationFasta } from './modules/preparation.nf'
-include { PreparationAnnot } from './modules/preparation.nf'
-
+include { FastaProcessing      } from './modules/data_processing.nf'
+include { AnnotationProcessing } from './modules/data_processing.nf'
+include { CheckCsvFormat       } from './modules/check_file_format.nf'
+include { CheckLabelFormat     } from './modules/check_file_format.nf'
+include { CheckFastaFormat     } from './modules/check_file_format.nf'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	RUN ALL WORKFLOWS
@@ -85,47 +89,59 @@ workflow {
 	// Channel
 	proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 	inflation = Channel.of(params.I.split(",")).distinct()
-    quarto_seqs_clst = Channel.fromPath("${projectDir}/bin/report_seqs_clst.qmd")
+    //quarto_seqs_clst = Channel.fromPath("${projectDir}/bin/report_seqs_clst.qmd")
 
 	// concaténation de tous les fichiers FASTA
-	all_sequences = proteome.collectFile(name: "${params.outdir}/lagoon-mcl_output/diamond/all_sequences.fasta")
+	sequences = proteome.collectFile(name: "${workDir}/concatenated_files/all_sequences.fasta")
 
-	PreparationFasta(all_sequences)
-	all_sequences_rename = PreparationFasta.out.sequence_rename
+	CheckFastaFormat(sequences)
+	FastaProcessing(CheckFastaFormat.out.sequences_verif)
+	all_sequences_rename = FastaProcessing.out.sequence_rename
 
 	split_fasta = all_sequences_rename.splitFasta(by: 1000000, file: true)
 
-	/* Pfam */
+	/* Function and Structure */
 
-    if (params.scan_pfam == true || params.annotation_files == null) {
-		PFAM(split_fasta)
+	if (params.scan_pfam == true || params.annotation == null) {
+		PF(all_sequences_rename, params.pfam_name, "run_pfam")
 	}
 
 	/* Annotation */
 
-	if (params.annotation_files != null) {
-		annotation = Channel.fromPath(params.annotation_files, checkIfExists: true)
-        PreparationAnnot(annotation)
+	if (params.annotation != null) {
+		CheckCsvFormat(Channel.fromPath(params.annotation, checkIfExists: true) )
+		samplesheet = CheckCsvFormat.out.csv_verif
+		samplesheet = samplesheet.splitCsv(header:true) \
+				| map { row-> tuple(row.annotation, file(row.file)) }
+		CheckLabelFormat(samplesheet)
+        AnnotationProcessing(all_sequences_rename, CheckLabelFormat.out.label_annotation)
 	}
 
-	/* Create channel */
+	/* Combine annotation + channel */
 
-	if (params.scan_pfam == true && params.annotation_files != null) {
-		label_network = PFAM.out.label_pfam.concat(PreparationAnnot.out.label_annotation).collect()
+	if (params.scan_pfam == true && params.annotation != null) {
+		label_infos = PF.out.label.concat(AnnotationProcessing.out.label_annotation)
 	}
-	else if (params.scan_pfam == false && params.annotation_files != null) {
-		label_network = PreparationAnnot.out.label_annotation.collect()
+	else if (params.scan_pfam == false && params.annotation != null) {
+		label_infos = AnnotationProcessing.out.label_annotation
 	}
-	else if (params.scan_pfam == true && params.annotation_files == null) {
-		label_network = PFAM.out.label_pfam.collect()
+	else if (params.scan_pfam == true && params.annotation == null) {
+		label_infos = PF.out.label
 	}
 
 	/* Sequence Similarity Sequence */
 
 	SSN(all_sequences_rename, split_fasta, params.alignment_file, inflation)
-	diamond_ssn = SSN.out.diamond_ssn
 
-	REPORT(quarto_seqs_clst, all_sequences_rename, SSN.out.network, SSN.out.tuple_network, label_network)
+	AF(all_sequences_rename, params.alphafold_name, "run_alphafold")
+	//all_labels = AF.out.label.concat(label_infos).collectFile(name: "${workDir}/concatenated_files/labels.tsv")
+	//tuple_alphafold = AlphafoldNetwork(network, params.uniprot, AlphafoldAlignment.out.alphafold_aln_filter)
+	//all_labels.view()
+	
+	STRUCTURE(SSN.out.network, AF.out.label, all_sequences_rename)
+	all_labels = STRUCTURE.out.labels_alphafold.concat(label_infos).collectFile(name: "${workDir}/concatenated_files/labels.tsv")
+
+	ANALYSIS(all_sequences_rename, SSN.out.network, all_labels, STRUCTURE.out.tuple_alphafold, SSN.out.tuple_edge)
 }
 
 /*
@@ -150,15 +166,15 @@ workflow.onError = {
 
 def ABIHeader() {
 	return """ 
-		========================================
-			  ╔═══╗ ╔═══╗   ╔═╗
-			  ║╔═╗║ ║╔═╗║   ╚═╝
-			  ║╚═╝║ ║╚═╝╚═╗ ╔═╗
-			  ╠═══╣ ║ ╔═╗ ║ ║ ║
-			  ║   ║ ║ ╚═╝ ║ ║ ║
-			  ╩   ╩ ╚═════╝ ╚═╝
-	              (https://bioinfo.mnhn.fr/abi/)
-		========================================
+		============================================
+				╔═══╗ ╔═══╗   ╔═╗
+				║╔═╗║ ║╔═╗║   ╚═╝
+				║╚═╝║ ║╚═╝╚═╗ ╔═╗
+				╠═══╣ ║ ╔═╗ ║ ║ ║
+				║   ║ ║ ╚═╝ ║ ║ ║
+				╩   ╩ ╚═════╝ ╚═╝
+				(https://bioinfo.mnhn.fr/abi/)
+		============================================
 	"""
 	.stripIndent()
 }

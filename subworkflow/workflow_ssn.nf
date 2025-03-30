@@ -3,14 +3,12 @@
 // Enable modules
 nextflow.enable.dsl = 2
 
+include { FiltrationAlnNetwork } from '../modules/data_processing.nf'
 include { DiamondDB            } from '../modules/diamond.nf'
 include { DiamondBLASTp        } from '../modules/diamond.nf'
-include { FiltrationAlnNetwork } from '../modules/preparation.nf'
-include { NetworkMcxload       } from '../modules/network.nf'
 include { NetworkMcl           } from '../modules/network.nf'
-include { NetworkMcxdump       } from '../modules/network.nf'
 include { NetworkMclToTsv      } from '../modules/network.nf'
-include { FiltrationCluster    } from '../modules/network.nf'
+include { NetworkEdge          } from '../modules/network.nf'
 
 workflow SSN {
 
@@ -43,24 +41,17 @@ workflow SSN {
         if (alignment_file != null) {
             diamond_alignment = Channel.fromPath(alignment_file, checkIfExists: true)
         }
+        diamond_alignment_filter = diamond_alignment.collectFile(name: "${workDir}/concatenated_files/diamond_alignment.tsv")
+        
+        FiltrationAlnNetwork(diamond_alignment_filter)
 
-        FiltrationAlnNetwork(diamond_alignment)
+        NetworkMcl(FiltrationAlnNetwork.out.diamond_ssn, inflation)
 
-        diamond_ssn = FiltrationAlnNetwork.out.diamond_ssn.collectFile(name: "${params.outdir}/lagoon-mcl_output/diamond/diamond_ssn.tsv")
+        NetworkMclToTsv(NetworkMcl.out.tuple_dump)
 
-
-        NetworkMcxload(diamond_ssn)        
-
-        NetworkMcl(inflation, NetworkMcxload.out.tuple_seq_dict_mci)
-
-        NetworkMcxdump(NetworkMcl.out.tuple_mcl)
-
-        FiltrationCluster(NetworkMcxdump.out.tuple_dump)
-
-        NetworkMclToTsv(FiltrationCluster.out.tuple_filtration)
+        NetworkEdge(NetworkMclToTsv.out.network, FiltrationAlnNetwork.out.diamond_ssn)
 
     emit:
-        tuple_network = NetworkMclToTsv.out.tuple_network
         network = NetworkMclToTsv.out.network
-        diamond_ssn = diamond_ssn.collect()
+        tuple_edge = NetworkEdge.out.tuple_edge
 }
