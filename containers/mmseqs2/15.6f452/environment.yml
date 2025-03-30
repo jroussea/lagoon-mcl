@@ -1,0 +1,6 @@
+name: mmseqs2
+channels:
+     - conda-forge
+     - bioconda
+dependencies:
+     - mmseqs2=15.6f452=pl5321h6a68c12_3
