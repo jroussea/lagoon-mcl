@@ -40,7 +40,7 @@
 
 * [**BioContainers**](https://biocontainers.pro/)
 
-> F. da Veiga Leprevost et al., « BioContainers: an open-source and community-driven framework for software standardization », Bioinformatics, vol. 33, no 16, p. 2580‑2582, août 2017, doi: 10.1093/bioinformatics/btx192.
+> F. da Veiga Leprevost et al., « BioContainers: an open-source and community-driven framework for software standardization », Bioinformatics, vol. 33, no 16, p. 2580‑2582, août 2017, doi: [10.1093/bioinformatics/btx192](https://doi.org/10.1093/bioinformatics/btx192).
 
 * [**Docker**](https://www.docker.com/)
 
