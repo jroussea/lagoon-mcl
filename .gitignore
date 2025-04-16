@@ -16,3 +16,15 @@ resources-small.config
 abims.config
 benchmark.config
 work/
+*.drawio
+alphafold_database.jpg
+pipeline-full.jpg
+pipeline-summary.jpg
+structure.jpg
+structure.svg
+.$pipeline.drawio.bkp
+.$pipeline.drawio.dtmp
+.$structure.drawio.dtmp
+article
+conf/benchmark*.config
+data-benchmarks/
