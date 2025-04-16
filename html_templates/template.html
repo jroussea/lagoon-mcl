@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport {{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin: 0;
+            font-size: 2em;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .paragraph {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            line-height: 1.6;
+        }
+
+        a {
+            color: white; 
+            text-decoration: none;
+        }
+        a:hover {
+            color: #ecf0f1; 
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        .alignment {
+            margin: 20px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        td:first-child, th:first-child {
+            font-weight: bold;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ title }} reports</h1>
+        <p>
+            Date: 
+        </p>
+    </header>
+    <main class="content">
+        <div class="paragraph">
+            <p>
+                This ratio corresponds to the clustering performed using the inflation parameter 
+                {{ inflation }}.<br>
+            </p>
+            <p>
+                The files used are:
+            </p>
+            <ul>
+                <li>Clusters métrics [TSV file]: contains information about clusters 
+                    (diameter, number of sequences, homogenity score for each label)</li>
+                <li>List of edges in each cluster [TSV file]: all edges for each cluster</li>
+                <li>Sequence metrics [TSV file]: contains sequence information (length, centrality value, number of labels)</li>
+            </ul>
+            <p>
+                Clustering protocol:
+            </p>
+            <ul>
+                <li>Step 1: Build a sequence similarity network with Diamond BLASTp</li>
+                <li>Step 2: Cluster the network using the Markov CLustering algorithm (MCL). 
+                    The inflation parameter is used at this stage.</li>
+                <li>Step 3: retrieve the edges present in each MCL cluster from the- 
+                    sequence similarity network</li>
+            </ul>
+            <p>
+                Each MCL cluster is an independent sequence similarity network.
+            </p>
+        </div>
+
+        <!-- Part 1: Cluster description -->
+
+        <h2>1. Clusters description</h2>
+        <p class="paragraph">
+            The clustering obtained with the {{ inflation }} parameter is composed of {{ number_clusters }} clusters.
+        </p>
+        
+            <h3>A. General description</h3>
+            <div class="paragraph">
+                <p>
+                    Figure 1 shows cluster size distributions (cluster size corresponds to the number of sequences 
+                    the number of sequences that make them up) <br>
+                    Figure 2 shows the distribution of cluster diameters. The diameter of a network corresponds 
+                    the greatest distance between two vertices of a graph.<br>
+                    Figure 3 shows the relationship between cluster size and diameter. In principle, 
+                    the larger the the larger its diameter.
+                </p>
+            </div>
+            <div class="alignment">
+                <img src="{{ reports_clst_metrics["plot"] }}" alt="Figure">
+            </div>
+            <div class="paragraph">
+                <p>
+                    Statistics (mean, median, maximum and minimum values) for cluster size, cluster diameter 
+                    and number of edges for clusters.<br>
+                    <ul>Column description:
+                        <li>Clusters size: number of sequences</li>
+                        <li>Clusters diameter</li>
+                        <li>Clusters edges: statistics on the number of arrests per cluster</li>
+                    </ul>
+                </p>
+                </div>
+                <div class="alignment">
+                    {{ reports_clst_metrics["dataframe"] | safe }}
+                </div>
+
+                <div class="container mt-4">
+                <!-- Drop-down list -->
+                <div class="form-group">
+                    <label for="labelSelect">Choose a label:</label>
+                    <select class="form-control" id="labelSelect" onchange="updateContentMulti()">
+                        <option value="">Select a label</option>
+                        {% for key, data in reports_clst_labels.items() %}
+                            <option value="{{ key }}">{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <h3>B. Annotated and non-annotated cluster sizes</h3>
+
+                <!-- Container for displaying image and DataFrame -->
+                <div id="contentContainer1">                    
+                    <div id="selectedImage1" style="display:none;">
+                        <div class="paragraph">
+                            <p>
+                                Cluster size distribution for annotated clusters (containing at least one sequence with at least one label) 
+                                and the size distribution of unannotated clusters.<br>
+                            </p>
+                            <p>
+                                Figure 4: Annotated cluster size distribution.<br>
+                                Figure 5: Unannotated cluster size distribution
+                            </p>
+                        </div>
+                        <div class="alignment">
+                            <img src="" alt="Selected image">
+                        </div>
+                        <p class="paragraph">
+                            Table of statistics (number of cluster, mean, median, maximum and minimum cluster size) 
+                            for annotated and non-annotated clusters.
+                        </p>
+                    </div>
+                    <div id="selectedDataFrame1" style="display:none;" class="alignment">
+                        <!-- The DataFrame will be displayed here -->
+                    </div>
+                    
+            <h3>C. Homogeneity score</h3>
+            <div id="selectedImage2" style="display:none;">
+                <div class="paragraph">
+                    <p>
+                        The homogeneity score gives an estimate of the homogeneity of labels within a cluster. <br>
+                        \( N_{annot} = 1 => hom_{score} = 1 \)<br>
+                        \( N_{annot} > 1 => hom_{score} = 1 - \frac{N_{annot}}{N_{seq}} \)
+                        <ul>
+                            <li>\( N_{annot} \) number of different labels in a cluster</li>
+                            <li>\( N_{seq} \) corresponds to the number of sequences in a cluster</li>
+                            <li>\( N_{hom_score} \) homogeneity score</li> 
+                        </ul>
+                    </p>
+                    <p>
+                        If the homogeneity score is NA, then the cluster is composed solely of sequences without 
+                        any labels. If the homogeneity score is 0, then it's made up of several different labels,
+                        and if it's 1, then it's made up of a single label.
+                    </p>
+                    <p>
+                        For each figure, only annotated clusters were selected. Unannotated (with a homogeneity score 
+                        equal to NA) were excluded.<br>
+                        Figure 6: Homogeneity score distribution<br>
+                        Figure 7: Cluster size as a function of homogeneity score<br>
+                        Figure 8: Proportion of annotated sequences per cluster as a function of homogeneity score.
+                    </p>
+                </div>
+                <div class="alignment">
+                    <img src="" alt="Selected image">
+                </div>
+                <p class="paragraph">
+                    Table of statistics (number of sequence, mean, mediann, maximum and minimum value)
+                    Le tableau présente les statitistique (Nombre de séquence, moyenne, médiane, 
+                    valeur maximale et minimale) for the proportion of annotated sequence and the  
+                    homogeneity score.
+                </p>
+            </div>
+            <div id="selectedDataFrame2" style="display:none;" class="alignment">
+                <!-- The DataFrame will be displayed here -->
+            </div>
+
+        </div>
+
+        <h2>3. Sequence annotation</h2>
+        <p>
+            This section describes the sequences.
+        </p>
+        <div class="container mt-4">
+            <!-- Drop-down list -->
+            <div class="form-group">
+                <label for="labelSelect">Choose a label:</label>
+                <select class="form-control" id="labelSeqSelect" onchange="updateContentSingle()">
+                    <option value="">Select a label</option>
+                    {% for key, data in reports_seq_labels.items() %}
+                        <option value="{{ key }}">{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <h3>A. Sequences annotations</h3>
+            <!-- Container for displaying image and DataFrame -->
+            <div id="contentContainer2">
+                <div id="selectedImage" style="display:none;">
+                    <p class="paragraph">
+                        Distribution of sequences with 0 labels (i.e. no labels in the selected database 7
+                        selected), 1 label and 2 or more labels.
+                    </p>
+                    <div class="alignment">
+                        <img src="" alt="Selected image">
+                    </div>
+                    <p class="paragraph">
+                        Number of sequences and proportion of number of sequences.
+                    </p>
+                </div>
+
+                <div id="selectedDataFrame" style="display:none;" class="alignment">
+                    <!-- The DataFrame will be displayed here -->
+                </div>
+            </div>
+
+            <h3>B. </h3>
+            <p class="paragraph">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
+                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis 
+                nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in 
+                culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+        </div>
+
+        <h2>3. Sequence description</h2>
+        <p class="paragraph">
+            Description générales des séquences.<br>
+            Figure 10 : sequence length<br>
+            Figure 11 : sequence centrality<br>
+            Figure 12 : sequence centrality and sequence length 
+        </p>
+        <div class="alignment">
+            <img src="{{ reports_seq_metrics["plot"] }}" alt="Figure">
+        </div>
+        <p class="paragraph">
+            Statistics (mean, median, maximum and minimum) for sequence size and centrality.
+        </p>
+        <div class="alignment">
+            {{ reports_seq_metrics["dataframe"] | safe }}
+        </div>
+
+        <h2>4. Others informations</h2>
+        <!-- Nextflow reports -->
+        <p class="paragraph">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
+            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis 
+            nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in 
+            culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+
+        <script>
+            function updateContentMulti() {
+                var selectElement = document.getElementById("labelSelect");
+                var selectedKey = selectElement.value;
+                
+                if (selectedKey) {
+                    // Update image and DataFrame according to selection
+                    var selectedData = {{ reports_clst_labels | tojson }}[selectedKey];
+
+                    // Update image
+                    var imageElement = document.getElementById("selectedImage1");
+                    imageElement.querySelector("img").src = selectedData.plot1;
+                    imageElement.style.display = "block";
+
+                    // Update DataFrame
+                    var dataframeElement = document.getElementById("selectedDataFrame1");
+                    dataframeElement.innerHTML = selectedData.dataframe1;
+                    dataframeElement.style.display = "block";
+
+                    // Update image
+                    var imageElement = document.getElementById("selectedImage2");
+                    imageElement.querySelector("img").src = selectedData.plot2;
+                    imageElement.style.display = "block";
+
+                    // Update DataFrame
+                    var dataframeElement = document.getElementById("selectedDataFrame2");
+                    dataframeElement.innerHTML = selectedData.dataframe2;
+                    dataframeElement.style.display = "block";
+                } else {
+                    // Hide content if no option is selected
+                    document.getElementById("selectedImage1").style.display = "none";
+                    document.getElementById("selectedDataFrame1").style.display = "none";
+                    document.getElementById("selectedImage2").style.display = "none";
+                    document.getElementById("selectedDataFrame2").style.display = "none";
+                }
+            }
+            function updateContentSingle() {
+                var selectElement = document.getElementById("labelSeqSelect");
+                var selectedKey = selectElement.value;
+                
+                if (selectedKey) {
+                    // Update image and DataFrame according to selection
+                    var selectedData = {{ reports_seq_labels | tojson }}[selectedKey];
+                    
+                    // Mettre à jour l'image
+                    var imageElement = document.getElementById("selectedImage");
+                    imageElement.querySelector("img").src = selectedData.plot;
+                    imageElement.style.display = "block";
+                    
+                    // Update DataFrame 
+                    var dataframeElement = document.getElementById("selectedDataFrame");
+                    dataframeElement.innerHTML = selectedData.dataframe;
+                    dataframeElement.style.display = "block";
+                } else {
+                    // Hide content if no option is selected
+                    document.getElementById("selectedImage").style.display = "none";
+                    document.getElementById("selectedDataFrame").style.display = "none";
+                }
+            }
+        </script>
+        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    </main>
+    <footer>
+        <p>Generated by LAGOON-MCL with Jinja2</p>
+        <p>For more information: <a href="https://github.com/jroussea/lagoon-mcl" target="_blank">https://github.com/jroussea/lagoon-mcl</a></p>
+    </footer>
+</body>
+</html>

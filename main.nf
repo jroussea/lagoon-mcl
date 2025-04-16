@@ -9,30 +9,53 @@ def helpMessage() {
 	
 	LAGOON-MCL
 
-	For more information, see the documentation: 
+	For more information, see the documentation: https://github.com/jroussea/lagoon-mcl
 	=============================================================================================
 
-	--max_cpus
-	--max_memory
-	--max_time
+	--help
 
-	--projectName
-	--outdir
+	--max_cpus <int>         [optional]  : Maximum number of CPUs that can be used by LAGOON-MCL
+		[default: 200]
+	--max_memory <int.GB>    [optional]  : Maximum amount of RAM that can be used by LAGOON-MCL
+		[default: 750.GB]
+	--max_time <int.h>       [optional]  : Maximum runtime for LAGOON-MCL
+		[default: 336.h]
 
-	--fasta
+	--projectName <str>      [optional]  : Project name, used to name the folder in the working directory
+		[default: lagoon-mcl]
+	--fasta <file>           [mandatory] : One or more in fasta format containing protein sequences
+	--outdir <path>          [mandatory] : Output folder
 
-	--scan_pfam
-	--pfam_db
-	--pfam_name
+	--scan_pfam <bool>       [optional]  : true: sequences are aligned against the Pfam database
+		[dafault: true]                    false: sequences are not aligned against the Pfam database
+	--pfam_path <path>       [optional]  : (si scan_pfam true), chemin du répertoire contenant la banque de données Pfam (doit avoir été construit avec MMseqs2)
+		[default: database/pfamDB]
+	--pfam_name <str>        [optional]  : (if scan_pfam true), name of Pfam database
+		[default: pfamDB]
 
-	--alignment_file
-	--sensitivity
-	--matrix
-	--diamond_evalue
+	--alphafold_path <path>  [mandatory] : Path of directory containing AlphaFold clusters database (must have been built with MMseqs2)
+		[default: database/alphafoldDB]
+	--alphafold_name <str>   [mandatory] : AlphaFold clusters database name
+		[default: alphafoldDB]
+	--uniprot <file>         [mandatory] : JSON file with : - UniProt identifiers (correspond to identifiers in the AlphaFold clusters database)
+		[default: database/uniprot_function.json]           - As well as Pfam annotations linked to UniProt identifiers and available in the InterPro database.
 
-	--I
-	--max_weight
-	--cluster_size
+	--annotation <file>      [optional]  : CSV file with path to sequence annotation files and annotation names
+
+	--alignment_file <file>  [optional]  : Sequence alignment file (pairwise alignment) in .m8 format (e.g. BLASTp output) 
+	--sensitivity <str>      [optional]  : Diamond BLASTp sensitivity 
+		[default: very-sensitive]
+	--matrix <str>           [optional]  : Similarity matrix
+		[default: BLOSUM62]
+	--diamond_evalue <flaot> [optional]  : E-value
+		[default: 0.001]
+
+	--I <list>               [optional]  : List of parameters used by LAGOON-MCL
+		[default: "1.4,2,4"]
+	--max_weight <float>     [optional]  : For MCL, maximum weight of an edge
+		[default: 200]
+	--cluster_size <int>     [optional]  : Minimum cluster size
+		[default: 2]
 
 	Examples:
 
@@ -51,28 +74,33 @@ if (params.help) {
 
 // PIPELINE INFO
 // Header log info
+log.info ABIHeader()
 def summary = [:]
-if (workflow.revision) summary['Pipeline Release'] = workflow.revision
-summary['Run Name'] = workflow.runName
-summary['Project Name'] = params.projectName
-summary['Output dir'] = params.outdir
-summary['Launch dir'] = workflow.launchDir
-summary['Working dir'] = workflow.workDir
-summary['Script dir'] = workflow.projectDir
-summary['User'] = workflow.userName
+if (workflow.revision)
+summary['Pipeline Release']  = workflow.revision
+summary['Run Name']          = workflow.runName
+summary['Project Name']      = params.projectName
+summary['Output dir']        = params.outdir
+summary['Launch dir']        = workflow.launchDir
+summary['Working dir']       = workflow.workDir
+summary['Script dir']        = workflow.projectDir
+summary['User']              = workflow.userName
 summary['Execution profile'] = workflow.profile
 
 log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[91m--------------------------------------------------\033[0m-"
 
 // Import subworkflow
-include { PFAM   } from './subworkflow/workflow_pfam.nf'
-include { SSN    } from './subworkflow/workflow_ssn.nf'
-include { REPORT } from './subworkflow/workflow_report.nf'
-
+include { FUNCTION_SEARCHES        } from './subworkflow/function_searches.nf'
+include { STRUCTURE_SEARCHES       } from './subworkflow/structure_searches.nf'
+include { SSN_AND_GRAPH_CLUSTERING } from './subworkflow/ssn_and_graph_clustering.nf'
+include { DATA_ANALYSIS            } from './subworkflow/data_analysis.nf'
 // Import modules
-include { PreparationFasta } from './modules/preparation.nf'
-include { PreparationAnnot } from './modules/preparation.nf'
+include { FASTA_PROCESSING         } from './modules/data_processing.nf'
+include { ANNOTATIONS_PROCESSING   } from './modules/data_processing.nf'
+include { CHECKS_FASTA             } from './modules/check_file_format.nf'
+include { CHECK_CSV                } from './modules/check_file_format.nf'
+include { CHECKS_TSV               } from './modules/check_file_format.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,47 +113,51 @@ workflow {
 	// Channel
 	proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 	inflation = Channel.of(params.I.split(",")).distinct()
-    quarto_seqs_clst = Channel.fromPath("${projectDir}/bin/report_seqs_clst.qmd")
 
-	// concaténation de tous les fichiers FASTA
-	all_sequences = proteome.collectFile(name: "${params.outdir}/lagoon-mcl_output/diamond/all_sequences.fasta")
+	sequences = proteome.collectFile(name: "${workDir}/concatenated_files/all_fasta_sequences_in_one_file.fasta")
 
-	PreparationFasta(all_sequences)
-	all_sequences_rename = PreparationFasta.out.sequence_rename
+	/* Checks fasta files and fasta processing */
+	CHECKS_FASTA(sequences)
+	FASTA_PROCESSING(CHECKS_FASTA.out.sequences_checking)
+	sequences_renamed = FASTA_PROCESSING.out.sequences_renamed
 
-	split_fasta = all_sequences_rename.splitFasta(by: 1000000, file: true)
+	split_fasta_files = sequences_renamed.splitFasta(by: 1000000, file: true)
 
-	/* Pfam */
-
-    if (params.scan_pfam == true || params.annotation_files == null) {
-		PFAM(split_fasta)
+	/* Function searches */
+	if (params.scan_pfam == true || params.annotation == null) {
+		FUNCTION_SEARCHES(sequences_renamed, params.pfam_name)
 	}
 
-	/* Annotation */
-
-	if (params.annotation_files != null) {
-		annotation = Channel.fromPath(params.annotation_files, checkIfExists: true)
-        PreparationAnnot(annotation)
+	/* Check CSV file, check TSV files and annotation processing */
+	if (params.annotation != null) {
+		CHECK_CSV(Channel.fromPath(params.annotation, checkIfExists: true))
+		samplesheet = CHECK_CSV.out.csv_checking
+		samplesheet = samplesheet.splitCsv(header:true) \
+				| map { row-> tuple(row.annotation, file(row.file)) }
+		CHECKS_TSV(samplesheet)
+        ANNOTATIONS_PROCESSING(sequences_renamed, CHECKS_TSV.out.tsv_checking)
 	}
 
-	/* Create channel */
-
-	if (params.scan_pfam == true && params.annotation_files != null) {
-		label_network = PFAM.out.label_pfam.concat(PreparationAnnot.out.label_annotation).collect()
+	/* Combine annotations */
+	if (params.scan_pfam == true && params.annotation != null) {
+		all_annotations = FUNCTION_SEARCHES.out.pfam_files.concat(ANNOTATIONS_PROCESSING.out.annotations_files)
 	}
-	else if (params.scan_pfam == false && params.annotation_files != null) {
-		label_network = PreparationAnnot.out.label_annotation.collect()
+	else if (params.scan_pfam == false && params.annotation != null) {
+		all_annotations = ANNOTATIONS_PROCESSING.out.annotations_files
 	}
-	else if (params.scan_pfam == true && params.annotation_files == null) {
-		label_network = PFAM.out.label_pfam.collect()
+	else if (params.scan_pfam == true && params.annotation == null) {
+		all_annotations = FUNCTION_SEARCHES.out.pfam_files
 	}
 
-	/* Sequence Similarity Sequence */
+	/* Sequence Similarity Sequence and graph clustering */
+	SSN_AND_GRAPH_CLUSTERING(sequences_renamed, split_fasta_files, params.alignment_file, inflation)
 
-	SSN(all_sequences_rename, split_fasta, params.alignment_file, inflation)
-	diamond_ssn = SSN.out.diamond_ssn
+	/* Structure searches */
+	STRUCTURE_SEARCHES(split_fasta_files, sequences_renamed, params.alphafold_name, SSN_AND_GRAPH_CLUSTERING.out.network)
+	all_annotations_and_structures = STRUCTURE_SEARCHES.out.alphafold_annotations.concat(all_annotations).collectFile(name: "${workDir}/concatenated_files/all_sequence_annotations.tsv")
 
-	REPORT(quarto_seqs_clst, all_sequences_rename, SSN.out.network, SSN.out.tuple_network, label_network)
+	/* Data analysis */
+	DATA_ANALYSIS(sequences_renamed, SSN_AND_GRAPH_CLUSTERING.out.network, all_annotations_and_structures, SSN_AND_GRAPH_CLUSTERING.out.tuple_network_edges)
 }
 
 /*
@@ -135,30 +167,51 @@ workflow {
 */
 
 workflow.onComplete {
-
-	println "- Workflow info: LAGOON-MCL workflow completed successfully -"
-
-	log.info ABIHeader()
-}
-
-workflow.onError = {
-
-    println "- Workflow info: LAGOON-MCL workflow completed with errors -"
-
-	log.info ABIHeader()
+    c_green = params.monochrome_logs ? '' : "\033[0;32m";
+    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
+    c_red = params.monochrome_logs ? '' : "\033[0;31m";
+    c_reset = params.monochrome_logs ? '' : "\033[0m";
+    
+	def msg = """
+	-${c_red}--------------------------------------------------${c_reset}-
+	Pipeline execution summary
+	---------------------------
+	Completed at : ${workflow.complete}
+	Duration     : ${workflow.duration}
+	Success      : ${workflow.success}
+	workDir      : ${workflow.workDir}
+	exit status  : ${workflow.exitStatus}
+	-${c_red}--------------------------------------------------${c_reset}-
+    """.stripIndent()
+    println(msg)
+	
+	if (workflow.success) {
+        log.info "-${c_purple}[Workflow info]${c_green} LAGOON-MCL workflow completed successfully${c_reset}-"
+	} else {
+        log.info "-${c_purple}[Workflow info]${c_red} LAGOON-MCL workflow completed with errors${c_reset}-"
+    }
 }
 
 def ABIHeader() {
-	return """ 
-		========================================
-			  ╔═══╗ ╔═══╗   ╔═╗
-			  ║╔═╗║ ║╔═╗║   ╚═╝
-			  ║╚═╝║ ║╚═╝╚═╗ ╔═╗
-			  ╠═══╣ ║ ╔═╗ ║ ║ ║
-			  ║   ║ ║ ╚═╝ ║ ║ ║
-			  ╩   ╩ ╚═════╝ ╚═╝
-	              (https://bioinfo.mnhn.fr/abi/)
-		========================================
-	"""
-	.stripIndent()
+    // Log colors ANSI codes
+    c_red = params.monochrome_logs ? '' : "\033[0;91m";
+    c_blue = params.monochrome_logs ? '' : "\033[1;94m";
+    c_reset = params.monochrome_logs ? '' : "\033[0m";
+    c_yellow = params.monochrome_logs ? '' : "\033[1;93m";
+    c_Ipurple = params.monochrome_logs ? '' : "\033[0;95m" ;
+
+    return """    -${c_red}--------------------------------------------------${c_reset}-
+
+    ${c_blue}  ╔═══╗╔══╗ ╔═╗    ${c_blue}
+    ${c_blue}  ║╔═╗║║╔╗║ ╠═╣    ${c_blue}
+    ${c_blue}  ║╚═╝║║╚╝╚╗║ ║    ${c_blue}
+    ${c_blue}  ╠═══╣║╔═╗║║ ║    ${c_blue}
+    ${c_blue}  ║   ║║╚═╝║║ ║    ${c_blue}
+    ${c_blue}  ╩   ╩╚═══╝╚═╝    ${c_blue}
+    ${c_yellow}  LAGOON-MCL workflow (version ${workflow.manifest.version})${c_reset}
+                                            ${c_reset}
+    ${c_Ipurple}  Homepage: ${workflow.manifest.homePage}${c_reset}
+    -${c_red}--------------------------------------------------${c_reset}-
+    """.stripIndent()
+
 }

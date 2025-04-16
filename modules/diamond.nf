@@ -1,59 +1,57 @@
-process DiamondDB {
+process DIAMOND_DB {
 
     /*
 	* DESCRIPTION 
 	* -----------
-	* Création de la banque de donnée utilisé par diamond blastp
+	* Creation of the database used by diamond blastp
     *
-    * INUT
-	* ----
-    * 	- séquences fasta issus de tos les fichiers fasta
+    * INPUT
+	* -----
+    * 	- fasta: fasta sequence renamed
     *
 	* OUPUT
 	* -----
-    *	- banque de donnée construite avec toutes les séquences fasta
+    *	-  reference.dmnd: database built with all fasta sequences
     */
 
 	label 'diamond'
 
 	input:
-		path(fasta_rename)
+		path(fasta)
 
 	output:
 		path("reference.dmnd"), emit: diamond_db
 	
 	script:
 		"""
-		diamond makedb --in ${fasta_rename} -d reference -p ${task.cpus}
-		"""
-
-	stub:
-		"""
-		touch reference.dmnd
+		diamond makedb --in ${fasta} -d reference -p ${task.cpus}
 		"""
 }
 
-process DiamondBLASTp {
+process DIAMOND_BLASTP {
 
     /*
 	* DESCRIPTION
 	* -----------
-	* BLASTp toutes les séquences contre toutes les séquences
+	* Alignment of all sequences against the database
     *
     * INPUT
 	* -----
-    * 	- séquences fasta issus de tous les fichiers fasta
-	*	- banque de donnée issus de diamond makedb
+    * 	- fasta: fasta sequence renamed
+	*	- diamond_db: diamond database
+	*	- sensitivity: Diamond BLASTp sensitivity
+	*	- diamond_evalue: minimum evalue
+	*	- matrix: similarity matrix used by Diamond BLASTp
     * 
 	* OUTPUT
     * ------
-	*	- alignement par pair (fichier tsv)
+	*	- diamond_alignment.tsv: alignment file
     */
 
 	label 'diamond'
 
 	input:
-		each path(fasta_rename)
+		each path(fasta)
         path(diamond_db)
 		val(sensitivity)
 		val(diamond_evalue)
@@ -64,18 +62,13 @@ process DiamondBLASTp {
 
 	script:
 		"""
-    	diamond blastp -d ${diamond_db} \
-    	-q ${fasta_rename} \
-    	-o diamond_alignment.tsv \
-    	--${sensitivity} \
-    	-p ${task.cpus} \
-    	-e ${diamond_evalue} \
-    	--matrix ${matrix} \
-		--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
-		"""
-
-	stub:
-		"""
-		touch diamond_alignment.tsv
+		diamond blastp -d ${diamond_db} \
+			-q ${fasta} \
+			-o diamond_alignment.tsv \
+			--${sensitivity} \
+			-p ${task.cpus} \
+			-e ${diamond_evalue} \
+			--matrix ${matrix} \
+			--outfmt 6 qseqid qlen qstart qend sseqid slen sstart send length pident ppos score evalue bitscore
 		"""
 }

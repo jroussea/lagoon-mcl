@@ -1,6 +1,6 @@
 <h1 align="center">LArGe cOmparative Omics Network - Markov CLustering</h1>
 
-[![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.1.0-red?labelColor=000000)](https://jroussea.github.io/LAGOON-MCL/)
+[![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.0.0-red?labelColor=000000)](https://gitlab.com/jerrousseau/lagoon-mcl/-/)
 [![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_23.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
 [![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
 
@@ -28,19 +28,40 @@ git clone https://github.com/jroussea/lagoon-mcl.git
 
 4. Build Singularity images
 
+The tool-specific containers ([SeqKit2](https://biocontainers.pro/tools/seqkit), [MCL](https://biocontainers.pro/tools/mcl), [Diamond](https://biocontainers.pro/tools/diamond) and [MMseqs2](https://biocontainers.pro/tools/mmseqs2)) are built from [BioContainers](https://biocontainers.pro/). The LAGOON-MCL container (with R, Python, packages and modules) is built from a container available on [Docker Hub](https://hub.docker.com/r/jroussea/lagoon-mcl), the Dockerfile is available [here](./containers/lagoon-mcl/1.1.0/Dockerfile).
+
 ```bash
-singularity build --fakeroot containers/diamond/2.1.0/diamond.sif docker://quay.io/biocontainers/diamond:2.1.10--h43eeafb_0
+# SeqKit2 v2.9.0
+wget -O containers/seqkit/2.9.0/seqkit.sif https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0
 
-singularity build --fakeroot containers/mcl/22.282/mcl.sif docker://quay.io/biocontainers/mcl:22.282--pl5321h031d066_2
+# Diamond v2.1.10
+wget -O containers/diamond/2.1.10/diamond.sif https://depot.galaxyproject.org/singularity/diamond:2.1.10--h43eeafb_2
 
-singularity build --fakeroot containers/seqkit/2.9.0/seqkit.sif docker://quay.io/biocontainers/seqkit:2.9.0--h9ee0642_0
+# MCL v22.282
+wget -O containers/mcl/22.282/mcl.sif https://depot.galaxyproject.org/singularity/mcl:22.282--pl5321h031d066_2
 
-singularity build --fakeroot containers/mmseqs2/15.6f452/mmseqs.sif docker://quay.io/biocontainers/mmseqs2:15.6f452--pl5321h6a68c12_3
+# MMseqs2 v15.6f452
+wget -O containers/mmseqs2/15.6f452/mmseqs.sif https://depot.galaxyproject.org/singularity/mmseqs2:15.6f452--pl5321h6a68c12_3
 
+# LAGOON-MCL v1.1.0
 singularity build --fakeroot containers/lagoon-mcl/1.1.0/lagoon-mcl.sif docker://jroussea/lagoon-mcl:latest
 ```
 
-5. Test the pipeline
+5. Download and build database
+
+```Bash
+cd tool-kit
+chmod +x build_alpahfold_db.sh build_pfam_db.sh 
+# Download and build Pfam
+./build_pfam_db.sh
+# Download and build AlphaFoldDB
+./build_alpahfold_db.sh
+```
+
+Default path for Pfam database: `lagoon-mcl/database/pfamDB` \
+Default path for AlphaFold database: `lagoon-mcl/database/alaphafoldDB`
+
+6. Test the pipeline
 
 ```bash
 chmod +x bin/*
