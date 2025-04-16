@@ -4,6 +4,11 @@
 Created on Fri Mar  7 11:29:54 2025
 
 @author: jrousseau
+@date: 2025-02-28
+@version: 1.0
+@contact: https://github.com/jroussea/lagoon-mcl/discussions
+@license: MIT License
+@description: This script create sequence-specific files
 """
 
 from argparse import ArgumentParser
@@ -14,40 +19,47 @@ import json
 
 
 def main(args):
+    """
 
+    Parameters
+    ----------
+    args.information : TSV
+        File containing all sequence-related information
+    args.network : TSV
+        Network file
+    args.basename : STR
+        Network file name
+
+    """
     igraph_edge = f"edges_igraph_{args.basename}.tsv"
     igraph_node = f"nodes_igraph_{args.basename}.tsv"
     
     d_sequence = igraph_file_preparation(args.network, igraph_edge, igraph_node)
     g_decompose = load_graph(igraph_edge, igraph_node)
     d_centrality, d_diameter = dict_eigenvector_centrality(g_decompose)
-    d_alphafold = dict_alphafold_id(args.alphafold)
-    write_nodes_files(args.information, args.basename, d_alphafold, d_sequence, d_centrality)
+    write_nodes_files(args.information, args.basename, d_sequence, d_centrality)
     
-    with open(f"diameter_{args.basename}.json", "w") as f_json:        
+    with open(f"{args.basename}_diameters.json", "w") as f_json:        
         json.dump(d_diameter, f_json)
 
 
 def get_args():
     """
     Parse arguments
+
     """
-    parser = ArgumentParser(description="")
+    parser = ArgumentParser(description="This script create sequence-specific files")
     
     parser.add_argument("-n", "--network", type = str,
-                        help = "Network obtained after clustering with MCL", 
+                        help = "Network file", 
                         required = True)
     
     parser.add_argument("-i", "--information", type = str,
-                        help = "Network obtained after clustering with MCL", 
-                        required = True)
-    
-    parser.add_argument("-a", "--alphafold", type = str,
-                        help = "cluster size min", 
+                        help = " File containing all sequence-related information", 
                         required = True)
     
     parser.add_argument("-b", "--basename", type = str,
-                        help = "cluster size min", 
+                        help = "Network file name", 
                         required = True)
     
     return parser.parse_args()
@@ -55,21 +67,22 @@ def get_args():
 
 def igraph_file_preparation(network, igraph_edge, igraph_node):
     """
-    
+    Preparing the files used by igraph-python
 
     Parameters
     ----------
     network : TYPE
-        DESCRIPTION.
+        Network file.
     igraph_edge : TYPE
-        DESCRIPTION.
+        File in igraph-python format containing network stops.
     igraph_node : TYPE
-        DESCRIPTION.
+        File in igraph-python format containing nodes and network information.
 
     Returns
     -------
-    d_sequence : TYPE
-        DESCRIPTION.
+    d_sequence : DICT
+        Key: sequence ID
+        Value: sequence-specific numeric identifier used by igraph-python
 
     """
     f_nodes = open(igraph_node, "w")
@@ -112,7 +125,22 @@ def igraph_file_preparation(network, igraph_edge, igraph_node):
 
 
 def load_graph(igraph_edge, igraph_node):
-    
+    """
+    Loading files used by igraph-python
+
+    Parameters
+    ----------
+    igraph_edge : TYPE
+        File in igraph-python format containing network stops.
+    igraph_node : TYPE
+        File in igraph-python format containing nodes and network information.
+
+    Returns
+    -------
+    g_decompose: LIST
+        list of all connected components
+
+    """
     edges = pd.read_csv(igraph_edge, 
                         names = ['col1', 'col2', 'col3', 'col4', 'col5'], 
                         sep = "\t", header=None)
@@ -129,19 +157,21 @@ def load_graph(igraph_edge, igraph_node):
 
 def dict_eigenvector_centrality(g_decompose):
     """
-    
+    Cluster metrics (node centrality and diameter)
 
     Parameters
     ----------
-    igraph_edge : TYPE
-        DESCRIPTION.
-    igraph_node : TYPE
-        DESCRIPTION.
+    g_decompose: LIST
+        list of all connected components
 
     Returns
     -------
-    d_centrality : TYPE
-        DESCRIPTION.
+    d_centrality : DICT
+        Key: sequence ID
+        Value: sequence centrality
+    d_diameter : DICT
+        Key: cluster ID
+        Value: cluster diameter
 
     """
     d_diameter = dict()
@@ -160,39 +190,44 @@ def dict_eigenvector_centrality(g_decompose):
     return d_centrality, d_diameter
 
 
-def dict_alphafold_id(alphafold):
-    
-    d_alphafold = dict()
-    
-    with open(alphafold, "r") as f_alphafold:
-        for position, row in enumerate(f_alphafold):
-            l_row = row.strip().split("\t")
-            if position != 0:
-                d_alphafold[l_row[0]] = (l_row[2], l_row[3], l_row[4], l_row[5])
-    
-    return d_alphafold
+def write_nodes_files(information, basename, d_sequence, d_centrality):
+    """
+    Cluster metrics (node centrality and diameter)
 
+    Parameters
+    ----------
+    information: TSV
+        File containing all sequence-related information
+    basename: STR
+        Network file name
+    d_centrality : DICT
+        Key: sequence ID
+        Value: sequence centrality
+    d_diameter : DICT
+        Key: cluster ID
+        Value: cluster diameter
 
-def write_nodes_files(information, basename, d_alphafold, d_sequence, d_centrality):
-    
-    f_metrics = open(f"nodes_metrics_{basename}.tsv", "w")
-    f_labels = open(f"nodes_labels_{basename}.tsv", "w")
+    Returns
+    -------
+    None.
+
+    """
+    f_metrics = open(f"{basename}_sequences_metrics.tsv", "w")
+    f_labels = open(f"{basename}_sequences_annotations.tsv", "w")
     
     with open(information, "r") as f_input:
     
         for position, row in enumerate(f_input):
             l_row = row.strip().split("\t")
             
-            metrics = l_row[:3] # récupérer les deux première colonnes du fichier
-            labels = l_row[3:] # récupérer les colonne de la position 3 à la fin
+            metrics = l_row[:3] # retrieve the first two columns of the file
+            labels = l_row[3:]  # retrieve columns from position 3 to the end
     
             if position == 0:
                 new_labels = list()
                 for i in labels:
                     new_labels.append(f"num_{i}_id")
-                #col_metrics = ["eigenvector_centrality"] + new_labels + ["alphafold_id", "alphafold_clst_id", "num_alphafold_pfam_id"]
-                col_metrics = ["eigenvector_centrality"] + new_labels + ["alphafold_id", "alphafold_clst_id"]
-                #col_labels = labels + ["alphafold_id", "alphafold_clst_id", "alphafold_pfam_id"]
+                col_metrics = ["eigenvector_centrality"] + new_labels
                 col_labels = labels
             else:
                 node_id = d_sequence[metrics[0]]
@@ -204,14 +239,7 @@ def write_nodes_files(information, basename, d_alphafold, d_sequence, d_centrali
                         num = len(i.split(";"))
                     num_label.append(str(num))
                 
-                if d_alphafold[l_row[0]][2] == "NA":
-                    num_af_pfam = 0
-                else:
-                    num_af_pfam = len(d_alphafold[l_row[0]][2].split(";"))
-                
-                #col_metrics = [str(d_centrality[node_id])] + num_label + [d_alphafold[l_row[0]][0], d_alphafold[l_row[0]][1], str(num_af_pfam)]
-                col_metrics = [str(d_centrality[node_id])] + num_label + [d_alphafold[l_row[0]][0], d_alphafold[l_row[0]][1]]
-                #col_labels = labels + [d_alphafold[l_row[0]][0], d_alphafold[l_row[0]][1], d_alphafold[l_row[0]][2]]
+                col_metrics = [str(d_centrality[node_id])] + num_label
                 col_labels = labels
             
             all_metrics = metrics + col_metrics

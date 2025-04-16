@@ -8,7 +8,7 @@ Created on Tue Feb 25 11:11:01 2025
 @version: 1.0
 @contact: https://github.com/jroussea/lagoon-mcl/discussions
 @license: MIT License
-@description: Ce script vérifie si les fichiers en entrée du workflow LAGOON-MCL respecte le bon format
+@description: This script checks whether the files supplied by the user are in the correct format
 """
 
 
@@ -16,37 +16,22 @@ import sys
 import re
 from argparse import ArgumentParser
 
-    
-def get_args():
-    """
-    Parse arguments
-    
-    """
-    parser = ArgumentParser(description="")
-    
-    parser.add_argument("-i", "--input", type = str,
-                        help = "", 
-                        required = True)
-    
-    parser.add_argument("-d", "--delimiter", type = str,
-                        help = "", 
-                        required = False,
-                        default = "\t")
-    
-    parser.add_argument("-t", "--test", type = str,
-                        help = "",
-                        required = True)
-
-    
-    parser.add_argument("-n", "--name", type = str,
-                        help = "",
-                        required = True)
-    
-    return parser.parse_args()
-
 
 def main(args):
-    
+    """
+
+    Parameters
+    ----------
+    args.input: FASTA or TSV or CSV
+        User-supplied annotation file
+    args.delimiter: "\t" or ","
+        Delimiter for tsv and csv files
+    args.test: STR
+        Test type (fasta file, CSV file or TSV file)
+    args.name: STR
+        Test name
+
+    """
     if args.test == "csv":
         check_csv_input(args.input, args.delimiter, args.name)
 
@@ -57,27 +42,55 @@ def main(args):
         check_fasta_format(args.input, args.name)
 
 
+def get_args():
+    """
+    Parse arguments
+    
+    """
+    parser = ArgumentParser(description="This script checks whether the files supplied by the user are in the correct format")
+    
+    parser.add_argument("-i", "--input", type = str,
+                        help = "User-supplied annotation file", 
+                        required = True)
+    
+    parser.add_argument("-d", "--delimiter", type = str,
+                        help = "Delimiter for tsv and csv files", 
+                        required = False,
+                        default = "\t")
+    
+    parser.add_argument("-t", "--test", type = str,
+                        help = "Test type (fasta file, CSV file or TSV file)",
+                        required = True)
+
+    
+    parser.add_argument("-n", "--name", type = str,
+                        help = "Test name",
+                        required = True)
+    
+    return parser.parse_args()
+
+
 def check_csv_input(input_file, delimiter, name):
     """
-    Fonction de test pour le fichier CSV contenant le chemin vers les différence fichier label
+    Test function for CSV files
 
     Parameters
     ----------
     input_file : STR
-        Fichier CSV à deux colonnes.
-            Colonne 1 : [database] nom de la base de données dont sont issus les label (par exemple: Gene3D, Pfam, FunFam)
-            Colonne 2 : [file] chemin vers les fichiers contenant les labels
+        CSV file with two columns.
+            Column 1: [database] name of the database from which the labels originate (e.g.: Gene3D, Pfam, FunFam).
+            Column 2: [file] path to files containing labels
     delimiter : STR
-        Séparateur de champt, pour ce fichier obligatoirement une virgule (,).
+        File delimiter, must be a comma (,).
     name : STR
-        Nom du test, pour cette fonction : csv.
+        Test name for this function: csv.
 
     Raises
     ------
     ValueError
-        Test 1 : si le séparateur de champ n'est pas une virgule.
-        Test 2 : Vérifie si l'entête de la première colonne n'est pas annotation
-        Test 3 : Vérifie si l'entête de la deuxième colonne n'est pas file
+        Test 1: the delemiter is not a comma
+        Test 2: first column header is not “annotation”
+        Test 3: second column header is not “file”
         
     Returns
     -------
@@ -135,26 +148,26 @@ def check_csv_input(input_file, delimiter, name):
 
 def check_label_input(input_file, delimiter, name):
     """
-    Fonction test pour les fichier TSV contenant les labels
+    Test function for TSV files
 
     Parameters
     ----------
     input_file : STR
-        Fichier T à deux colonnes.
-            Colonne 1 : identifiant des séquences
-            Colonne 2 : contient les labels lié aux séquences
+        Two-column TSV file.
+            Column 1: sequence ID
+            Column 2: sequence-specific label IDs. 
+                        If several labels, they are separated by a semicolon (“;”).
     delimiter : STR
-        Séparateur de champt, pour ce fichier obligatoirement une tabulation (\t).
+        File delimiter, must be a semicolon (";").
     name : STR
-        Nom du test, pour cette fonction : nom du label dans la colonne annotation du fichier csv.
-
+        Test name for this function: name in the first column of the CSV file.
     Raises
     ------
     ValueError
-        Test 1 : si le séparateur de champ n'est pas une tabulation.
-        Test 2 : Vérifie si l'entête de la première colonne n'est pas sequence_id
-        Test 3 : Vérifie si l'entête de la deuxième colonne n'est pas label
-        Test 4 : Vérifier si les idenfiants de séquences apparaissent une seul fois dans le fichier
+        Test 1: the delimiter is not a delimiter
+        Test 2: first column header is not "sequence_id"
+        Test 3: seconde column header is not "label"
+        Test 4: Sequences IDs (first column) appear several times
 
     Returns
     -------
@@ -177,8 +190,8 @@ def check_label_input(input_file, delimiter, name):
             if len(columns) == 2:
                 print(f"Test 1 OK: The delimiter must be a tab ({delimiter}) and the number of columns must be equal to 2.")
             else:
-                print("The delimiter must be a tab ({delimiter}) and the number of columns must be equal to 2.")
-        except Exception as e:
+                raise ValueError("The delimiter must be a tab ({delimiter}) and the number of columns must be equal to 2.")
+        except ValueError as e:
             print(f"Test 1 Error: {e}")
             l_failed_test.append(f"Test 1 Error: {e}")
             
@@ -187,8 +200,8 @@ def check_label_input(input_file, delimiter, name):
             if columns[0] == "sequence_id":
                 print("Test 2 OK: The name of the first column must be (\"sequence_id\").")
             else:
-                print("The name of the first column must be (\"sequence_id\").")
-        except Exception as e:
+                raise ValueError("The name of the first column must be (\"sequence_id\").")
+        except ValueError as e:
             print(f"Test 2 Error: {e}")
             l_failed_test.append(f"Test 2 Error: {e}")
         
@@ -197,8 +210,8 @@ def check_label_input(input_file, delimiter, name):
             if columns[1] == "label":
                 print("Test 3 OK: The name of the second column must be (\"label\").")
             else:
-                print("The name of the second column must be (\"label\").")
-        except Exception as e:
+                raise ValueError("The name of the second column must be (\"label\").")
+        except ValueError as e:
             print(f"Test 3 Error: {e}")
             l_failed_test.append(f"Test 3 Error: {e}")
         
@@ -221,7 +234,6 @@ def check_label_input(input_file, delimiter, name):
             print(f'Test 4 Error: {e}')
             l_failed_test.append(f'Test 4 Error: {e}')
             
-    
     if len(l_failed_test) > 0:
         print("Test are failed ")
         with open(f"failed_test_label_input_{name}.txt", "w") as f_output:
@@ -235,21 +247,19 @@ def check_label_input(input_file, delimiter, name):
 
 def check_fasta_format(input_file, name):
     """
-    Fonction test les séquences fasta
+    Test function for FASTA files
 
     Parameters
     ----------
-    input_file : STR
-        Fichier T à deux colonnes.
-            Colonne 1 : identifiant des séquences
-            Colonne 2 : contient les labels lié aux séquences
+    input_file : FFASTA
+        FASTA file, must contain protein sequences
     name : STR
-        Nom du test, pour cette fonction : fasta.
+        Test name for this function: fasta.
 
     Raises
     ------
     ValueError
-        Test 1 : Vérifie si les séquneces sont bein des séquences fasta et si sont bien des séquences avec des Acide Aminé
+        Test 1: Sequences are not in fasta format
 
     Returns
     -------
@@ -271,7 +281,7 @@ def check_fasta_format(input_file, name):
                 
                 if line.startswith(">"):
                     continue
-                elif re.match("^[ARNDCEQGHILKMFPSTWYVXarnedqghilkmfpstwyvx]+$", line):
+                elif re.match("^[ARNDCEQGHILKMFPSTWYVXarnedqghilkmfpstwyvx*]+$", line):
                     continue
                 else:
                     print("Invalid format")
