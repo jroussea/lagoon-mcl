@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
-echo -e "\nCE PROGRAMME UTILISE SINGULARITY\n"
+date_start=`data`
+
+echo -e "\nTHIS PROGRAM USES SINGULARITY\n"
 
 # VARIABLES
 SCRIPT=$PWD"/bin"
 DATABASE=$PWD"/../database"
 CONTAINER=$PWD"/../containers"
-LAGOON=$CONTAINER/lagoon-mcl/1.1.0/lagoon-mcl.sif
+LAGOON=$CONTAINER/lagoon-mcl/1.0.0/lagoon-mcl.sif
 SEQKIT=$CONTAINER/seqkit/2.9.0/seqkit.sif
 MMSEQS2=$CONTAINER/mmseqs2/15.6f452/mmseqs.sif
 
-echo -e "\nListe des Variables :"
+echo -e "\nList of Variables:"
 echo -e "DATABASE OUTPUT: $DATABASE"
 echo -e "CONTAINERS: $CONTAINER"
 echo -e "LAGOON: $LAGOON"
@@ -41,10 +43,14 @@ wget https://ftp.ebi.ac.uk/pub/databases/interpro/current_release/protein2ipr.da
 singularity run $LAGOON python $SCRIPT/uniprot.py --clusters 1-AFDBClusters-entryId_repId_taxId.tsv --uniprot protein2ipr.dat.gz
 rm -f 1-AFDBClusters-entryId_repId_taxId.tsv protein2ipr.dat.gz
 
+data_end=`date`
+
 echo -e "\n=====================================\n"
 
-echo -e "Pour utiliser la base de données alpahfold mmseqs2 database avec LAGOON-MCL"
-echo -e "Utiliser les paramètre suivant :"
+echo "date start: "$date_start
+echo "date end: "$date_end
+
+echo -e "Use the following parameters:"
 echo -e "--alphafoldDB $PATHDB/alphafoldDB"
 echo -e "--alphafoldDB_name alphafoldDB"
 echo -e "--uniprot $PATHDB/uniprot_function.json"
