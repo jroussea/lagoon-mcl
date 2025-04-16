@@ -1,4 +1,4 @@
 annotation,file
-funfam,/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl/data-test/labels/funfam.tsv
-tmhmm,/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl/data-test/labels/tmhmm.tsv
-gene3d,/home/jrousseau/Documents/git_projects/workflow-laggoon-mcl/lagoon-mcl/data-test/labels/gene3d.tsv
+funfam,/path/to/lagoon-mcl/data-test/labels/funfam.tsv
+tmhmm,/path/to/lagoon-mcl/data-test/labels/tmhmm.tsv
+gene3d,/path/to/lagoon-mcl/data-test/labels/gene3d.tsv
