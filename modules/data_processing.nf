@@ -1,111 +1,135 @@
-process FastaProcessing {
+process FASTA_PROCESSING {
 
     /*
 	* DESCRIPTION
     * -----------
+    * Preparation of fasta files (keeps sequence IDs in headers)
     *
     * INPUT
     * -----
-    * 	- 
+    * 	- User-supplied fasta files
+    *
     * OUPUT
     * -----
-    *	- 
+    *	- fasta_sequences_renamed.fasta: modified fasta file
     */
 
     label 'lagoon'
 
     input:
         path(sequence)
-    
+
     output:
-		path("sequences_rename.fasta"), emit: sequence_rename
-    
+		path("fasta_sequences_renamed.fasta"), emit: sequences_renamed
+
     script:
         """
-		fasta_processing.py --fasta_input ${sequence} --fasta_output sequences_rename.fasta --processing header
+		files_processing.py --fasta ${sequence} --fasta_output fasta_sequences_renamed.fasta --processing fasta
         """
-
-    stub:
-		"""
-		touch sequence_rename.fasta
-		"""
 }
 
-process AnnotationProcessing {
+process ANNOTATIONS_PROCESSING {
 
     /*
 	* DESCRIPTION
     * -----------
+    * Preparation of user-supplied annotation files
+    * Add sequences without annotations, assigning NA as label
+    * Add a third sequence containing the annotation type (e.g. Pfam)
     *
     * INPUT
     * -----
-    * 	- 
+    * 	- fasta: renamed fasta file 
+    *   - annotation: annotation type
+    *   - file: TSV file containing annotations
+    *
     * OUPUT
     * -----
-    *	- 
+    *	- labels_[annotation type].tsv: modified TSV file containing annotations
     */
 
     label 'lagoon'
 
     input:
         each path(fasta)
-        tuple val(annotation), path(file)
+        tuple val(annotations), path(file)
     
     output:
-		path("label_${annotation}.tsv"), emit: label_annotation
+		path("labels_${annotations}.tsv"), emit: annotations_files
 
     script:
         """
-        annotation_processing.py --label ${file} --fasta ${fasta} --database ${annotation}
+        files_processing.py --labels ${file} --fasta ${fasta} --database ${annotations} --processing labels
         """
-
-    stub:
-		"""
-		touch ${annotation}.tsv
-		"""
 }
 
-process FiltrationAlnNetwork {
+process FILTER_ALIGNMENTS {
     
 	/*
 	* DESCRIPTION
 	* -----------
-	* Suppression des séquences fasta qui n'apparaissent qu'une seul foit dans le fichier d'alignement
-	* cela signifie que les séquences se sont uniquement aligné contre elle même
+	* Keeps only one alignment per sequence pair
     *
     * INPUT
 	* -----
-    * 	- fichier d'alignement tsv issu de diamond balstp
+    * 	- diamond_alignment: file containing pairwise alignments obtained with Diamond BLASTp
     *
 	* OUTPUT
 	* ------
-    *	- fichier d'alignement tsv
+    *	- diamond_alignment.filter.tsv: TSV file containing a single alignment per sequence pair
     */
-
-	tag ''
 
 	label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/diamond", mode: 'copy', pattern: "diamond_alignment.filter.tsv"
+    publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "diamond_alignments.filter.tsv"
 
 	input:
         path(diamond_alignment)
 
 	output:
-        path("diamond_alignment.filter.tsv"), emit: diamond_ssn
+        path("diamond_alignments.filter.tsv"), emit: diamond_ssn
 
 	script:
 		"""
-        filtration_blastp.py --alignment ${diamond_alignment}
-		"""
-
-    stub:
-		"""
-		touch diamond_ssn.tsv
+        filter_alignments.py --alignment ${diamond_alignment}
 		"""
 }
 
-process NodeAnnotationProcessing {
+process SEQUENCES_PROCESSING {
+
+    /*
+	* DESCRIPTION
+    * -----------
+    * Preparation of files containing the sequences present in the networks
+    *
+    * INPUT
+    * -----
+    * 	- fasta: renamed fasta file 
+    *   - network: network file
+    *   - labels: annotations/labels files
+    *
+    * OUPUT
+    * -----
+    *	- network_I*_sequences_annotations_preprocessing.tsv: annotation files containing only sequences present in a network
+    */
+
+    label 'lagoon'
+
+    input:
+        path(fasta)
+        each path(network)
+        path(labels)
+
+    output:
+        tuple val(network.baseName), path("network_I*_sequences_annotations_preprocessing.tsv"), emit: tuple_node_labels
+
+    script:
+        """
+        files_processing.py --network ${network} --labels ${labels} --basename ${network.baseName} --fasta ${fasta} --processing nodes
+        """
+}
+
+process PFAM_PROCESSING {
 
     /*
 	* DESCRIPTION
@@ -113,24 +137,30 @@ process NodeAnnotationProcessing {
     *
     * INPUT
     * -----
-    * 	- 
+    *   - search_m8: alignment file obtained with MMseqs2
+    *   - fasta: user fasta files
+    *
     * OUPUT
     * -----
-    *	- 
+    *   - pfamDB.tsv: sequence annotation file with Pfam database
+    *   - mmseqs2_pfam_database_alignments.tsv: MMseqs2 alignment file saved in the alignments folder
     */
 
     label 'lagoon'
 
-    input:
-        path(fasta_file)
-        each path(network)
-        path(label_file)
+    publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "mmseqs2_pfam_database_alignments.m8"
 
+    input:
+        path(search_m8)
+        path(fasta)
+        
     output:
-        tuple val(network.baseName), path("node_annotation_*"), emit: tuple_node_labels
+        path("mmseqs2_pfam_database_alignments.m8")
+        path("pfamDB.tsv"), emit: pfam_files
 
     script:
         """
-        node_annotation_processing.py --network ${network} --labels ${label_file} --basename ${network.baseName} --fasta ${fasta_file}
+        cp ${search_m8} mmseqs2_pfam_database_alignments.m8
+        files_processing.py --pfam_scan ${search_m8} --fasta ${fasta} --database pfamDB --processing pfam
         """
 }

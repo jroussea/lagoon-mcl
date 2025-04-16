@@ -1,100 +1,74 @@
-process MMseqsCreateDB {
+process MMSEQS_CREATE_DB {
 
     /*
 	* DESCRIPTION
     * -----------
+    * Construction of the sequence database from user sequences
     *
     * INPUT
     * -----
-    * 	- 
+    * 	- fasta: fasta file
+    *
     * OUPUT
     * -----
-    *	- 
+    *	- queryDB/: sequence database
     */
 
     label 'mmseqs'
 
     input:
-        val(database)
-        path(fasta_sequences)
+        path(fasta)
 
     output:
-        path("${database}/"), emit: path_db
-        val("${database}"), emit: name_db
+        path("queryDB/"), emit: path_db
     
     script:
         """
-        mkdir ${database}; cd ${database}
-        mmseqs createdb ../${fasta_sequences} ${database}
+        mkdir queryDB/; cd queryDB/
+        mmseqs createdb ../${fasta} queryDB
         """
 }
 
-process MMseqsSearch  {
+process MMSEQS_SEARCH  {
 
     /*
 	* DESCRIPTION
     * -----------
+    * Similarity search in Pfam and AlphaFold clusters databases
     *
     * INPUT
     * -----
-    * 	- 
+    * 	- path_querydb: sequence database
+    *   - path_targetdb: MMseqs database from Pfam and AlphaFold clusters
+    *   - name_targetdb: Pfam or AlphaFold clusters database name
+    *   - run: analysis type: Pfam or AlphaFold clusters 
+    *
     * OUPUT
     * -----
-    *	- 
+    *	- [run]_alignment.m8: pairwise alignment of sequences
     */
 
     label 'mmseqs'
 
     input:
-        path(path_queryDB)
-        val(name_queryDB)
+        each path(path_querydb)
         path(path_targetdb)
         val(name_targetdb)
         val(run)
 
     output:
-        tuple path("${name_targetdb}_alignment.m8"), val("${name_targetdb}"), emit: search_m8
+        path("mmseqs2_${run}_alignments.m8"), emit: search_m8
 
     script:
         """
         mkdir tmp resultDB/
-        if [ '${run}' == 'run_pfam' ]; then
-            mmseqs search ${path_queryDB}/${name_queryDB} ${path_targetdb}/${name_targetdb} resultDB/resultDB tmp -k 6 -s 7 --threads ${task.cpus}
-        elif [ '${run}' == 'run_alphafold' ]; then
-            mmseqs search ${path_queryDB}/${name_queryDB} ${path_targetdb}/${name_targetdb} resultDB/resultDB tmp -k 5 -s 5.7 --threads ${task.cpus}
+        if [ '${run}' == 'pfamDB' ]; then
+            mmseqs search ${path_querydb}/queryDB ${path_targetdb}/${name_targetdb} resultDB/resultDB tmp -k 6 -s 7 --threads ${task.cpus}
+        elif [ '${run}' == 'alphafoldDB' ]; then
+            mmseqs search ${path_querydb}/queryDB ${path_targetdb}/${name_targetdb} resultDB/resultDB tmp -s 5.7 --threads ${task.cpus}
         
         fi
 
-        mmseqs convertalis ${path_queryDB}/${name_queryDB} ${path_targetdb}/${name_targetdb} resultDB/resultDB ${name_targetdb}_alignment.m8 --threads ${task.cpus} --format-output query,target,fident,alnlen,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,evalue,bits
-        """
-    
-}
-
-process PfamProcessing {
-
-    /*
-	* DESCRIPTION
-    * -----------
-    *
-    * INPUT
-    * -----
-    * 	- 
-    * OUPUT
-    * -----
-    *	- 
-    */
-
-    label 'lagoon'
-
-    input:
-        tuple path(search_m8), val(name_targetdb)
-        path(fasta)
-
-    output:
-        path("${name_targetdb}.tsv"), emit: file_format
-
-    script:
-        """
-        pfam_processing.py --pfam_scan ${search_m8} --fasta ${fasta} --evalue 0.00001 --database ${name_targetdb}
+        mmseqs convertalis ${path_querydb}/queryDB ${path_targetdb}/${name_targetdb} resultDB/resultDB mmseqs2_${run}_alignments.m8 --threads ${task.cpus} --format-output query,target,fident,alnlen,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,evalue,bits
         """
 }
