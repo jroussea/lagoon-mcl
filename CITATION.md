@@ -32,7 +32,7 @@
 
 > Mistry, J., Chuguransky, S., Williams, L., Qureshi, M., Salazar, G. A., Sonnhammer, E. L. L., Tosatto, S. C. E., Paladin, L., Raj, S., Richardson, L. J., Finn, R. D., & Bateman, A. (2021). Pfam : The protein families database in 2021. Nucleic Acids Research, 49(D1), D412‑D419. [https://doi.org/10.1093/nar/gkaa913](https://doi.org/10.1093/nar/gkaa913)
 
-* [**AlphaFold clusters databse**]
+* [**AlphaFold clusters database**]
 
 > Barrio-Hernandez, I., Yeo, J., Jänes, J., Mirdita, M., Gilchrist, C. L. M., Wein, T., Varadi, M., Velankar, S., Beltrao, P., & Steinegger, M. (2023). Clustering predicted structures at the scale of the known protein universe. Nature, 622(7983), 637‑645. [https://doi.org/10.1038/s41586-023-06510-w](https://doi.org/10.1038/s41586-023-06510-w)
 
