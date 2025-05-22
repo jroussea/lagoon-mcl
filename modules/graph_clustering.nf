@@ -19,7 +19,7 @@ process GRAPH_CLUSTERING {
     label 'mcl'
 
     input:
-        path(diamond_ssn)
+        path(mcl_input_file)
         each inflation
 
     output:
@@ -27,12 +27,12 @@ process GRAPH_CLUSTERING {
 
     script:
         """
-        cut -f 1,5,13 ${diamond_ssn} > ssn_mcl.tsv
-        mcxload -abc ssn_mcl.tsv -write-tab network.dict -o network.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
+        mcxload -abc ${mcl_input_file} -write-tab network.dict -o network.mci
         mcl network.mci -I ${inflation} -te ${task.cpus} --force-connected=y -o out.network.mci.I${inflation}
         mcxdump -icl out.network.mci.I${inflation} -tabr network.dict -o dump.out.network.mci.I${inflation}
         """
 }
+//        mcxload -abc ssn_mcl.tsv -write-tab network.dict -o network.mci --stream-mirror --stream-neg-log10 -stream-tf 'ceil(${params.max_weight})'
 
 process MCL_OUTPUT_TO_TSV {
 

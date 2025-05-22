@@ -27,7 +27,7 @@ workflow SSN_AND_GRAPH_CLUSTERING {
 
     main:
         if (alignments_file == null) {
-
+            
             DIAMOND_DB(sequences_renamed)
 
             DIAMOND_BLASTP(split_fasta_files, DIAMOND_DB.out.diamond_db, params.sensitivity, params.evalue, params.matrix)
@@ -40,7 +40,7 @@ workflow SSN_AND_GRAPH_CLUSTERING {
 
         FILTER_ALIGNMENTS(all_diamond_alignments)
 
-        GRAPH_CLUSTERING(FILTER_ALIGNMENTS.out.diamond_ssn, inflation)
+        GRAPH_CLUSTERING(FILTER_ALIGNMENTS.out.mcl_input_file, inflation)
 
         MCL_OUTPUT_TO_TSV(GRAPH_CLUSTERING.out.tuple_mcl_output)
 
