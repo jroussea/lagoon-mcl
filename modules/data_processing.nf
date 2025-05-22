@@ -82,12 +82,14 @@ process FILTER_ALIGNMENTS {
 	label 'lagoon'
 
     publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "diamond_alignments.filter.tsv"
+    publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "mcl_input_file.tsv"
 
 	input:
         path(diamond_alignment)
 
 	output:
         path("diamond_alignments.filter.tsv"), emit: diamond_ssn
+        path("mcl_input_file.tsv"), emit: mcl_input_file
 
 	script:
 		"""
