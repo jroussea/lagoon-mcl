@@ -113,14 +113,12 @@ workflow {
 	// Channel
 	proteome = Channel.fromPath(params.fasta, checkIfExists: true)
 	inflation = Channel.of(params.I.split(",")).distinct()
-	
+
 	/* Checks fasta files and fasta processing */
 	CHECKS_FASTA(proteome)
 	FASTA_PROCESSING(CHECKS_FASTA.out.sequences_checking)
-
 	sequences_renamed = FASTA_PROCESSING.out.sequences_renamed.collectFile(name: "${workDir}/concatenated_files/all_fasta_sequences_in_one_file.fasta")
-
-	split_fasta_files = sequences_renamed.splitFasta(by: 1000000, file: true)
+	split_fasta_files = sequences_renamed.splitFasta(by: 800000, file: true)
 
 	/* Function searches */
 	if (params.scan_pfam == true || params.annotation == null) {
