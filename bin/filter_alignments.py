@@ -13,6 +13,7 @@ Created on Wed Nov 20 19:45:57 2024
 
 
 from argparse import ArgumentParser
+import math
 
 
 def main(args):
@@ -173,12 +174,24 @@ def export_alignments(diamond, output, d_position):
 
     """
     f_filter = open(output, 'w')
-    
+    f_mcl = open("mcl_input_file.tsv", "w")
+
     with open(diamond, 'r') as f_alignment:
         for position, row in enumerate(f_alignment):
+            l_row = row.strip().split("\t")
+            evalue = float(l_row[12])
             if position in d_position:
                 f_filter.write(row)
-    
+                if evalue <= 1e-200:
+                    log_evalue = 200
+                else:
+                    log_evalue = -math.log10(evalue)
+                l_mcl_A = [l_row[0], l_row[4], str(log_evalue)]
+                l_mcl_B = [l_row[4], l_row[0], str(log_evalue)]
+                f_mcl.write('\t'.join(l_mcl_A) + '\n')
+                f_mcl.write('\t'.join(l_mcl_B) + '\n')
+
+    f_mcl.close()
     f_filter.close()
 
 
