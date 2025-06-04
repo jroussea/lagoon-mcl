@@ -26,7 +26,7 @@ LAGOON-MCL is a FAIR pipeline using [Nextflow](https://www.nextflow.io/docs/late
 git clone https://github.com/jroussea/lagoon-mcl.git
 ```
 
-4. Build Singularity images
+4. Download and build Singularity images
 
 The tool-specific containers ([SeqKit2](https://biocontainers.pro/tools/seqkit), [MCL](https://biocontainers.pro/tools/mcl), [Diamond](https://biocontainers.pro/tools/diamond) and [MMseqs2](https://biocontainers.pro/tools/mmseqs2)) are built from [BioContainers](https://biocontainers.pro/). The LAGOON-MCL container (with R, Python, packages and modules) is built from a container available on [Docker Hub](https://hub.docker.com/r/jroussea/lagoon-mcl), the Dockerfile is available [here](./containers/lagoon-mcl/1.1.0/Dockerfile).
 
@@ -65,7 +65,7 @@ Default path for AlphaFold database: `lagoon-mcl/database/alaphafoldDB`
 
 ```bash
 chmod +x bin/*
-nextflow run main.nf -profile test,singularity
+nextflow run main.nf -profile test,singularity [-c <institute_config_file>]
 ```
 
 6. Run your analysis
@@ -76,7 +76,7 @@ nextflow run main.nf -profile custom,singularity [-c <institute_config_file>]
 
 ## Documentation
 
-For more information about LAGOON-MCL, please read the [documentation](https://jroussea.github.io/lagoon-mcl/).
+For more information about LAGOON-MCL, please read the [documentation](https://github.com/jroussea/lagoon-mcl/wiki/).
 
 ## Contributions and Support
 
