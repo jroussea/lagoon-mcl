@@ -166,3 +166,34 @@ process PFAM_PROCESSING {
         files_processing.py --pfam_scan ${search_m8} --fasta ${fasta} --database pfamDB --processing pfam
         """
 }
+
+process SORT_FASTA {
+
+    /*
+	* DESCRIPTION
+    * -----------
+    * Preparation of fasta files (keeps sequence IDs in headers)
+    *
+    * INPUT
+    * -----
+    * 	- User-supplied fasta files
+    *
+    * OUPUT
+    * -----
+    *	- fasta_sequences_renamed.fasta: modified fasta file
+    */
+
+    label 'lagoon'
+
+    input:
+        path(sequence)
+
+    output:
+		path("fasta_sequences_renamed_sort.fasta"), emit: sequences_sort
+
+    script:
+        """
+		sort_fasta_file.py --input ${sequence} --output fasta_sequences_renamed_sort.fasta
+        """
+}
+
