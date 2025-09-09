@@ -76,7 +76,7 @@ nextflow run main.nf -profile custom,singularity [-c <institute_config_file>]
 
 ## Documentation
 
-For more information about LAGOON-MCL, please read the [documentation](https://jroussea.github.io/lagoon-mcl/).
+For more information about LAGOON-MCL, please read the [documentation](https://github.com/jroussea/lagoon-mcl/wiki).
 
 ## Contributions and Support
 
