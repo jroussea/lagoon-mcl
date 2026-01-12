@@ -3,11 +3,12 @@
 // Enable modules
 nextflow.enable.dsl = 2
 
-include { HOMOGENEITY_SCORE    } from '../modules/data_analysis.nf'
-include { SEQUENCES_PROCESSING } from '../modules/data_processing.nf'
-include { SEQUENCES_FILES      } from '../modules/data_analysis.nf'
-include { CLUSTERS_FILES       } from '../modules/data_analysis.nf'
-include { HTML_REPORT          } from '../modules/data_analysis.nf'
+include { HOMOGENEITY_SCORE        } from '../modules/data_analysis.nf'
+include { SEQUENCES_PROCESSING     } from '../modules/data_processing.nf'
+include { SEQUENCES_FILES          } from '../modules/data_analysis.nf'
+include { CLUSTERS_FILES           } from '../modules/data_analysis.nf'
+include { HTML_REPORT              } from '../modules/data_analysis.nf'
+include { EXTRACT_CENTRAL_SEQUENCE } from '../modules/data_analysis.nf'
 
 workflow DATA_ANALYSIS {
 
@@ -46,4 +47,6 @@ workflow DATA_ANALYSIS {
         tuple_all = tuple_clusters_metrics.concat(tuple_sequences_metrics).concat(tuple_network_edges).groupTuple(by: 0)
 
         HTML_REPORT(tuple_all)
+
+        EXTRACT_CENTRAL_SEQUENCE(tuple_all, sequences_renamed)
 }
