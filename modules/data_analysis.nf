@@ -149,3 +149,25 @@ process HTML_REPORT {
         html_report.py --nodes network_I*_sequences_metrics.tsv --clusters network_I*_clusters_metrics.tsv --edges network_I*_edges.tsv --template ${projectDir}/html_templates --basename ${network}
         """
 }
+
+
+process EXTRACT_CENTRAL_SEQUENCE {
+
+    label 'lagoon'
+
+    publishDir "${params.outdir}/lagoon-mcl_output/${network}/sequences/network_I14_unknown_central_sequence.txt", mode: 'copy', pattern: "${network}_unknown_central_sequence.txt"
+
+    input:
+        tuple val(network), path(metrics)
+        each path(fasta)
+
+    output:
+        path("${network}_unknown_central_sequence.txt")
+
+    script:
+    """
+    extract_central_sequence.py --sequences network_I*_sequences_metrics.tsv --clusters network_I*_clusters_metrics.tsv --fasta ${fasta} --basename ${network}
+    """
+
+
+}
