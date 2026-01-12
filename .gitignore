@@ -9,6 +9,7 @@ benchmark.config
 benchmarks/
 
 conf/benchmark*.config
+centrale
 
 docs/
 data-darkdino/
