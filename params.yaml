@@ -1,0 +1,22 @@
+projectName: run1
+fasta: "${projectDir}/data-test/fasta/*.fasta"
+outdir: "${projectDir}/results"
+
+scan_pfam: true
+pfam_path: "${projectDir}/database/pfamDB"
+pfam_name: "pfamDB"
+
+alphafold_path: "${projectDir}/database/alphafoldDB"
+alphafold_name: "alphafoldDB"
+uniprot: "${projectDir}/database/uniprot_function.json"
+
+annotation: "${projectDir}/data-test/annotationsheet-slurm.csv"
+
+alignment_file: null
+sensitivity: "very-sensitive"
+matrix: "BLOSUM62"
+evalue: 0.001
+
+I: "1.4"
+max_weight: 200 
+cluster_size: 2
