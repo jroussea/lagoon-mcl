@@ -6,6 +6,7 @@ alphafold_database.jpg
 annotationsheet-slurm.csv
 
 benchmark.config
+benchmarks/
 
 conf/benchmark*.config
 
@@ -19,12 +20,18 @@ data-benchmarks/
 pfamDB/
 pipeline-full.jpg
 pipeline-summary.jpg
+params_pc_perso.yaml
+params_darkdino.yaml
 
 resources-small.config
 results
+run_slurm.sh
 
 structure.jpg
 structure.svg
+sequences.fasta
+
+nextflow_benchmarks.config
 
 uniprot_function.json
 
@@ -34,12 +41,12 @@ workdir/
 *.sif
 *.drawio
 
+.$structure.drawio.bkp
 .$pipeline.drawio.bkp
 .$pipeline.drawio.dtmp
 .$structure.drawio.dtmp
 .nextflow/
 .nextflow.log*
-
 
 
 
