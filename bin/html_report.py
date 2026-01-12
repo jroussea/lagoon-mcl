@@ -58,7 +58,11 @@ def main(args):
 
     inflation = '.'.join(list(title.split(' ')[1])[1:])
 
+    #date_generation = datetime.now().strftime("%d %B %Y")
+    date_generation = "POUIC"
+
     data = {
+            "date_generation": date_generation,
             "title": title,
             "inflation": inflation,
             "reports_seq_metrics": data_sequence_metrics,

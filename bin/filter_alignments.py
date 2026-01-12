@@ -110,7 +110,7 @@ def hash_table_position(d_evalue):
     return d_position
 
 
-def alignments_selection(diamond, d_sequence):
+def alignments_selection(diamond, d_sequence, w1=0.5, w2=0.35, w3=0.15):
     """
     For each pair of sequences, select the alignment with the best evalue
 
@@ -138,17 +138,51 @@ def alignments_selection(diamond, d_sequence):
     with open(diamond, 'r') as f_alignment:
         for position, row in enumerate(f_alignment):
             l_row = row.strip().split('\t')
+
+            overlapA = (abs((int(l_row[3]) - int(l_row[2])) + 1) / int(l_row[1])) * 100
+            overlapB = (abs((int(l_row[7]) - int(l_row[6])) + 1) / int(l_row[5])) * 100            
+            coverage = 2 * (overlapA * overlapB) / (overlapA + overlapB)
+            
+            identity_norm = float(l_row[9])/100
+            coverage_norm = coverage/100
+            
+            safe_evalue = max(float(l_row[12]), 1e-200)
+            evalue_score_norm = min(-math.log10(safe_evalue), 200) / 200
+            
+            score = identity_norm * w1 + coverage_norm * w2 + evalue_score_norm * w3
+            
             s_alignment_1 = str(d_sequence[l_row[0]]) + "-" + str(d_sequence[l_row[4]])
             s_alignment_2 = str(d_sequence[l_row[4]]) + "-" + str(d_sequence[l_row[0]])
+                        
             if str(d_sequence[l_row[0]]) != str(d_sequence[l_row[4]]):
+                
                 if s_alignment_1 in d_evalue and s_alignment_2 not in d_evalue:
-                    if float(l_row[12]) < float(d_evalue[s_alignment_1][1]):
-                        d_evalue[s_alignment_1] = (position, l_row[12])
+                    if score > d_evalue[s_alignment_1][2]:
+                        d_evalue[s_alignment_1] = (position, l_row[12], score)
+                        
                 elif s_alignment_1 not in d_evalue and s_alignment_2 in d_evalue:
-                    if float(l_row[12]) < float(d_evalue[s_alignment_2][1]):
-                        d_evalue[s_alignment_2] = (position, l_row[12])
+                    if score > d_evalue[s_alignment_2][2]:
+                        d_evalue[s_alignment_2] = (position, l_row[12], score)
+                
                 elif s_alignment_1 not in d_evalue and s_alignment_2 not in d_evalue:
-                    d_evalue[s_alignment_1] = (position, l_row[12])
+                    d_evalue[s_alignment_1] = (position, l_row[12], score)
+
+            
+            #if overlapMean >= 70 and float(l_row[9]) >= 60:
+                
+            # s_alignment_1 = str(d_sequence[l_row[0]]) + "-" + str(d_sequence[l_row[4]])
+            # s_alignment_2 = str(d_sequence[l_row[4]]) + "-" + str(d_sequence[l_row[0]])
+
+            
+            # if str(d_sequence[l_row[0]]) != str(d_sequence[l_row[4]]):
+            #     if s_alignment_1 in d_evalue and s_alignment_2 not in d_evalue:
+            #         if float(l_row[12]) < float(d_evalue[s_alignment_1][1]):
+            #             d_evalue[s_alignment_1] = (position, l_row[12])
+            #     elif s_alignment_1 not in d_evalue and s_alignment_2 in d_evalue:
+            #         if float(l_row[12]) < float(d_evalue[s_alignment_2][1]):
+            #             d_evalue[s_alignment_2] = (position, l_row[12])
+            #     elif s_alignment_1 not in d_evalue and s_alignment_2 not in d_evalue:
+            #         d_evalue[s_alignment_1] = (position, l_row[12])
 
     return d_evalue
 
@@ -179,13 +213,19 @@ def export_alignments(diamond, output, d_position):
     with open(diamond, 'r') as f_alignment:
         for position, row in enumerate(f_alignment):
             l_row = row.strip().split("\t")
-            evalue = float(l_row[12])
+            # evalue = float(l_row[12])
             if position in d_position:
                 f_filter.write(row)
-                if evalue <= 1e-200:
-                    log_evalue = 200
-                else:
-                    log_evalue = -math.log10(evalue)
+                
+                safe_evalue = max(float(l_row[12]), 1e-200)
+
+                log_evalue = -math.log10(safe_evalue)
+    
+                # if evalue <= 1e-200:
+                #     log_evalue = 200
+                # else:
+                #     log_evalue = -math.log10(evalue)
+                    
                 l_mcl_A = [l_row[0], l_row[4], str(log_evalue)]
                 l_mcl_B = [l_row[4], l_row[0], str(log_evalue)]
                 f_mcl.write('\t'.join(l_mcl_A) + '\n')

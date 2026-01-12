@@ -181,8 +181,10 @@ def dict_eigenvector_centrality(g_decompose):
         cluster_id = list(set(cluster.vs['colC']))[0]
         d_diameter[cluster_id] = cluster.diameter()
         
-        l_centrality = cluster.eigenvector_centrality(directed=False)
-        
+        l_centrality = cluster.betweenness(directed=False)        
+        #l_centrality = cluster.eigenvector_centrality(directed=False)
+
+
         for idx, node in enumerate(cluster.vs):
 
             d_centrality[node['colA']] = l_centrality[idx]
@@ -255,5 +257,3 @@ def write_nodes_files(information, basename, d_sequence, d_centrality):
 if __name__ == '__main__':
     args = get_args()
     main(args)
-
-
