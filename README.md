@@ -14,11 +14,11 @@ LAGOON-MCL is a FAIR pipeline using [Nextflow](https://www.nextflow.io/docs/late
 
 ![](./assets/pipeline.svg)
 
-## Start with LAGOON-MCL
+## Start with LAGOON-MCL 
 
 1. Install [Nextflow](https://www.nextflow.io/docs/latest/index.html)
 
-2. Install [Singularity](https://docs.sylabs.io/guides/4.2/user-guide/quick_start.html#quick-start)
+2. Install [Apptainer](https://apptainer.org/docs/user/latest/)
 
 3. Download the pipeline
 
@@ -43,8 +43,8 @@ wget -O containers/mcl/22.282/mcl.sif https://depot.galaxyproject.org/singularit
 # MMseqs2 v15.6f452
 wget -O containers/mmseqs2/15.6f452/mmseqs.sif https://depot.galaxyproject.org/singularity/mmseqs2:15.6f452--pl5321h6a68c12_3
 
-# LAGOON-MCL v1.1.0
-singularity build --fakeroot containers/lagoon-mcl/1.1.0/lagoon-mcl.sif docker://jroussea/lagoon-mcl:latest
+# LAGOON-MCL v1.0.0
+apptainer build --fakeroot containers/lagoon-mcl/1.0.0/lagoon-mcl.sif docker://jroussea/lagoon-mcl:latest
 ```
 
 5. Download and build database
@@ -65,13 +65,13 @@ Default path for AlphaFold database: `lagoon-mcl/database/alaphafoldDB`
 
 ```bash
 chmod +x bin/*
-nextflow run main.nf -profile test,singularity [-c <institute_config_file>]
+nextlfow run main.nf -profile singularity -params-file params_test.yaml [-c <institute_config_file>]
 ```
 
 6. Run your analysis
 
 ```bash
-nextflow run main.nf -profile custom,singularity [-c <institute_config_file>]
+nextflow run main.nf -profile singularity -params-file params.yaml [-c <institute_config_file>]
 ```
 
 ## Documentation
