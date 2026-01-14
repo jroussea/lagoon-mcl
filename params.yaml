@@ -185,6 +185,6 @@ evalue: 0.001
 #                Clusters with fewer sequences than this threshold
 #                are ignored or filtered from the final results.
 
-I: "1.4"
+I: "1.4,2,4"
 max_weight: 200 
 cluster_size: 2
