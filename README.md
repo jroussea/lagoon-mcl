@@ -3,6 +3,7 @@
 [![LAGOON-MCL](https://img.shields.io/badge/LAGOON--MCL-v1.0.0-red?labelColor=000000)](https://gitlab.com/jerrousseau/lagoon-mcl/-/)
 [![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_23.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
 [![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
+[![Apptainer](https://img.shields.io/badge/run_with-apptainer-orange?labelColor=000000)](https://apptainer.org/)
 
 ## Introduction
 
@@ -26,7 +27,7 @@ LAGOON-MCL is a FAIR pipeline using [Nextflow](https://www.nextflow.io/docs/late
 git clone https://github.com/jroussea/lagoon-mcl.git
 ```
 
-4. Download and build Singularity images
+4. Download and build Apptainer/Singularity images
 
 The tool-specific containers ([SeqKit2](https://biocontainers.pro/tools/seqkit), [MCL](https://biocontainers.pro/tools/mcl), [Diamond](https://biocontainers.pro/tools/diamond) and [MMseqs2](https://biocontainers.pro/tools/mmseqs2)) are built from [BioContainers](https://biocontainers.pro/). The LAGOON-MCL container (with R, Python, packages and modules) is built from a container available on [Docker Hub](https://hub.docker.com/r/jroussea/lagoon-mcl), the Dockerfile is available [here](./containers/lagoon-mcl/1.1.0/Dockerfile).
 
