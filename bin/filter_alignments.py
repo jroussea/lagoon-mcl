@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Nov 20 19:45:57 2024
+Created on Wed Feb 19 10:39:05 2025
 
 @author: jroussea
 @date: 2025-02-28
 @version: 1.0
 @contact: https://github.com/jroussea/lagoon-mcl/discussions
 @license: MIT License
-@description: This script allows only one alignment to be selected for each pair of sequences.
+@description: This script selects a single AlphaFold alignment per sequence
 """
 
 
 from argparse import ArgumentParser
-import math
 
 
 def main(args):
@@ -21,221 +20,162 @@ def main(args):
 
     Parameters
     ----------
-    args.alignment : TSV
-        Alignments files
-
+    args.alignments : TSV
+        TSV file containing sequence alignments against the AlphaFold Cluster database.
     """
-    d_sequence = hash_table_sequence(args.alignment)
-
-    d_evalue = alignments_selection(args.alignment, d_sequence)
-
-    d_position = hash_table_position(d_evalue)
-
-    export_alignments(args.alignment, "diamond_alignments.filter.tsv", d_position)
+    d_selection = alignments_selection(args.alignments)
+    write_alphafold_alignments(d_selection)
 
 
 def get_args():
     """
     Parse arguments
-    """
-    parser = ArgumentParser(description="This script allows only one alignment to be selected for each pair of sequences.")
-    
-    parser.add_argument("-a", "--alignment", type = str,
-                        help = "Alignments files", 
-                        required = True)
 
+    """
+    parser = ArgumentParser(description="This script selects a single AlphaFold alignment per sequence")
+    
+    parser.add_argument("-a", "--alignments", type = str,
+                        help = "TSV file containing sequence alignments against the AlphaFold Cluster database.", 
+                        required = True)
+    
     return parser.parse_args()
 
 
-def hash_table_sequence(diamond):
+def dico_key_value(d_selection, l_alignment, coverage_index, disparity_index):
     """
-    Creation of a dictionary that assigns an identifier (0, 1, 2, 3, ...) 
-    to each each sequence in the BLASTp alignment
+    Update selected alignments for each sequence
 
     Parameters
     ----------
-    diamond : TSV
-        BLESTp alignments
+    d_selection : DICT
+        Dictionary containing the alignments selected for each sequence.
+    l_alignment : LIST
+        Alignment list under analysis.
+    disparity_index : FLOAT
+        Disparity index
+    coverage_index : FLOAT
+        Coverage index
 
     Returns
     -------
-    d_sequence : DICT
-        Dictionary that assigns an identifier to each sequence.
-            Key: sequence name in BLASTp alignment
-            Value: identifier (0, 1, 2, 3, 4, ...)
+    d_selection : DICT
+        Dictionary containing the alignments selected for each modified sequence.
 
     """
-    d_sequence = dict()
+    d_selection[l_alignment[0]] = {
+        "target": l_alignment[1],
+        "fident": l_alignment[2],
+        "alnlen": l_alignment[3],
+        "mismatch": l_alignment[4],
+        "gapopen": l_alignment[5],
+        "qstart": l_alignment[6],
+        "qend": l_alignment[7],
+        "qlen": l_alignment[8],
+        "tstart": l_alignment[9],
+        "tend": l_alignment[10],
+        "tlen": l_alignment[11],
+        "evalue": l_alignment[12],
+        "bits": l_alignment[13],
+        "coverage_index": coverage_index,
+        "disparity_index": abs(disparity_index)
+        }
+    
+    return d_selection
 
-    count = 0
 
-    with open(diamond, 'r') as f_alignment:
-        for row in f_alignment:
+def alignments_selection(alignments):
+    """
+    Selection of an alignment by sequence.
+        
+    Parameters
+    ----------
+    alignments : STR
+        TSV file containing sequence alignments against the AlphaFold Cluster database.
+
+    Returns
+    -------
+    d_selection : DICT
+        Dictionary containing the alignments that best represent the sequences.
+
+    """
+    d_selection = dict()
+    
+    with open(alignments, "r") as f_alphafold:
+        
+        for row in f_alphafold:
+
             l_row = row.rstrip("\n").split('\t')
+    
+            cov_query = (float(l_row[7]) - float(l_row[6]) + 1) / float(l_row[8])
+            cov_target = (float(l_row[10]) - float(l_row[9]) + 1) / float(l_row[11])
+            disparity_index = abs(cov_query - cov_target)
+            coverage_index = (cov_query + cov_target)/2
 
-            if l_row[0] not in d_sequence:
-                count += 1
-                d_sequence[l_row[0]] = count
-            if l_row[4] not in d_sequence:
-                count += 1
-                d_sequence[l_row[4]] = count
-    return d_sequence 
+            if l_row[0] not in d_selection.keys():
+                d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
+    
+            elif l_row[0] in d_selection.keys():
+
+                
+                if coverage_index > d_selection[l_row[0]]["coverage_index"] and \
+                    disparity_index < d_selection[l_row[0]]["disparity_index"] and \
+                        (l_row[2]) >= d_selection[l_row[0]]["fident"] and \
+                            l_row[8] >= d_selection[l_row[0]]["qlen"]:
+
+                    d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
+    
+                elif coverage_index >= d_selection[l_row[0]]["coverage_index"] and \
+                    disparity_index <= d_selection[l_row[0]]["disparity_index"] and \
+                        l_row[2] >= d_selection[l_row[0]]["fident"] and \
+                            l_row[8] >= d_selection[l_row[0]]["qlen"]:
+
+                    d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
+                    
+    return d_selection
 
 
-def hash_table_position(d_evalue):
+def write_alphafold_alignments(d_selection):
     """
-    Dictionary of selected alignment positions
-
+    Write the file containing the selected alignments.
+    
     Parameters
     ----------
-    d_evalue : DICT
-        dictionary of alignments selected 
-            Key: identifiers of the selected sequence pair
-            Value: TUPLE
-                position 1: position of the alignment file
-                position 2: evalue
-
-    Returns
-    -------
-    d_position : DICT
-        Position of selected alignments
-        Key: line number in alignment file
-        Value: sequence pair ID
-
-    """
-    d_position = dict()
-
-    for key in d_evalue:
-        d_position[d_evalue[key][0]] = key
-    return d_position
-
-
-def alignments_selection(diamond, d_sequence, w1=0.5, w2=0.35, w3=0.15):
-    """
-    For each pair of sequences, select the alignment with the best evalue
-
-    Parameters
-    ----------
-    diamond : TSV
-        BLASTP fil
-    d_sequence : DICT
-        Dictionary that assigns an identifier to each sequence.
-            Key: sequence name in BLASTp alignment
-            Value: identifier (0, 1, 2, 3, 4, ...)
-
-    Returns
-    -------
-    d_evalue : DICT
-        dictionary of alignments selected 
-            Key: identifiers of the selected sequence pair
-            Value: TUPLE
-                position 1: position of the alignment file
-                position 2: evalue
-
-    """
-    d_evalue = dict()
-
-    with open(diamond, 'r') as f_alignment:
-        for position, row in enumerate(f_alignment):
-            l_row = row.strip().split('\t')
-
-            overlapA = (abs((int(l_row[3]) - int(l_row[2])) + 1) / int(l_row[1])) * 100
-            overlapB = (abs((int(l_row[7]) - int(l_row[6])) + 1) / int(l_row[5])) * 100            
-            coverage = 2 * (overlapA * overlapB) / (overlapA + overlapB)
-            
-            identity_norm = float(l_row[9])/100
-            coverage_norm = coverage/100
-            
-            safe_evalue = max(float(l_row[12]), 1e-200)
-            evalue_score_norm = min(-math.log10(safe_evalue), 200) / 200
-            
-            score = identity_norm * w1 + coverage_norm * w2 + evalue_score_norm * w3
-            
-            s_alignment_1 = str(d_sequence[l_row[0]]) + "-" + str(d_sequence[l_row[4]])
-            s_alignment_2 = str(d_sequence[l_row[4]]) + "-" + str(d_sequence[l_row[0]])
-                        
-            if str(d_sequence[l_row[0]]) != str(d_sequence[l_row[4]]):
-                
-                if s_alignment_1 in d_evalue and s_alignment_2 not in d_evalue:
-                    if score > d_evalue[s_alignment_1][2]:
-                        d_evalue[s_alignment_1] = (position, l_row[12], score)
-                        
-                elif s_alignment_1 not in d_evalue and s_alignment_2 in d_evalue:
-                    if score > d_evalue[s_alignment_2][2]:
-                        d_evalue[s_alignment_2] = (position, l_row[12], score)
-                
-                elif s_alignment_1 not in d_evalue and s_alignment_2 not in d_evalue:
-                    d_evalue[s_alignment_1] = (position, l_row[12], score)
-
-            
-            #if overlapMean >= 70 and float(l_row[9]) >= 60:
-                
-            # s_alignment_1 = str(d_sequence[l_row[0]]) + "-" + str(d_sequence[l_row[4]])
-            # s_alignment_2 = str(d_sequence[l_row[4]]) + "-" + str(d_sequence[l_row[0]])
-
-            
-            # if str(d_sequence[l_row[0]]) != str(d_sequence[l_row[4]]):
-            #     if s_alignment_1 in d_evalue and s_alignment_2 not in d_evalue:
-            #         if float(l_row[12]) < float(d_evalue[s_alignment_1][1]):
-            #             d_evalue[s_alignment_1] = (position, l_row[12])
-            #     elif s_alignment_1 not in d_evalue and s_alignment_2 in d_evalue:
-            #         if float(l_row[12]) < float(d_evalue[s_alignment_2][1]):
-            #             d_evalue[s_alignment_2] = (position, l_row[12])
-            #     elif s_alignment_1 not in d_evalue and s_alignment_2 not in d_evalue:
-            #         d_evalue[s_alignment_1] = (position, l_row[12])
-
-    return d_evalue
-
-
-def export_alignments(diamond, output, d_position):
-    """
-    Export des alignements sélectionner dans un nouveau fichier TSV
-
-    Parameters
-    ----------
-    diamond : STR
-        BLASTp file
-    output : TSV
-        Output file
-    d_position : DICT
-        Position of selected alignments
-        Key: line number in alignment file
-        Value: sequence pair ID
+    d_selection : DICT
+        Dictionary containing the alignments selected for each sequence.
 
     Returns
     -------
     None.
 
     """
-    f_filter = open(output, 'w')
-    f_mcl = open("mcl_input_file.tsv", "w")
-
-    with open(diamond, 'r') as f_alignment:
-        for position, row in enumerate(f_alignment):
-            l_row = row.strip().split("\t")
-            # evalue = float(l_row[12])
-            if position in d_position:
-                f_filter.write(row)
-                
-                safe_evalue = max(float(l_row[12]), 1e-200)
-
-                log_evalue = -math.log10(safe_evalue)
+    f_aln_selection = open("mmseqs2_alpahfold_clusters_alignments.selection.tsv", "w")
     
-                # if evalue <= 1e-200:
-                #     log_evalue = 200
-                # else:
-                #     log_evalue = -math.log10(evalue)
-                    
-                l_mcl_A = [l_row[0], l_row[4], str(log_evalue)]
-                l_mcl_B = [l_row[4], l_row[0], str(log_evalue)]
-                f_mcl.write('\t'.join(l_mcl_A) + '\n')
-                f_mcl.write('\t'.join(l_mcl_B) + '\n')
+    for key, value in d_selection.items():
+                
+        l_alignement = [
+            str(key),
+            str(value["target"]),
+            str(value["fident"]),
+            str(value["alnlen"]),
+            str(value["mismatch"]),
+            str(value["gapopen"]),
+            str(value["qstart"]),
+            str(value["qend"]),
+            str(value["qlen"]),
+            str(value["tstart"]),
+            str(value["tend"]),
+            str(value["tlen"]),
+            str(value["evalue"]),
+            str(value["bits"]),
+            str(value["coverage_index"]),
+            str(value["disparity_index"])
+            ]
 
-    f_mcl.close()
-    f_filter.close()
+        f_aln_selection.write('\t'.join(l_alignement) + '\n')
+
+    f_aln_selection.close()
 
 
 if __name__ == '__main__':
-    
     args = get_args()
     main(args)

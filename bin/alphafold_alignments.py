@@ -41,7 +41,7 @@ def get_args():
     return parser.parse_args()
 
 
-def dico_key_value(d_selection, l_alignment, coverage):
+def dico_key_value(d_selection, l_alignment, coverage_index, disparity_index):
     """
     Update selected alignments for each sequence
 
@@ -76,9 +76,8 @@ def dico_key_value(d_selection, l_alignment, coverage):
         "tlen": l_alignment[11],
         "evalue": l_alignment[12],
         "bits": l_alignment[13],
-        "harmonic_average": coverage
-        # "coverage_index": coverage_index,
-        # "disparity_index": abs(disparity_index)
+        "coverage_index": coverage_index,
+        "disparity_index": abs(disparity_index)
         }
     
     return d_selection
@@ -109,48 +108,28 @@ def alignments_selection(alignments):
     
             cov_query = (float(l_row[7]) - float(l_row[6]) + 1) / float(l_row[8])
             cov_target = (float(l_row[10]) - float(l_row[9]) + 1) / float(l_row[11])
-            # disparity_index = abs(cov_query - cov_target)
-            # coverage_index = (cov_query + cov_target)/2
-
-            coverage = 2 * cov_query * cov_target / (cov_query + cov_target)
+            disparity_index = abs(cov_query - cov_target)
+            coverage_index = (cov_query + cov_target)/2
 
             if l_row[0] not in d_selection.keys():
-                d_selection = dico_key_value(d_selection, l_row, coverage)
-
-            # harmonic_average
+                d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
+    
             elif l_row[0] in d_selection.keys():
+
                 
-                if coverage > d_selection[l_row[0]]["harmonic_average"] and \
+                if coverage_index > d_selection[l_row[0]]["coverage_index"] and \
+                    disparity_index < d_selection[l_row[0]]["disparity_index"] and \
                         (l_row[2]) >= d_selection[l_row[0]]["fident"] and \
                             l_row[8] >= d_selection[l_row[0]]["qlen"]:
 
-                    d_selection = dico_key_value(d_selection, l_row, coverage)
+                    d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
     
-                elif coverage >= d_selection[l_row[0]]["harmonic_average"] and \
+                elif coverage_index >= d_selection[l_row[0]]["coverage_index"] and \
+                    disparity_index <= d_selection[l_row[0]]["disparity_index"] and \
                         l_row[2] >= d_selection[l_row[0]]["fident"] and \
                             l_row[8] >= d_selection[l_row[0]]["qlen"]:
 
-                    d_selection = dico_key_value(d_selection, l_row, coverage)
-
-            # if l_row[0] not in d_selection.keys():
-            #     d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
-    
-            # elif l_row[0] in d_selection.keys():
-
-                
-            #     if coverage_index > d_selection[l_row[0]]["coverage_index"] and \
-            #         disparity_index < d_selection[l_row[0]]["disparity_index"] and \
-            #             (l_row[2]) >= d_selection[l_row[0]]["fident"] and \
-            #                 l_row[8] >= d_selection[l_row[0]]["qlen"]:
-
-            #         d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
-    
-            #     elif coverage_index >= d_selection[l_row[0]]["coverage_index"] and \
-            #         disparity_index <= d_selection[l_row[0]]["disparity_index"] and \
-            #             l_row[2] >= d_selection[l_row[0]]["fident"] and \
-            #                 l_row[8] >= d_selection[l_row[0]]["qlen"]:
-
-            #         d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
+                    d_selection = dico_key_value(d_selection, l_row, coverage_index, disparity_index)
                     
     return d_selection
 
@@ -188,14 +167,14 @@ def write_alphafold_alignments(d_selection):
             str(value["tlen"]),
             str(value["evalue"]),
             str(value["bits"]),
-            str(value["harmonic_average"])
-            # str(value["coverage_index"]),
-            # str(value["disparity_index"])
+            str(value["coverage_index"]),
+            str(value["disparity_index"])
             ]
 
         f_aln_selection.write('\t'.join(l_alignement) + '\n')
 
     f_aln_selection.close()
+
 
 if __name__ == '__main__':
     args = get_args()
