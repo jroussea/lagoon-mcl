@@ -1,6 +1,53 @@
+# Toolkit
+
+Ce dossier contient des scripts utilitaires pour le workflow bioinformatique Nextflow. 
+Il inclut :
+
+- `build_*.sh` : scripts principaux à exécuter pour effectuer certaines tâches.
+- `bin/` : scripts internes utilisés par les `build_*.sh`.
+- `scripts/` : scripts Python et Bash modulaires réutilisables pour des tâches spécifiques.
+
+## Structure
+
+toolkit/
+│
+├─ bin/                # Scripts internes utilisés par build_*.sh
+├─ scripts/            # Scripts utilitaires réutilisables (Python, Bash)
+├─ build_1.sh          # Script principal utilisant les scripts de bin/
+└─ build_2.sh          # Script principal utilisant les scripts de bin/
+
+## Prérequis
+
+- Bash (>=4.0)
+- Python (>=3.8)
+- Packages Python utilisés dans `scripts/` (ex: pandas, numpy, ...)
+- Permissions d'exécution pour `build_*.sh`
+
+## Installation
+
+ajout conda
+
+```
+chmod +x build_*.sh
+```
+
+
+
+
+
 # Tool-kit
 
 This folder is a toolbox for preparing input files, building MMseqs databases for Pfam and AlphaFold clusters, and more.
+
+## `scripts/`
+
+- `convert_annotation_file.py`
+
+- `extract_clusters_informations.py`
+
+- `json_to_matrix.py`
+
+- `run_slurm.sh`
 
 ## Database
 

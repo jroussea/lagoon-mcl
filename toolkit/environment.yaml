@@ -1,0 +1,12 @@
+name: toolkit
+channels:
+     - conda-forge
+     - bioconda
+dependencies:
+     - python=3.12.6=hc5c86c4_2_cpython
+     - mmseqs2=15.6f452=pl5321h6a68c12_3
+     - seqkit=2.9.0=h9ee0642_0
+     - matplotlib=3.10.8=py314hdafbbf9_0
+     - pandas=2.2.3=py312hf9745cd_1
+     - python-igraph=0.11.8=py312h3262465_0
+     - pandas=2.3.3=py314ha0b5721_2

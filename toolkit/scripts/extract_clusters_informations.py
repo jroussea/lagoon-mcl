@@ -572,7 +572,7 @@ def graph_with_color(output, cluster_id, graph):
     None.
 
     """
-    labels_df = pd.read_csv(f"results_cluster_{cluster_id}/sequences_informations_{cluster_id}.tsv", sep="\t", skiprows=4)
+    labels_df = pd.read_csv(f"{output}/sequences_details_cluster{cluster_id}.tsv", sep="\t", skiprows=4)
     labels_df.fillna("unannotated", inplace=True)
     labels_df.set_index(labels_df.columns[0], inplace=True)
     
