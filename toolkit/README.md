@@ -12,15 +12,16 @@ The toolkit includes:
 
 ## Structure
 
+```
 toolkit/
-│
-├─ bin/                                # Scripts internes utilisés par build_*.sh
-├─ scripts/                            # Scripts utilitaires réutilisables (Python, Bash)
-│  ├─ json_to_matrix.py                #
-│  ├─ convert_annotation_file.py       #
-│  ├─ extract_clusters_informations.py #
-│  └─ run_slurm.sh                     #
-└─ build_databases.sh                  # Script principal utilisant les scripts de bin/
+├── bin/                                # Scripts internes utilisés par build_*.sh
+├── scripts/                            # Scripts utilitaires réutilisables (Python, Bash)
+│  ├── json_to_matrix.py                #
+│  ├── convert_annotation_file.py       #
+│  ├── extract_clusters_informations.py #
+│  └── run_slurm.sh                     #
+└── build_databases.sh                  # Script principal utilisant les scripts de bin/
+```
 
 ## Requirements
 
