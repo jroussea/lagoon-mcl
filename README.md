@@ -19,15 +19,27 @@ LAGOON-MCL is a FAIR pipeline using [Nextflow](https://www.nextflow.io/docs/late
 
 1. Install [Nextflow](https://www.nextflow.io/docs/latest/index.html)
 
-2. Install [Apptainer](https://apptainer.org/docs/user/latest/)
-
-3. Download the pipeline
+2. Download the pipeline
 
 ```bash
 git clone https://github.com/jroussea/lagoon-mcl.git
 ```
 
-4. Download and build Apptainer/Singularity images
+3. Download and build database
+
+```Bash
+cd toolkit
+./build_databases.py -d all
+```
+
+Default path for Pfam database: `lagoon-mcl/database/pfamDB` \
+Default path for AlphaFold database: `lagoon-mcl/database/alaphafoldDB`
+
+### Use with Apptainer/Singularity
+
+4. Install [Apptainer](https://apptainer.org/docs/user/latest/) or [Conda / Mamba]()
+
+5. Download and build Apptainer/Singularity images
 
 The tool-specific containers ([SeqKit2](https://biocontainers.pro/tools/seqkit), [MCL](https://biocontainers.pro/tools/mcl), [Diamond](https://biocontainers.pro/tools/diamond) and [MMseqs2](https://biocontainers.pro/tools/mmseqs2)) are built from [BioContainers](https://biocontainers.pro/). The LAGOON-MCL container (with R, Python, packages and modules) is built from a container available on [Docker Hub](https://hub.docker.com/r/jroussea/lagoon-mcl), the Dockerfile is available [here](./containers/lagoon-mcl/1.1.0/Dockerfile).
 
@@ -48,31 +60,42 @@ wget -O containers/mmseqs2/15.6f452/mmseqs.sif https://depot.galaxyproject.org/s
 apptainer build --fakeroot containers/lagoon-mcl/1.0.0/lagoon-mcl.sif docker://jroussea/lagoon-mcl:latest
 ```
 
-5. Download and build database
-
-```Bash
-cd tool-kit
-chmod +x build_alpahfold_db.sh build_pfam_db.sh 
-# Download and build Pfam
-./build_pfam_db.sh
-# Download and build AlphaFoldDB
-./build_alpahfold_db.sh
-```
-
-Default path for Pfam database: `lagoon-mcl/database/pfamDB` \
-Default path for AlphaFold database: `lagoon-mcl/database/alaphafoldDB`
-
 6. Test the pipeline
 
 ```bash
 chmod +x bin/*
-nextlfow run main.nf -profile singularity -params-file params_test.yaml [-c <institute_config_file>]
+nextlfow run main.nf -profile singularity -params-file params_test.yaml [-c <institute_config_file>] -resume
+```
+
+7. Run your analysis
+
+```bash
+nextflow run main.nf -profile singularity -params-file params.yaml [-c <institute_config_file>] -resume
+```
+
+### Use with Conda ou Mamba
+
+4. Install [Conda or Mamba](https://github.com/conda-forge/miniforge)
+
+5. Test the pipeline
+
+```bash
+# With Conda
+nextlfow run main.nf -profile conda -params-file params_test.yaml [-c <institute_config_file>] -resume
+
+# With Mamba
+nextlfow run main.nf -profile mamba -params-file params_test.yaml [-c <institute_config_file>] -resume
 ```
 
 6. Run your analysis
 
 ```bash
-nextflow run main.nf -profile singularity -params-file params.yaml [-c <institute_config_file>]
+chmod +x bin/*
+# With Conda
+nextflow run main.nf -profile conda -params-file params.yaml [-c <institute_config_file>] -resume
+
+# With Mamba
+nextflow run main.nf -profile mamba -params-file params.yaml [-c <institute_config_file>] -resume
 ```
 
 ## Documentation
