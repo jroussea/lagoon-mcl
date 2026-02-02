@@ -4,6 +4,7 @@
 [![Nextflow](https://img.shields.io/badge/nextflow_DSL2-%E2%89%A5_23.10.0-23aa62?labelColor=000000)](https://www.nextflow.io/)
 [![Singularity](https://img.shields.io/badge/run_with-singularity-1d355c?labelColor=000000)](https://sylabs.io/singularity/)
 [![Apptainer](https://img.shields.io/badge/run_with-apptainer-orange?labelColor=000000)](https://apptainer.org/)
+[![Conda](https://img.shields.io/badge/run_with-conda-3eb049?logo=anaconda&labelColor=000000)](https://docs.conda.io/projects/conda/en/stable/)
 
 ## Introduction
 
@@ -37,16 +38,13 @@ Default path for AlphaFold database: `lagoon-mcl/database/alaphafoldDB`
 
 ### Use with Apptainer/Singularity
 
-4. Install [Apptainer](https://apptainer.org/docs/user/latest/) or [Conda / Mamba]()
+4. Install [Apptainer](https://apptainer.org/docs/user/latest/)
 
 5. Download and build Apptainer/Singularity images
 
-The tool-specific containers ([SeqKit2](https://biocontainers.pro/tools/seqkit), [MCL](https://biocontainers.pro/tools/mcl), [Diamond](https://biocontainers.pro/tools/diamond) and [MMseqs2](https://biocontainers.pro/tools/mmseqs2)) are built from [BioContainers](https://biocontainers.pro/). The LAGOON-MCL container (with R, Python, packages and modules) is built from a container available on [Docker Hub](https://hub.docker.com/r/jroussea/lagoon-mcl), the Dockerfile is available [here](./containers/lagoon-mcl/1.1.0/Dockerfile).
+The tool-specific containers ([MCL](https://biocontainers.pro/tools/mcl), [Diamond](https://biocontainers.pro/tools/diamond) and [MMseqs2](https://biocontainers.pro/tools/mmseqs2)) are built from [BioContainers](https://biocontainers.pro/). The LAGOON-MCL container (with R, Python, packages and modules) is built from a container available on [Docker Hub](https://hub.docker.com/r/jroussea/lagoon-mcl), the Dockerfile is available [here](./containers/lagoon-mcl/1.1.0/Dockerfile).
 
 ```bash
-# SeqKit2 v2.9.0
-wget -O containers/seqkit/2.9.0/seqkit.sif https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0
-
 # Diamond v2.1.10
 wget -O containers/diamond/2.1.10/diamond.sif https://depot.galaxyproject.org/singularity/diamond:2.1.10--h43eeafb_2
 
@@ -70,6 +68,8 @@ nextlfow run main.nf -profile singularity -params-file params_test.yaml [-c <ins
 7. Run your analysis
 
 ```bash
+chmod +x bin/*
+
 nextflow run main.nf -profile singularity -params-file params.yaml [-c <institute_config_file>] -resume
 ```
 
@@ -80,6 +80,7 @@ nextflow run main.nf -profile singularity -params-file params.yaml [-c <institut
 5. Test the pipeline
 
 ```bash
+chmod +x bin/*
 # With Conda
 nextlfow run main.nf -profile conda -params-file params_test.yaml [-c <institute_config_file>] -resume
 
@@ -100,7 +101,7 @@ nextflow run main.nf -profile mamba -params-file params.yaml [-c <institute_conf
 
 ## Documentation
 
-For more information about LAGOON-MCL, please read the [documentation](https://github.com/jroussea/lagoon-mcl/wiki/).
+For more information about LAGOON-MCL, please read the [wiki](https://github.com/jroussea/lagoon-mcl/wiki/).
 
 ## Contributions and Support
 
