@@ -81,8 +81,8 @@ process FILTER_ALIGNMENTS {
 
 	label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "diamond_alignments.filter.tsv"
-    publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "mcl_input_file.tsv"
+    publishDir "${params.outdir}/alignments", mode: 'copy', pattern: "diamond_alignments.filter.tsv"
+    publishDir "${params.outdir}/alignments", mode: 'copy', pattern: "mcl_input_file.tsv"
 
 	input:
         path(diamond_alignment)
@@ -150,7 +150,7 @@ process PFAM_PROCESSING {
 
     label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "mmseqs2_pfam_database_alignments.m8"
+    publishDir "${params.outdir}/alignments", mode: 'copy', pattern: "mmseqs2_pfam_database_alignments.m8"
 
     input:
         path(search_m8)

@@ -84,7 +84,7 @@ process NETWORK_EDGES {
 
     label 'lagoon'
     
-    publishDir "${params.outdir}/lagoon-mcl_output/${network.baseName}/edges", mode: 'copy', pattern: "network_I*_edges.tsv"
+    publishDir "${params.outdir}/${network.baseName}/edges", mode: 'copy', pattern: "network_I*_edges.tsv"
 
     input:
         each path(network)

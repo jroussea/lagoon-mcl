@@ -19,8 +19,8 @@ process HOMOGENEITY_SCORE {
 
     label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/${network.baseName}/clusters", mode: 'copy', pattern: "network_I*_clusters_annotations.tsv"
-    publishDir "${params.outdir}/lagoon-mcl_output/abundance_matrix", mode: 'copy', pattern: "network_I*_abundance_matrix.json"
+    publishDir "${params.outdir}/${network.baseName}/clusters", mode: 'copy', pattern: "network_I*_clusters_annotations.tsv"
+    publishDir "${params.outdir}/abundance_matrix", mode: 'copy', pattern: "network_I*_abundance_matrix.json"
 
     input:
         path(label_network)
@@ -58,8 +58,8 @@ process SEQUENCES_FILES {
 
     label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/${network}/sequences", mode: 'copy', pattern: "network_I*_sequences_annotations.tsv"
-    publishDir "${params.outdir}/lagoon-mcl_output/${network}/sequences", mode: 'copy', pattern: "network_I*_sequences_metrics.tsv"
+    publishDir "${params.outdir}/${network}/sequences", mode: 'copy', pattern: "network_I*_sequences_annotations.tsv"
+    publishDir "${params.outdir}/${network}/sequences", mode: 'copy', pattern: "network_I*_sequences_metrics.tsv"
 
     input: 
         tuple val(network), path(nodes_infos)
@@ -95,7 +95,7 @@ process CLUSTERS_FILES {
 
     label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/${network}/clusters", mode: 'copy', pattern: "network_I*_clusters_metrics.tsv"
+    publishDir "${params.outdir}/${network}/clusters", mode: 'copy', pattern: "network_I*_clusters_metrics.tsv"
 
     input:
         tuple val(network), path(clusters_infos)
@@ -133,8 +133,8 @@ process HTML_REPORT {
 
     label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/reports", mode: 'copy', pattern: "${network}_figures/*"
-    publishDir "${params.outdir}/lagoon-mcl_output/reports", mode: 'copy', pattern: "${network}_report.html"
+    publishDir "${params.outdir}/reports", mode: 'copy', pattern: "${network}_figures/*"
+    publishDir "${params.outdir}/reports", mode: 'copy', pattern: "${network}_report.html"
 
     input:
         tuple val(network), path(metrics)
@@ -155,7 +155,7 @@ process EXTRACT_CENTRAL_SEQUENCE {
 
     label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/${network}/sequences/network_I14_unknown_central_sequence.txt", mode: 'copy', pattern: "${network}_unknown_central_sequence.txt"
+    publishDir "${params.outdir}/${network}/sequences/network_I14_unknown_central_sequence.txt", mode: 'copy', pattern: "${network}_unknown_central_sequence.txt"
 
     input:
         tuple val(network), path(metrics)

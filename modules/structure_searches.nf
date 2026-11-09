@@ -16,17 +16,21 @@ process ALPHAFOLD_ALIGNMENTS {
 
     label 'lagoon'
 
-    publishDir "${params.outdir}/lagoon-mcl_output/alignments", mode: 'copy', pattern: "mmseqs2_alpahfold_clusters_alignments.selection.tsv"
+    publishDir "${params.outdir}/alignments", mode: 'copy', pattern: "mmseqs2_alpahfold_clusters_alignments.selection.tsv"
 
     input:
         path(alphafold_alignments)
+        path(alphafold_database)
 
     output:
         path("mmseqs2_alpahfold_clusters_alignments.selection.tsv"), emit: alphafold_alignments_filter
+        tuple val("alphafold_sequences"), path("alphafold_sequences.tsv"), emit: alphafold_sequences_id
+        tuple val("alphafold_clusters"), path("alphafold_clusters.tsv"), emit: alphafold_clusters_id
+        tuple val("alphafold_pfam"), path("alphafold_pfam.tsv"), emit: alphafold_pfam
 
     script:
         """
-        alphafold_alignments.py --alignment ${alphafold_alignments}
+        alphafold_alignments.py --alignment ${alphafold_alignments} --alphafold_db ${alphafold_database}
         """
 }
 
@@ -63,7 +67,7 @@ process ALPHAFOLD_INFORMATIONS {
 
     script:
         """
-        wget https://afdb-cluster.steineggerlab.workers.dev/1-AFDBClusters-entryId_repId_taxId.tsv.gz
+        wget https://afdb-cluster.steineggerlab.workers.dev/v3/1-AFDBClusters-entryId_repId_taxId.tsv.gz
         gunzip 1-AFDBClusters-entryId_repId_taxId.tsv.gz
         alphafold_informations.py --clusters 1-AFDBClusters-entryId_repId_taxId.tsv --uniprot ${uniprot} --alignment ${alignments}
         """
