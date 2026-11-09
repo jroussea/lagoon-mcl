@@ -1,0 +1,32 @@
+Bootstrap: docker
+From: condaforge/miniforge3
+
+%post
+    # Fuseau horaire
+    ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
+
+    # Dépendances système
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        pandoc
+
+    # Packages Conda
+    mamba install -y -c conda-forge \
+        python=3.12.6=hc5c86c4_2_cpython \
+        pandas=2.2.3=py312hf9745cd_1 \
+        python-igraph=0.11.8=py312h3262465_0 \
+        biopython=1.85=py312h66e93f0_1 \
+        numpy=2.2.2=py312h72c5963_0 \
+        jinja2=3.1.5=pyhd8ed1ab_0 \
+        seaborn=0.13.2=hd8ed1ab_3
+
+    mamba clean --all -y
+
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+
+%environment
+    export TZ=Europe/Paris
+
+%runscript
+    exec "$@"
