@@ -18,7 +18,7 @@ LAGOON-MCL is a FAIR pipeline using [Nextflow](https://www.nextflow.io/docs/late
 
 ## Start with LAGOON-MCL 
 
-1. Install [Nextflow](https://www.nextflow.io/docs/latest/index.html)
+1. Install [Nextflow](https://www.nextflow.io/docs/latest/index.html) (version 25.10.2)
 
 2. Download the pipeline
 
@@ -55,7 +55,7 @@ wget -O containers/mcl/22.282/mcl.sif https://depot.galaxyproject.org/singularit
 wget -O containers/mmseqs2/15.6f452/mmseqs.sif https://depot.galaxyproject.org/singularity/mmseqs2:15.6f452--pl5321h6a68c12_3
 
 # LAGOON-MCL v1.0.0
-apptainer build --fakeroot containers/lagoon-mcl/1.0.0/lagoon-mcl.sif docker://jroussea/lagoon-mcl:latest
+apptainer build --fakeroot containers/lagoon-mcl/1.0.0/lagoon-mcl.sif containers/lagoon-mcl/1.0.0/lagoon-mcl.def
 ```
 
 6. Test the pipeline
