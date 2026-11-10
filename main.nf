@@ -101,6 +101,7 @@ include { ANNOTATIONS_PROCESSING   } from './modules/data_processing.nf'
 include { CHECKS_FASTA             } from './modules/check_file_format.nf'
 include { CHECK_CSV                } from './modules/check_file_format.nf'
 include { CHECKS_TSV               } from './modules/check_file_format.nf'
+include { SORT_FASTA               } from './modules/data_processing.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,11 +119,13 @@ workflow {
 	CHECKS_FASTA(proteome)
 	FASTA_PROCESSING(CHECKS_FASTA.out.sequences_checking)
 	sequences_renamed = FASTA_PROCESSING.out.sequences_renamed.collectFile(name: "${workDir}/concatenated_files/all_fasta_sequences_in_one_file.fasta")
-	split_fasta_files = sequences_renamed.splitFasta(by: 800000, file: true)
+	SORT_FASTA(sequences_renamed)
+	sequences_renames_sort = SORT_FASTA.out.sequences_sort
+	split_fasta_files = sequences_renames_sort.splitFasta(by: 800000, file: true)
 
 	/* Function searches */
 	if (params.scan_pfam == true || params.annotation == null) {
-		FUNCTION_SEARCHES(sequences_renamed, params.pfam_name)
+		FUNCTION_SEARCHES(sequences_renames_sort, params.pfam_name)
 	}
 
 	/* Check CSV file, check TSV files and annotation processing */
@@ -132,7 +135,7 @@ workflow {
 		samplesheet = samplesheet.splitCsv(header:true) \
 				| map { row-> tuple(row.annotation, file(row.file)) }
 		CHECKS_TSV(samplesheet)
-        ANNOTATIONS_PROCESSING(sequences_renamed, CHECKS_TSV.out.tsv_checking)
+        ANNOTATIONS_PROCESSING(sequences_renames_sort, CHECKS_TSV.out.tsv_checking)
 	}
 
 	/* Combine annotations */
@@ -147,14 +150,14 @@ workflow {
 	}
 
 	/* Sequence Similarity Sequence and graph clustering */
-	SSN_AND_GRAPH_CLUSTERING(sequences_renamed, split_fasta_files, params.alignment_file, inflation)
+	SSN_AND_GRAPH_CLUSTERING(sequences_renames_sort, split_fasta_files, params.alignment_file, inflation)
 
 	/* Structure searches */
-	STRUCTURE_SEARCHES(split_fasta_files, sequences_renamed, params.alphafold_name, SSN_AND_GRAPH_CLUSTERING.out.network)
+	STRUCTURE_SEARCHES(split_fasta_files, sequences_renames_sort, params.alphafold_name, SSN_AND_GRAPH_CLUSTERING.out.network)
 	all_annotations_and_structures = STRUCTURE_SEARCHES.out.alphafold_annotations.concat(all_annotations).collectFile(name: "${workDir}/concatenated_files/all_sequence_annotations.tsv")
 
 	/* Data analysis */
-	DATA_ANALYSIS(sequences_renamed, SSN_AND_GRAPH_CLUSTERING.out.network, all_annotations_and_structures, SSN_AND_GRAPH_CLUSTERING.out.tuple_network_edges)
+	DATA_ANALYSIS(sequences_renames_sort, SSN_AND_GRAPH_CLUSTERING.out.network, all_annotations_and_structures, SSN_AND_GRAPH_CLUSTERING.out.tuple_network_edges)
 }
 
 /*

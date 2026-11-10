@@ -36,7 +36,7 @@ workflow SSN_AND_GRAPH_CLUSTERING {
         if (alignments_file != null) {
             diamond_alignments = Channel.fromPath(alignments_file, checkIfExists: true)
         }
-        all_diamond_alignments = diamond_alignments.collectFile(name: "${params.outdir}/lagoon-mcl_output/alignments/diamond_alignments.tsv")
+        all_diamond_alignments = diamond_alignments.collectFile(name: "${params.outdir}/alignments/diamond_alignments.tsv")
 
         FILTER_ALIGNMENTS(all_diamond_alignments)
 

@@ -7,7 +7,7 @@ include { MMSEQS_CREATE_DB       } from '../modules/mmseqs2.nf'
 include { MMSEQS_SEARCH          } from '../modules/mmseqs2.nf'
 include { ANNOTATIONS_PROCESSING } from '../modules/data_processing.nf'
 include { ALPHAFOLD_ALIGNMENTS   } from '../modules/structure_searches.nf'
-include { ALPHAFOLD_INFORMATIONS } from '../modules/structure_searches.nf'
+// include { ALPHAFOLD_INFORMATIONS } from '../modules/structure_searches.nf'
 
 workflow STRUCTURE_SEARCHES {
 
@@ -34,14 +34,17 @@ workflow STRUCTURE_SEARCHES {
 
         split_alphafold_alignments = MMSEQS_SEARCH.out.search_m8
 
-        alphafold_alignments = split_alphafold_alignments.collectFile(name: "${params.outdir}/lagoon-mcl_output/alignments/mmseqs2_alpahfold_clusters_alignments.m8")
+        alphafold_alignments = split_alphafold_alignments.collectFile(name: "${params.outdir}/alignments/mmseqs2_alpahfold_clusters_alignments.m8")
 
-        ALPHAFOLD_ALIGNMENTS(alphafold_alignments)
+        ALPHAFOLD_ALIGNMENTS(alphafold_alignments, params.alphafold_clst_db)
+        alphafold_sequences_id = ALPHAFOLD_ALIGNMENTS.out.alphafold_sequences_id
+        alphafold_clusters_id = ALPHAFOLD_ALIGNMENTS.out.alphafold_clusters_id
+        alphafold_pfam = ALPHAFOLD_ALIGNMENTS.out.alphafold_pfam
 
-        ALPHAFOLD_INFORMATIONS(params.uniprot, ALPHAFOLD_ALIGNMENTS.out.alphafold_alignments_filter)
-        alphafold_sequences_id = ALPHAFOLD_INFORMATIONS.out.alphafold_sequences_id
-        alphafold_clusters_id = ALPHAFOLD_INFORMATIONS.out.alphafold_clusters_id
-        alphafold_pfam = ALPHAFOLD_INFORMATIONS.out.alphafold_pfam
+        //ALPHAFOLD_INFORMATIONS(params.uniprot, ALPHAFOLD_ALIGNMENTS.out.alphafold_alignments_filter)
+        //alphafold_sequences_id = ALPHAFOLD_INFORMATIONS.out.alphafold_sequences_id
+        //alphafold_clusters_id = ALPHAFOLD_INFORMATIONS.out.alphafold_clusters_id
+        //alphafold_pfam = ALPHAFOLD_INFORMATIONS.out.alphafold_pfam
         all_alphafold_annotations = alphafold_sequences_id.concat(alphafold_clusters_id).concat(alphafold_pfam)
 
         ANNOTATIONS_PROCESSING(sequences_renamed, all_alphafold_annotations)

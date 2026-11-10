@@ -6,17 +6,18 @@ Created on Tue Mar 11 15:17:02 2025
 @author: jrousseau
 """
 
+
 from argparse import ArgumentParser
 import gzip
 import json
 
 
-def main(args):
+def main(clusters, uniprot):
     s_alphafold = alphafold_cluster_database(args.clusters)
     print("Extract Pfam function for each UniProt ID")
     d_uniprot = uniprot_database(args.uniprot, s_alphafold)
     print("Export informations")
-    with open("uniprot_function.json", 'w') as json_file:
+    with open("tmp/uniprot_function.json", 'w') as json_file:
         json.dump(d_uniprot, json_file)
 
 def get_args():
@@ -103,5 +104,5 @@ def uniprot_database(uniprot, s_alphafold):
 
 if __name__ == '__main__':
     args = get_args()
-    main(args)
+    main(args.clusters, args.uniprot)
     

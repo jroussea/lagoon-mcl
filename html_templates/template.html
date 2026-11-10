@@ -95,44 +95,31 @@
     <header>
         <h1>{{ title }} reports</h1>
         <p>
-            Date: 
+            {{ date_generation }}
         </p>
     </header>
     <main class="content">
         <div class="paragraph">
             <p>
-                This ratio corresponds to the clustering performed using the inflation parameter 
-                {{ inflation }}.<br>
+                Le rapport concerne les clusters obtenus avec le pramètre d'inflation {{ inflation }} (MCL).<br>
             </p>
             <p>
-                The files used are:
+                Les fichiers utilisé pour générer ce rapports sont 
             </p>
             <ul>
-                <li>Clusters métrics [TSV file]: contains information about clusters 
-                    (diameter, number of sequences, homogenity score for each label)</li>
-                <li>List of edges in each cluster [TSV file]: all edges for each cluster</li>
-                <li>Sequence metrics [TSV file]: contains sequence information (length, centrality value, number of labels)</li>
-            </ul>
-            <p>
-                Clustering protocol:
-            </p>
-            <ul>
-                <li>Step 1: Build a sequence similarity network with Diamond BLASTp</li>
-                <li>Step 2: Cluster the network using the Markov CLustering algorithm (MCL). 
-                    The inflation parameter is used at this stage.</li>
-                <li>Step 3: retrieve the edges present in each MCL cluster from the- 
-                    sequence similarity network</li>
-            </ul>
-            <p>
-                Each MCL cluster is an independent sequence similarity network.
-            </p>
+                <li>Cluster metrics [network_I*_clusters_metrics.tsv]: contains various information about clusters
+                    such as: diameter, number of sequences per cluster, homogeneity score.</li>
+                <li>List of edges (alignments) [network_I*_edges.tsv]: contains all edges (alignment) used to build clusters.</li>
+                <li>Sequence metrics [network_I*_sequences_metrics.tsv]: contains various information about the sequences 
+                    such as length (amino acid), centrality, number of annotations or labels.</li>
+                </ul>
         </div>
 
         <!-- Part 1: Cluster description -->
 
         <h2>1. Clusters description</h2>
         <p class="paragraph">
-            The clustering obtained with the {{ inflation }} parameter is composed of {{ number_clusters }} clusters.
+            The clustering obtained with inflation parameter {{ inflation }} is composed of {{ number_clusters }} clusters
         </p>
         
             <h3>A. General description</h3>
@@ -260,7 +247,6 @@
                     {% endfor %}
                 </select>
             </div>
-            <h3>A. Sequences annotations</h3>
             <!-- Container for displaying image and DataFrame -->
             <div id="contentContainer2">
                 <div id="selectedImage" style="display:none;">
@@ -281,15 +267,6 @@
                 </div>
             </div>
 
-            <h3>B. </h3>
-            <p class="paragraph">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
-                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis 
-                nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
-                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in 
-                culpa qui officia deserunt mollit anim id est laborum.
-            </p>
         </div>
 
         <h2>3. Sequence description</h2>
@@ -308,17 +285,6 @@
         <div class="alignment">
             {{ reports_seq_metrics["dataframe"] | safe }}
         </div>
-
-        <h2>4. Others informations</h2>
-        <!-- Nextflow reports -->
-        <p class="paragraph">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis 
-            nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
-            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in 
-            culpa qui officia deserunt mollit anim id est laborum.
-        </p>
 
         <script>
             function updateContentMulti() {

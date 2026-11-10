@@ -18,10 +18,6 @@
 
 > van Dongen, S., & Abreu-Goodger, C. (2012). Using MCL to Extract Clusters from Networks. In J. van Helden, A. Toussaint, & D. Thieffry (Éds.), Bacterial Molecular Networks : Methods and Protocols (p. 281‑295). Springer. [https://doi.org/10.1007/978-1-61779-361-5_15](https://doi.org/10.1007/978-1-61779-361-5_15)
 
-* [**SeqKit2**](https://bioinf.shenwei.me/seqkit/)
-
-> Shen, W., Sipos, B., & Zhao, L. (2024). SeqKit2 : A Swiss army knife for sequence and alignment processing. iMeta, 3(3), e191. [https://doi.org/10.1002/imt2.191](https://doi.org/10.1002/imt2.191)
-
 * [**MMseqs2**](https://github.com/soedinglab/MMseqs2)
 
 > Steinegger, M., & Söding, J. (2017). MMseqs2 enables sensitive protein sequence searching for the analysis of massive data sets. Nature Biotechnology, 35(11), Article 11. [https://doi.org/10.1038/nbt.3988](https://doi.org/10.1038/nbt.3988)
@@ -32,7 +28,7 @@
 
 > Mistry, J., Chuguransky, S., Williams, L., Qureshi, M., Salazar, G. A., Sonnhammer, E. L. L., Tosatto, S. C. E., Paladin, L., Raj, S., Richardson, L. J., Finn, R. D., & Bateman, A. (2021). Pfam : The protein families database in 2021. Nucleic Acids Research, 49(D1), D412‑D419. [https://doi.org/10.1093/nar/gkaa913](https://doi.org/10.1093/nar/gkaa913)
 
-* [**AlphaFold clusters database**]
+* [**AlphaFold clusters database**]()
 
 > Barrio-Hernandez, I., Yeo, J., Jänes, J., Mirdita, M., Gilchrist, C. L. M., Wein, T., Varadi, M., Velankar, S., Beltrao, P., & Steinegger, M. (2023). Clustering predicted structures at the scale of the known protein universe. Nature, 622(7983), 637‑645. [https://doi.org/10.1038/s41586-023-06510-w](https://doi.org/10.1038/s41586-023-06510-w)
 
@@ -42,7 +38,9 @@
 
 ## Software packaging / containerisation tools
 
-* [**Singularity**](https://sylabs.io/singularity/)
+* [**Apptainer**](https://apptainer.org/) 
+
+> Singularity Developers. (2021). Singularity. [https://doi.org/10.5281/zenodo.1310023](https://doi.org/10.5281/zenodo.1310023)
 
 > Kurtzer, G. M., Sochat, V., & Bauer, M. W. (2017). Singularity : Scientific containers for mobility of compute. PLOS ONE, 12(5), e0177459. [https://doi.org/10.1371/journal.pone.0177459](https://doi.org/10.1371/journal.pone.0177459)
 
@@ -53,3 +51,6 @@
 * [**Docker**](https://www.docker.com/)
 
 > Merkel, D. (2014). Docker : Lightweight Linux containers for consistent development and deployment. Linux J., 2014(239), 2:2.
+
+* [**Conda and Mamba**](https://mamba.readthedocs.io/en/latest/)
+

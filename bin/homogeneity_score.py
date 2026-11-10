@@ -328,6 +328,7 @@ def homogeneity_score(d_network, d_label, homogeneity_score):
     """
     for key in d_network:
         
+        # -----------
         if homogeneity_score == "all":
             divisor = len(set(d_network[key]["protein_accession"]))
         elif homogeneity_score == "annot":
@@ -336,12 +337,11 @@ def homogeneity_score(d_network, d_label, homogeneity_score):
         
         d_network[key]["label"] = list(set(d_network[key]["label"])) 
 
-        if len(d_network[key]["label"]) == 1:
+        # -----------
+        if len(d_network[key]["label"]) == 1 and d_network[key]["sequence_annotated"] > 1:
             d_network[key][s_key] = 1
-            
-            
-            
-        elif len(d_network[key]["label"]) > 1:
+        # -----------
+        elif len(d_network[key]["label"]) > 1 and d_network[key]["sequence_annotated"] > 1:
         
             hom_sc = 1 - (len(set(d_network[key]["label"])) / divisor)
 
@@ -351,7 +351,7 @@ def homogeneity_score(d_network, d_label, homogeneity_score):
                 hom_sc = 1 - (len(set(l_label_select)) / len(set(d_network[key]["protein_accession"])))
                 
             d_network[key][s_key] = hom_sc
-            
+        # -----------
         else:
             d_network[key][s_key] = 'NA'
 
@@ -438,7 +438,12 @@ def write_labels_file(output_labels, d_network, database):
 
 
 def abundance_matrix(d_network, database, basename):
+    """
     
+    Parameters
+    ----------
+    
+    """
     d_abundance = dict()
     for key, value in d_network.items():
         if value["all_label"]:

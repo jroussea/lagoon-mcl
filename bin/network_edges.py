@@ -32,6 +32,7 @@ def main(args):
     alignments_selection(args.alignment, d_network, args.basename)
 
 
+
 def get_args():
     """
     Parse arguments
@@ -73,9 +74,10 @@ def read_network_file(network):
     d_network = dict()
 
     with open(network, 'r') as f_network:
-        for row in f_network:
-            l_row = row.rstrip("\n").split('\t')
-            d_network[l_row[1]] = l_row[0]
+        for position, row in enumerate(f_network):
+            if position != 0:
+                l_row = row.rstrip("\n").split('\t')
+                d_network[l_row[1]] = l_row[0]
 
     return d_network
 
@@ -112,6 +114,9 @@ def alignments_selection(diamond, d_network, basename):
                     f_edge.write('\t'.join(l_output) + '\n')
 
     f_edge.close()
+
+
+
 
 if __name__ == '__main__':
     args = get_args()

@@ -87,3 +87,4 @@ process CHECKS_TSV {
         checks_inputs.py -i ${file} -t label -n ${annotation}
         """
 }
+

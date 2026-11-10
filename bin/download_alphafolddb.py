@@ -27,11 +27,14 @@ def get_args():
                         help = "Liste des séquences et clsuter présent dans AlphaFold Cluster", 
                         required = True)
     
+    parser.add_argument("-o", "--output", type = str,
+                        help = "Liste des séquences et clsuter présent dans AlphaFold Cluster", 
+                        required = True)
     
     return parser.parse_args()
 
 
-def alphafold_foldseek(alphafold_sequences):
+def alphafold_foldseek(alphafold_sequences, output):
     """
     Écriture d'une fichier TXT qui liste les identifiants des séquences en rajoutant les 
     termes : AFDB:AF-[...]-F1 présent dans les identifants des séquences AlphaFold.
@@ -49,7 +52,7 @@ def alphafold_foldseek(alphafold_sequences):
     None.
 
     """
-    file = open("sequences_id_alphafold_cluster_foldseek.txt", "w")
+    file = open(output, "w")
 
     with open(alphafold_sequences, "r") as f_alphafold_cluster:
         
@@ -61,7 +64,7 @@ def alphafold_foldseek(alphafold_sequences):
     file.close()
 
 
-def main(args):
+def main(alphafold, output):
     """
     AlphaFold Cluster database :
         Site web : https://cluster.foldseek.com/
@@ -72,12 +75,12 @@ def main(args):
         Paper : https://doi.org/10.1093/nar/gkad1011
 
     """
-    alphafold_foldseek(args.alphafold)
+    alphafold_foldseek(alphafold, output)
 
 
 if __name__ == '__main__':
     args = get_args()
-    main(args)
+    main(args.alphafold, args.output)
 
 
 
